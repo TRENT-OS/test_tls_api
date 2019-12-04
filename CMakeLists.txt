@@ -1,0 +1,124 @@
+cmake_minimum_required(VERSION 3.7.2)
+
+seos_set_config_file(config.h)
+
+seos_use_libs(
+    SEOS_LIBS
+    SEOS_LIBS_LOGGER
+    SEOS_NW_STACK
+    SEOS_NETWORK_DRIVER_TAP_PROXY
+    SEOS_CRYPTO
+    SEOS_CRYPTO_IMPL_MBEDTLS
+    SEOS_TLS
+    SEOS_TLS_IMPL_MBEDTLS
+)
+
+project(tests_tls_api C)
+
+DeclareCAmkESComponent(TEST_TLS
+    INCLUDES
+        common
+        components/TlsRpcServer/src/
+    SOURCES
+        components/TEST_TLS/src/testRunner.c
+        ${SEOS_LIBS_DIR}/seos_nwstack/network-client-lib/seos_nw_api_interface.c
+    C_FLAGS
+        -Wall -Werror -DSEOS_NWSTACK_AS_CLIENT -DCLIENT_CONFIG
+    LIBS
+        seos_core_api
+        seos_libs
+        seos_crypto
+        seos_tls
+)
+
+DeclareCAmkESComponent(TlsRpcServer
+    INCLUDES
+        common
+        components/TlsRpcServer/src/
+    SOURCES
+        components/TlsRpcServer/src/TlsRpcServer.c
+        ${SEOS_LIBS_DIR}/seos_tls/src/SeosTlsRpcServer.c
+        ${SEOS_LIBS_DIR}/seos_nwstack/network-client-lib/seos_nw_api_interface.c
+    C_FLAGS
+        -Wall -Werror
+        # We need to ensure that when compiling this file we have set all the
+        # mbedTLS defines set when compiling the TLS library. The reason for this
+        # is that it pulls in mbedTLS structs on its own and these need to match
+        # those in the lib.
+        -DMBEDTLS_CONFIG_FILE="${SEOS_LIBS_DIR}/seos_tls/configs/MbedTLS_Config.h"
+        -DCOMPILE_AS_RPC_SERVER
+        # For NW stack
+        -DSEOS_NWSTACK_AS_CLIENT -DCLIENT_CONFIG
+    LIBS
+        seos_core_api
+        seos_libs
+        seos_crypto
+        seos_tls
+)
+
+DeclareCAmkESComponent(NwStack_Tap0
+    INCLUDES
+         components/ChanMux/src/instance
+    SOURCES
+        components/NwStack/src/Nw_Tap0.c
+    C_FLAGS
+        -Wall -Werror -DSEOS_NWSTACK_AS_CLIENT -DCLIENT_CONFIG
+    LIBS
+        seos_libs
+        seos_nw_lib
+        seos_nw_driver_tap_proxy_lib
+)
+
+DeclareCAmkESComponent(NwStack_Tap1
+    INCLUDES
+         components/ChanMux/src/instance
+    SOURCES
+        components/NwStack/src/Nw_Tap1.c
+    C_FLAGS
+        -Wall -Werror -DSEOS_NWSTACK_AS_CLIENT -DCLIENT_CONFIG
+    LIBS
+        seos_libs
+        seos_nw_lib
+        seos_nw_driver_tap_proxy_lib
+)
+
+DeclareCAmkESComponent(ChanMux
+    SOURCES
+        components/ChanMux/src/instance/ChanMux_Instance.c
+    C_FLAGS
+        -Wall -Werror
+    LIBS
+        seos_libs
+)
+
+DeclareCAmkESComponent(UartDrv
+    SOURCES
+        components/UART/src/UartDrv.c
+        components/UART/src/qemu_uart.c
+    C_FLAGS
+        -Wall -Werror
+    LIBS
+        seos_libs
+)
+
+DeclareCAmkESComponent(TimerClient
+    SOURCES
+        components/TimerClient/src/Timer_Client.c
+    C_FLAGS
+        -Wall -Werror
+    LIBS
+        seos_libs
+)
+
+DeclareCAmkESComponent(Timer
+    SOURCES
+        components/Timer/src/timer.c
+    C_FLAGS
+        -Wall -Werror
+    LIBS
+        seos_libs
+)
+
+DeclareCAmkESRootserver(main.camkes)
+GenerateCAmkESRootServer()
+GenerateSimulateScript()

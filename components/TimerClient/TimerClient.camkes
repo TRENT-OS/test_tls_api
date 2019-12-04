@@ -1,0 +1,18 @@
+/*
+ *  SEOS timer client
+ *
+ *  Copyright (C) 2019, Hensoldt Cyber GmbH
+ *
+ */
+
+import "TimerClientInf.camkes";
+import "../Timer/TimerInf.camkes";
+
+component TimerClient {
+    control;
+    uses       timer_inf        Timer;
+    provides   timer_client_inf TimerClient;
+
+    emits  NwStack_DataAvailable    e_timeout_nwstacktick;
+    emits  NwStack_DataAvailable_2  e_timeout_nwstacktick_2;
+}

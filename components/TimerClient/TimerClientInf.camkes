@@ -1,0 +1,10 @@
+/*
+ *  SEOS Timer  Interface
+ *
+ *  Copyright (C) 2019, Hensoldt Cyber GmbH
+ *
+ */
+
+procedure timer_client_inf {
+    unsigned getTimeMs(void);
+};

@@ -1,0 +1,23 @@
+/*
+ *  Camkes TLS component
+ *
+ *  Copyright (C) 2019, Hensoldt Cyber GmbH
+ *
+ */
+
+import "../NwStack/NwStackInf.camkes";
+
+import "TlsRpcServerInf.camkes";
+import "SeosTlsRpcServerInf.camkes";
+
+component TlsRpcServer {
+    control;
+
+    uses        NwStackInf              seos;
+    dataport    Buf                     NwAppDataPort;
+
+    provides    TlsRpcServerInf         TlsRpcServer;
+
+    provides    SeosTlsRpcServerInf     SeosTlsRpcServer;
+    dataport    Buf                     tlsServerDataport;
+}

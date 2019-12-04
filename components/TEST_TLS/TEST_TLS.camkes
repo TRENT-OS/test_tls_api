@@ -1,0 +1,23 @@
+/*
+ *  SEOS TLS Test Interface
+ *
+ *  Copyright (C) 2019, Hensoldt Cyber GmbH
+ *
+ */
+
+import "../NwStack/NwStackInf.camkes";
+
+import "../TlsRpcServer/TlsRpcServerInf.camkes";
+import "../TlsRpcServer/SeosTlsRpcServerInf.camkes";
+
+component TEST_TLS {
+    control;
+
+    uses        NwStackInf          seos;
+    dataport    Buf                 NwAppDataPort;
+
+    uses        TlsRpcServerInf     TlsRpcServer;
+
+    uses        SeosTlsRpcServerInf SeosTlsRpcServer;
+    dataport    Buf                 tlsClientDataport;
+}
