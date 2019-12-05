@@ -9,22 +9,26 @@ import "ChanMuxInf.camkes";
 import "../UART/UartInf.camkes";
 
 component ChanMux {
-    provides       ChanMuxNwStackInf        ChanMuxNwStack;
+    provides       ChanMuxDriverInf         ChanMux_driver;
+
     //-------------------------------------------------
-    // Network Stack interface
-    dataport       Buf                      nwStackDataPort;
-    dataport       Buf                      nwStackCtrlDataPort;
-    emits          NwStack_DataAvailable    e_read_nwstacktick;
+    // interface Ethernet NIC driver #1
+    dataport       Buf                      port_nic_1_ctrl;
+    dataport       Buf                      port_nic_1_data_read;
+    dataport       Buf                      port_nic_1_data_write;
+    emits          NwDriver_DataAvailable   event_nic_1_hasData;
 
 
     //-------------------------------------------------
-    // Network Stack 2 interface
-    dataport       Buf                      nwStackDataPort_2;
-    dataport       Buf                      nwStackCtrlDataPort_2;
-    emits          NwStack_DataAvailable_2  e_read_nwstacktick_2;
+    // interface Ethernet NIC driver #2
+    dataport       Buf                      port_nic_2_ctrl;
+    dataport       Buf                      port_nic_2_data_read;
+    dataport       Buf                      port_nic_2_data_write;
+    emits          NwDriver_DataAvailable   event_nic_2_hasData;
+
 
     //-------------------------------------------------
-    // MUX Uart interface
+    // interface UART
     dataport      Buf                       outputDataPort;
     uses          UartInf                   Output;
     provides      ChanMuxOutInf             ChanMuxOut;

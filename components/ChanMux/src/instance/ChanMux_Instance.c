@@ -11,6 +11,10 @@
 #include "assert.h"
 #include <camkes.h>
 
+#define NO_CHANMUX_FIFO         { .buffer = NULL, .len = 0 }
+#define NO_CHANMUX_DATA_PORT    { .io = NULL, .len = 0 }
+
+
 static uint8_t nwFifoBuf[PAGE_SIZE];
 static uint8_t nwCtrFifoBuf[128];
 
@@ -25,103 +29,52 @@ static const ChanMuxConfig_t cfgChanMux =
         .len = PAGE_SIZE
     },
     .channelsFifos = {
-        {
-            // Channel 0
-            .buffer = NULL,
-            .len = 0,
-        },
-        {
-            // Channel 1
-            .buffer = NULL,
-            .len = 0,
-        },
-        {
-            // Channel 2
-            .buffer = NULL,
-            .len = 0,
-        },
-        {
-            // Channel 3
-            .buffer = NULL,
-            .len = 0,
-        },
-        {
-            // Channel 4
-            .buffer = nwCtrFifoBuf,
-            .len = sizeof(nwCtrFifoBuf)
-        },
-        {
-            // Channel 5
-            .buffer = nwFifoBuf,
-            .len = sizeof(nwFifoBuf)
-
-        },
-
-        {
-            // Channel 6
-            .buffer = NULL,
-            .len = 0,
-        },
-
-        {
-            //channel 7
-            .buffer = nwCtrFifoBuf_2,
-            .len = sizeof(nwCtrFifoBuf_2)
-
-        },
-
-        {
-            //channel 8
-            .buffer = nwFifoBuf_2,
-            .len = sizeof(nwFifoBuf_2)
-        }
-
+        NO_CHANMUX_FIFO,
+        NO_CHANMUX_FIFO,
+        NO_CHANMUX_FIFO,
+        NO_CHANMUX_FIFO,
+        { .buffer = nwCtrFifoBuf,   .len = sizeof(nwCtrFifoBuf) },
+        { .buffer = nwFifoBuf,      .len = sizeof(nwFifoBuf) },
+        NO_CHANMUX_FIFO,
+        { .buffer = nwCtrFifoBuf_2, .len = sizeof(nwCtrFifoBuf_2) },
+        { .buffer = nwFifoBuf_2,    .len = sizeof(nwFifoBuf_2) }
     }
 };
 
 
-const ChannelDataport_t dataports[] =
+typedef struct {
+    ChannelDataport_t  read;
+    ChannelDataport_t  write;
+} dataport_rw_t;
+
+#define CHANMUX_DATA_PORT( _pBuf_, _len_ )     { .io = _pBuf_, .len = _len_ }
+
+#define CHANMUX_DATA_PORT_RW_SHARED(_pBuf_, _len_) \
+            { \
+                .read = CHANMUX_DATA_PORT(_pBuf_, _len_), \
+                .write = CHANMUX_DATA_PORT(_pBuf_, _len_) \
+            }
+
+#define NO_CHANMUX_DATA_PORT_RW     CHANMUX_DATA_PORT_RW_SHARED(NULL, 0)
+
+
+static const dataport_rw_t dataports[] =
 {
+    NO_CHANMUX_DATA_PORT_RW,
+    NO_CHANMUX_DATA_PORT_RW,
+    NO_CHANMUX_DATA_PORT_RW,
+    NO_CHANMUX_DATA_PORT_RW,
+    CHANMUX_DATA_PORT_RW_SHARED( (void**)&port_nic_1_ctrl, PAGE_SIZE ),
     {
-        .io = NULL,
-        .len = PAGE_SIZE
+        .read  = CHANMUX_DATA_PORT( (void**)&port_nic_1_data_read,  PAGE_SIZE ),
+        .write = CHANMUX_DATA_PORT( (void**)&port_nic_1_data_write, PAGE_SIZE )
     },
+    NO_CHANMUX_DATA_PORT_RW,
+    CHANMUX_DATA_PORT_RW_SHARED( (void**)&port_nic_2_ctrl, PAGE_SIZE ),
     {
-        .io = NULL,
-        .len = PAGE_SIZE
-    },
-    {
-        .io = NULL,
-        .len = PAGE_SIZE
-    },
-    {
-        .io = NULL,
-        .len = PAGE_SIZE
-    },
-    {
-        .io = (void**) &nwStackCtrlDataPort,
-        .len = PAGE_SIZE
-    },
-    {
-        .io = (void**) &nwStackDataPort,
-        .len = PAGE_SIZE
-    },
-    {
-        .io  = NULL,
-        .len = PAGE_SIZE
-    },
-
-    {
-        .io  = (void**) &nwStackCtrlDataPort_2,
-        .len = PAGE_SIZE
-    },
-
-    {
-        .io  = (void**) &nwStackDataPort_2,
-        .len = PAGE_SIZE
+        .read  = CHANMUX_DATA_PORT( (void**) &port_nic_2_data_read,  PAGE_SIZE ),
+        .write = CHANMUX_DATA_PORT( (void**) &port_nic_2_data_write, PAGE_SIZE )
     }
-
-
 };
 
 
@@ -141,16 +94,15 @@ ChanMux_dataAvailable_emit(
     switch (chanNum)
     {
     //---------------------------------
-    //---------------------------------
     case CHANNEL_NW_STACK_DATA:
     case CHANNEL_NW_STACK_CTRL:
-        e_read_nwstacktick_emit();
+        event_nic_1_hasData_emit();
         break;
 
     //---------------------------------
     case CHANNEL_NW_STACK_DATA_2:
     case CHANNEL_NW_STACK_CTRL_2:
-        e_read_nwstacktick_2_emit();
+        event_nic_2_hasData_emit();
         break;
 
 
@@ -202,7 +154,7 @@ ChanMuxOut_takeByte(char byte)
 
 //------------------------------------------------------------------------------
 seos_err_t
-ChanMuxNwStack_write(
+ChanMux_driver_write(
     unsigned int  chanNum,
     size_t        len,
     size_t*       lenWritten)
@@ -221,7 +173,7 @@ ChanMuxNwStack_write(
     case CHANNEL_NW_STACK_DATA_2:
     case CHANNEL_NW_STACK_CTRL_2:
 
-        dp = &dataports[chanNum];
+        dp = &dataports[chanNum].write;
         break;
     //---------------------------------
     default:
@@ -241,7 +193,7 @@ ChanMuxNwStack_write(
 
 //------------------------------------------------------------------------------
 seos_err_t
-ChanMuxNwStack_read(
+ChanMux_driver_read(
     unsigned int  chanNum,
     size_t        len,
     size_t*       lenRead)
@@ -259,7 +211,7 @@ ChanMuxNwStack_read(
     case CHANNEL_NW_STACK_CTRL:
     case CHANNEL_NW_STACK_DATA_2:
     case CHANNEL_NW_STACK_CTRL_2:
-        dp = &dataports[chanNum];
+        dp = &dataports[chanNum].read;
         break;
     //---------------------------------
     default:

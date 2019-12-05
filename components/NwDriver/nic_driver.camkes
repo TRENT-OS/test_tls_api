@@ -1,0 +1,51 @@
+/*
+ *  SEOS Network TAP Chanmux Driver
+ *
+ *  Copyright (C) 2019, Hensoldt Cyber GmbH
+ *
+ */
+
+import "../ChanMux/ChanMuxInf.camkes";
+import "../NwStack/NwStackInf.camkes";
+
+import "NwDriverInf.camkes";
+
+
+//------------------------------------------------------------------------------
+component NwDriver_1 {
+
+    control;
+
+    uses        ChanMuxDriverInf        ChanMux;
+    consumes    NwDriver_DataAvailable  event_chanMux_hasData;
+    dataport    Buf                     port_chanMux_ctrl;
+    dataport    Buf                     port_chanMux_data_read;
+    dataport    Buf                     port_chanMux_data_write;
+
+    provides    NwDriverInf             nic_driver;
+    emits       ServiceReady            event_init_done;
+    emits       NwStack_DataAvailable   event_nwstack_hasData;
+    dataport    Buf                     port_nwStack_to;   // driver -> network stack
+    dataport    Buf                     port_nwStack_from; // network stack -> driver
+
+}
+
+
+//------------------------------------------------------------------------------
+component NwDriver_2 {
+
+    control;
+
+    uses        ChanMuxDriverInf        ChanMux;
+    consumes    NwDriver_DataAvailable  event_chanMux_hasData;
+    dataport    Buf                     port_chanMux_ctrl;
+    dataport    Buf                     port_chanMux_data_read;
+    dataport    Buf                     port_chanMux_data_write;
+
+    provides    NwDriverInf             nic_driver;
+    emits       ServiceReady            event_init_done;
+    emits       NwStack_DataAvailable   event_nwstack_hasData;
+    dataport    Buf                     port_nwStack_to;   // driver -> network stack
+    dataport    Buf                     port_nwStack_from; // network stack -> driver
+
+}

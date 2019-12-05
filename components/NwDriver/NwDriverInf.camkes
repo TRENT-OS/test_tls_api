@@ -1,0 +1,16 @@
+/*
+ *  SEOS Nw Driver Interface
+ *
+ *  Copyright (C) 2019, Hensoldt Cyber GmbH
+ *
+ */
+
+
+procedure NwDriverInf {
+
+    include "SeosError.h";
+
+    seos_err_t  tx_data(inout size_t len);
+    seos_err_t  get_mac(void);
+
+};

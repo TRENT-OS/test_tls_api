@@ -23,7 +23,8 @@ DeclareCAmkESComponent(TEST_TLS
         components/TEST_TLS/src/testRunner.c
         ${SEOS_LIBS_DIR}/seos_nwstack/network-client-lib/seos_nw_api_interface.c
     C_FLAGS
-        -Wall -Werror -DSEOS_NWSTACK_AS_CLIENT -DCLIENT_CONFIG
+        -Wall -Werror
+        -DCLIENT_CONFIG=1
     LIBS
         seos_core_api
         seos_libs
@@ -48,7 +49,7 @@ DeclareCAmkESComponent(TlsRpcServer
         -DMBEDTLS_CONFIG_FILE="${SEOS_LIBS_DIR}/seos_tls/configs/MbedTLS_Config.h"
         -DCOMPILE_AS_RPC_SERVER
         # For NW stack
-        -DSEOS_NWSTACK_AS_CLIENT -DCLIENT_CONFIG
+        -DCLIENT_CONFIG=1
     LIBS
         seos_core_api
         seos_libs
@@ -56,29 +57,63 @@ DeclareCAmkESComponent(TlsRpcServer
         seos_tls
 )
 
-DeclareCAmkESComponent(NwStack_Tap0
+DeclareCAmkESComponent(NwStack_1
     INCLUDES
-         components/ChanMux/src/instance
+        components/ChanMux/src/instance
+        config
     SOURCES
-        components/NwStack/src/Nw_Tap0.c
+        components/NwStack/network_stack_1.c
     C_FLAGS
-        -Wall -Werror -DSEOS_NWSTACK_AS_CLIENT -DCLIENT_CONFIG
+        -Wall -Werror
+        -DSEOS_NWSTACK_AS_CLIENT
     LIBS
+        seos_core_api
         seos_libs
         seos_nw_lib
+)
+
+DeclareCAmkESComponent(NwDriver_1
+    INCLUDES
+        components/ChanMux/src/instance
+        config
+    SOURCES
+        components/NwDriver/nic_driver_common.c
+        components/NwDriver/nic_driver_1.c
+    C_FLAGS
+        -Wall -Werror
+    LIBS
+        seos_core_api
+        seos_libs
         seos_nw_driver_tap_proxy_lib
 )
 
-DeclareCAmkESComponent(NwStack_Tap1
+DeclareCAmkESComponent(NwStack_2
     INCLUDES
-         components/ChanMux/src/instance
+        components/ChanMux/src/instance
+        config
     SOURCES
-        components/NwStack/src/Nw_Tap1.c
+        components/NwStack/network_stack_2.c
     C_FLAGS
-        -Wall -Werror -DSEOS_NWSTACK_AS_CLIENT -DCLIENT_CONFIG
+        -Wall -Werror
+        -DSEOS_NWSTACK_AS_CLIENT
     LIBS
+        seos_core_api
         seos_libs
         seos_nw_lib
+)
+
+DeclareCAmkESComponent(NwDriver_2
+    INCLUDES
+        components/ChanMux/src/instance
+        config
+    SOURCES
+        components/NwDriver/nic_driver_common.c
+        components/NwDriver/nic_driver_2.c
+    C_FLAGS
+        -Wall -Werror
+    LIBS
+        seos_core_api
+        seos_libs
         seos_nw_driver_tap_proxy_lib
 )
 

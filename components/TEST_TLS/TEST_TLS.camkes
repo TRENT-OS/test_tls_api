@@ -13,11 +13,13 @@ import "../TlsRpcServer/SeosTlsRpcServerInf.camkes";
 component TEST_TLS {
     control;
 
-    uses        NwStackInf          seos;
+    // Networking
+    uses        NwStackInf          network_stack_rpc;
     dataport    Buf                 NwAppDataPort;
+    consumes    ServiceReady        event_network_stack_init_done;
 
+    // TLS
     uses        TlsRpcServerInf     TlsRpcServer;
-
     uses        SeosTlsRpcServerInf SeosTlsRpcServer;
     dataport    Buf                 tlsClientDataport;
 }
