@@ -9,10 +9,13 @@
  * Copyright (C) 2019, Hensoldt Cyber GmbH
  */
 
+#include "SeosCryptoApi.h"
+#include "SeosCryptoRpcClient.h"
+#include "SeosCryptoLib.h"
+
 #include "LibDebug/Debug.h"
 
 #include "SeosTlsApi.h"
-#include "SeosCryptoApi.h"
 #include "TlsRpcServer.h"
 
 #include "SeosError.h"
@@ -29,9 +32,9 @@
 extern seos_err_t Seos_NwAPP_RT(Seos_nw_context ctx);
 
 static int
-sendFunc(void*                  ctx,
-         const unsigned char*   buf,
-         size_t                 len)
+sendFunc(void*                ctx,
+         const unsigned char* buf,
+         size_t               len)
 {
     seos_err_t err;
     seos_socket_handle_t* sockHandle = (seos_socket_handle_t*) ctx;
@@ -67,9 +70,9 @@ recvFunc(void*          ctx,
 }
 
 static int
-entropyFunc(void*           ctx,
-            unsigned char*  buf,
-            size_t          len)
+entropyFunc(void*          ctx,
+            unsigned char* buf,
+            size_t         len)
 {
     // This would be the platform specific function to obtain entropy
     memset(buf, 0, len);
@@ -129,11 +132,11 @@ getIndexTls(SeosTlsApi_Context* ctx)
 
 static void
 initLib(SeosTlsApi_Context*   ctx,
-        SeosCrypto*           crypto,
+        SeosCryptoLib*        crypto,
         seos_socket_handle_t* sockHandle)
 {
     seos_err_t err;
-    SeosCrypto_Callbacks cryptoCfg =
+    SeosCryptoApi_Callbacks cryptoCfg =
     {
         .malloc     = malloc,
         .free       = free,
@@ -197,11 +200,11 @@ initLib(SeosTlsApi_Context*   ctx,
     err = Seos_client_socket_create(NULL, &socketCfg, sockHandle);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
-    err = SeosCrypto_init(crypto, &cryptoCfg, NULL);
+    err = SeosCryptoLib_init(crypto, &cryptoCfg, NULL);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
     exampleCfg.config.library.crypto.context =
-        SeosCrypto_TO_SEOS_CRYPTO_CTX(crypto);
+        SeosCryptoLib_TO_SEOS_CRYPTO_CTX(crypto);
     exampleCfg.config.library.socket.context = sockHandle;
 
     err = SeosTlsApi_init(ctx, &exampleCfg);
@@ -210,12 +213,12 @@ initLib(SeosTlsApi_Context*   ctx,
 
 static void
 freeLib(SeosTlsApi_Context*   ctx,
-        SeosCrypto*           crypto,
+        SeosCryptoLib*        crypto,
         seos_socket_handle_t* sockHandle)
 {
     seos_err_t err;
 
-    err = SeosCrypto_free(SeosCrypto_TO_SEOS_CRYPTO_CTX(crypto));
+    err = SeosCryptoLib_free(SeosCryptoLib_TO_SEOS_CRYPTO_CTX(crypto));
     Debug_ASSERT(SEOS_SUCCESS == err);
 
     err = SeosTlsApi_free(ctx);
@@ -223,8 +226,8 @@ freeLib(SeosTlsApi_Context*   ctx,
 }
 
 static void
-initRpcClient(SeosTlsApi_Context*        ctx,
-              SeosTlsRpcServer_Handle*   rpcHandle)
+initRpcClient(SeosTlsApi_Context*      ctx,
+              SeosTlsRpcServer_Handle* rpcHandle)
 {
     seos_err_t err;
     TlsRpcServer_Config hostCfg =
@@ -248,8 +251,8 @@ initRpcClient(SeosTlsApi_Context*        ctx,
 }
 
 static void
-freeRpcClient(SeosTlsApi_Context*        ctx,
-              SeosTlsRpcServer_Handle*   rpcHandle)
+freeRpcClient(SeosTlsApi_Context*      ctx,
+              SeosTlsRpcServer_Handle* rpcHandle)
 {
     seos_err_t err;
 
@@ -282,7 +285,7 @@ testTls_lib()
 {
     seos_err_t err;
     SeosTlsApi_Context tlsCtx;
-    SeosCrypto crypto;
+    SeosCryptoLib crypto;
     seos_socket_handle_t socket;
 
     initLib(&tlsCtx, &crypto, &socket);

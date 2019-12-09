@@ -6,6 +6,9 @@
 
 #include "TlsRpcServer.h"
 
+#include "SeosCryptoApi.h"
+#include "SeosCryptoLib.h"
+
 #include "seos_nw_api.h"
 
 #include <camkes.h>
@@ -78,7 +81,7 @@ static SeosTlsApi_Config serverCfg =
     }
 };
 
-static const SeosCrypto_Callbacks cryptoConfig =
+static const SeosCryptoApi_Callbacks cryptoConfig =
 {
     .malloc     = malloc,
     .free       = free,
@@ -86,8 +89,8 @@ static const SeosCrypto_Callbacks cryptoConfig =
 };
 
 static SeosTlsApi_Context       tlsContext;
-static SeosCrypto               seosCrypto;
-static SeosCryptoCtx*           cryptoContext;
+static SeosCryptoLib            seosCrypto;
+static SeosCryptoApi_Context*   cryptoContext;
 static seos_socket_handle_t     socket;
 static TlsRpcServer_Config      config;
 
@@ -162,9 +165,9 @@ TlsRpcServer_init(SeosTlsRpcServer_Handle*  ctx,
     err = Seos_client_socket_create(NULL, &socketCfg, &socket);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
-    err = SeosCrypto_init(&seosCrypto, &cryptoConfig, NULL);
+    err = SeosCryptoLib_init(&seosCrypto, &cryptoConfig, NULL);
     Debug_ASSERT(SEOS_SUCCESS == err);
-    cryptoContext = SeosCrypto_TO_SEOS_CRYPTO_CTX(&seosCrypto);
+    cryptoContext = SeosCryptoLib_TO_SEOS_CRYPTO_CTX(&seosCrypto);
 
     serverCfg.config.server.dataport               = tlsServerDataport;
     serverCfg.config.server.library.socket.context = &socket;
@@ -195,7 +198,7 @@ TlsRpcServer_free()
     err = SeosTlsApi_free(&tlsContext);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
-    err = SeosCrypto_free(cryptoContext);
+    err = SeosCryptoLib_free(cryptoContext);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
     return 0;

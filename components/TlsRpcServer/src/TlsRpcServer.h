@@ -18,5 +18,3 @@ TlsRpcServer_init(SeosTlsRpcServer_Handle* ctx, TlsRpcServer_Config cfg);
 
 seos_err_t
 TlsRpcServer_free();
-
-/** @} */
