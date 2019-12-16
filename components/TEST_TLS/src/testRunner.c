@@ -10,12 +10,10 @@
  */
 
 #include "SeosCryptoApi.h"
-#include "SeosCryptoRpcClient.h"
-#include "SeosCryptoLib.h"
+#include "SeosTlsApi.h"
 
 #include "LibDebug/Debug.h"
 
-#include "SeosTlsApi.h"
 #include "TlsRpcServer.h"
 
 #include "SeosError.h"
@@ -132,15 +130,21 @@ getIndexTls(SeosTlsApi_Context* ctx)
 
 static void
 initLib(SeosTlsApi_Context*   ctx,
-        SeosCryptoLib*        crypto,
+        SeosCryptoApi*        crypto,
         seos_socket_handle_t* sockHandle)
 {
     seos_err_t err;
-    SeosCryptoApi_Callbacks cryptoCfg =
+    SeosCryptoApi_Config cryptoCfg =
     {
-        .malloc     = malloc,
-        .free       = free,
-        .entropy    = entropyFunc
+        .mode = SeosCryptoApi_Mode_LIBRARY,
+        .mem = {
+            .malloc = malloc,
+            .free = free,
+        },
+        .impl.lib.rng = {
+            .entropy = entropyFunc,
+            .context = NULL
+        }
     };
     seos_nw_client_struct socketCfg =
     {
@@ -200,11 +204,10 @@ initLib(SeosTlsApi_Context*   ctx,
     err = Seos_client_socket_create(NULL, &socketCfg, sockHandle);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
-    err = SeosCryptoLib_init(crypto, &cryptoCfg, NULL);
+    err = SeosCryptoApi_init(crypto, &cryptoCfg);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
-    exampleCfg.config.library.crypto.context =
-        SeosCryptoLib_TO_SEOS_CRYPTO_CTX(crypto);
+    exampleCfg.config.library.crypto.context = crypto;
     exampleCfg.config.library.socket.context = sockHandle;
 
     err = SeosTlsApi_init(ctx, &exampleCfg);
@@ -213,12 +216,12 @@ initLib(SeosTlsApi_Context*   ctx,
 
 static void
 freeLib(SeosTlsApi_Context*   ctx,
-        SeosCryptoLib*        crypto,
+        SeosCryptoApi*        crypto,
         seos_socket_handle_t* sockHandle)
 {
     seos_err_t err;
 
-    err = SeosCryptoLib_free(SeosCryptoLib_TO_SEOS_CRYPTO_CTX(crypto));
+    err = SeosCryptoApi_free(crypto);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
     err = SeosTlsApi_free(ctx);
@@ -285,7 +288,7 @@ testTls_lib()
 {
     seos_err_t err;
     SeosTlsApi_Context tlsCtx;
-    SeosCryptoLib crypto;
+    SeosCryptoApi crypto;
     seos_socket_handle_t socket;
 
     initLib(&tlsCtx, &crypto, &socket);

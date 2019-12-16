@@ -1,13 +1,10 @@
-/*
+/**
  * Copyright (C) 2019, Hensoldt Cyber GmbH
  */
-
-#include <string.h>
 
 #include "TlsRpcServer.h"
 
 #include "SeosCryptoApi.h"
-#include "SeosCryptoLib.h"
 
 #include "seos_nw_api.h"
 
@@ -29,7 +26,7 @@ recvFunc(void*                  ctx,
          size_t                 len);
 
 static int
-entropyFunc(void*               ctx,
+entropy(void*               ctx,
             unsigned char*      buf,
             size_t              len);
 
@@ -81,16 +78,8 @@ static SeosTlsApi_Config serverCfg =
     }
 };
 
-static const SeosCryptoApi_Callbacks cryptoConfig =
-{
-    .malloc     = malloc,
-    .free       = free,
-    .entropy    = entropyFunc
-};
-
 static SeosTlsApi_Context       tlsContext;
-static SeosCryptoLib            seosCrypto;
-static SeosCryptoApi_Context*   cryptoContext;
+static SeosCryptoApi            cryptoContext;
 static seos_socket_handle_t     socket;
 static TlsRpcServer_Config      config;
 
@@ -135,7 +124,7 @@ recvFunc(void*          ctx,
 }
 
 static int
-entropyFunc(void*           ctx,
+entropy(void*           ctx,
             unsigned char*  buf,
             size_t          len)
 {
@@ -145,6 +134,15 @@ entropyFunc(void*           ctx,
 }
 
 // Public functions ------------------------------------------------------------
+
+int run()
+{
+    Debug_PRINTF("Starting TlsRpcServer networking...\n");
+
+    Seos_NwAPP_RT(NULL);
+
+    return 0;
+}
 
 seos_err_t
 TlsRpcServer_init(SeosTlsRpcServer_Handle*  ctx,
@@ -157,6 +155,18 @@ TlsRpcServer_init(SeosTlsRpcServer_Handle*  ctx,
         .type   = SEOS_SOCK_STREAM,
         .name   = config.ip,
     };
+    SeosCryptoApi_Config cryptoCfg =
+    {
+        .mode = SeosCryptoApi_Mode_LIBRARY,
+        .mem = {
+            .malloc = malloc,
+            .free = free,
+        },
+        .impl.lib.rng = {
+            .entropy = entropy,
+            .context = NULL
+        }
+    };
 
     printf("TlsRpcServer is connecting to: %s:%i\n", cfg.ip, cfg.port);
 
@@ -165,27 +175,17 @@ TlsRpcServer_init(SeosTlsRpcServer_Handle*  ctx,
     err = Seos_client_socket_create(NULL, &socketCfg, &socket);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
-    err = SeosCryptoLib_init(&seosCrypto, &cryptoConfig, NULL);
+    err = SeosCryptoApi_init(&cryptoContext, &cryptoCfg);
     Debug_ASSERT(SEOS_SUCCESS == err);
-    cryptoContext = SeosCryptoLib_TO_SEOS_CRYPTO_CTX(&seosCrypto);
 
     serverCfg.config.server.dataport               = tlsServerDataport;
     serverCfg.config.server.library.socket.context = &socket;
-    serverCfg.config.server.library.crypto.context = cryptoContext;
+    serverCfg.config.server.library.crypto.context = &cryptoContext;
 
     err = SeosTlsApi_init(&tlsContext, &serverCfg);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
     *ctx = &tlsContext;
-
-    return 0;
-}
-
-int run()
-{
-    Debug_PRINTF("Starting TlsRpcServer networking...\n");
-
-    Seos_NwAPP_RT(NULL);
 
     return 0;
 }
@@ -198,7 +198,7 @@ TlsRpcServer_free()
     err = SeosTlsApi_free(&tlsContext);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
-    err = SeosCryptoLib_free(cryptoContext);
+    err = SeosCryptoApi_free(&cryptoContext);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
     return 0;
