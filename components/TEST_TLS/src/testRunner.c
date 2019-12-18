@@ -228,10 +228,10 @@ freeLib(
 {
     seos_err_t err;
 
-    err = SeosCryptoApi_free(crypto);
+    err = SeosTlsApi_free(ctx);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
-    err = SeosTlsApi_free(ctx);
+    err = SeosCryptoApi_free(crypto);
     Debug_ASSERT(SEOS_SUCCESS == err);
 }
 
