@@ -9,7 +9,8 @@ seos_use_libs(
     SEOS_NETWORK_DRIVER_TAP_PROXY
     SEOS_CRYPTO
     SEOS_CRYPTO_IMPL_MBEDTLS
-    SEOS_TLS
+    SEOS_TLS_WITH_RPC_CLIENT
+    SEOS_TLS_WITH_RPC_SERVER
     SEOS_TLS_IMPL_MBEDTLS
 )
 
@@ -29,7 +30,7 @@ DeclareCAmkESComponent(TEST_TLS
         seos_core_api
         seos_libs
         seos_crypto
-        seos_tls
+        seos_tls_with_rpc_client
 )
 
 DeclareCAmkESComponent(TlsRpcServer
@@ -38,7 +39,6 @@ DeclareCAmkESComponent(TlsRpcServer
         components/TlsRpcServer/src/
     SOURCES
         components/TlsRpcServer/src/TlsRpcServer.c
-        ${SEOS_LIBS_DIR}/seos_tls/src/SeosTlsRpcServer.c
         ${SEOS_LIBS_DIR}/seos_nwstack/network-client-lib/seos_nw_api_interface.c
     C_FLAGS
         -Wall -Werror
@@ -47,14 +47,13 @@ DeclareCAmkESComponent(TlsRpcServer
         # is that it pulls in mbedTLS structs on its own and these need to match
         # those in the lib.
         -DMBEDTLS_CONFIG_FILE="${SEOS_LIBS_DIR}/seos_tls/configs/MbedTLS_Config.h"
-        -DCOMPILE_AS_RPC_SERVER
         # For NW stack
         -DCLIENT_CONFIG=1
     LIBS
         seos_core_api
         seos_libs
         seos_crypto
-        seos_tls
+        seos_tls_with_rpc_server
 )
 
 DeclareCAmkESComponent(NwStack_1
