@@ -5,11 +5,8 @@
  *
  */
 
-import "../ChanMux/ChanMuxInf.camkes";
-import "../NwStack/NwStackInf.camkes";
-
-import "NwDriverInf.camkes";
-
+import <seos_if_chanMux.camkes>;
+import <seos_if_nic.camkes>;
 
 //------------------------------------------------------------------------------
 component NwDriver_1 {
@@ -22,7 +19,7 @@ component NwDriver_1 {
     dataport    Buf                     port_chanMux_data_read;
     dataport    Buf                     port_chanMux_data_write;
 
-    provides    NwDriverInf             nic_driver;
+    provides    seos_if_nic             nic_driver;
     emits       ServiceReady            event_init_done;
     emits       NwStack_DataAvailable   event_nwstack_hasData;
     dataport    Buf                     port_nwStack_to;   // driver -> network stack
@@ -42,7 +39,7 @@ component NwDriver_2 {
     dataport    Buf                     port_chanMux_data_read;
     dataport    Buf                     port_chanMux_data_write;
 
-    provides    NwDriverInf             nic_driver;
+    provides    seos_if_nic             nic_driver;
     emits       ServiceReady            event_init_done;
     emits       NwStack_DataAvailable   event_nwstack_hasData;
     dataport    Buf                     port_nwStack_to;   // driver -> network stack

@@ -5,7 +5,7 @@
  *
  */
 
-import "../NwStack/NwStackInf.camkes";
+import <seos_if_socket.camkes>;
 
 import "../TlsRpcServer/TlsRpcServerInf.camkes";
 import "../TlsRpcServer/SeosTlsRpcServerInf.camkes";
@@ -14,7 +14,7 @@ component TEST_TLS {
     control;
 
     // Networking
-    uses        NwStackInf          network_stack_rpc;
+    uses        seos_if_socket      network_stack_rpc;
     dataport    Buf                 NwAppDataPort;
     consumes    ServiceReady        event_network_stack_init_done;
 
