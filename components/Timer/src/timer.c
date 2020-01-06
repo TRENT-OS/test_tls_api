@@ -24,7 +24,8 @@ static ttc_t timer_drv;
  * when a new interrupt arrives then it must re-register itself.  Or it can
  * also register a different handler.
  */
-void irq_handle(void)
+void irq_handle(
+    void)
 {
     int error;
 
@@ -58,7 +59,8 @@ void Timer__init()
     assert(error == 0);
 }
 
-void Timer_sleep(int msec)
+void Timer_sleep(
+    int msec)
 {
     ttc_set_timeout(&timer_drv, msec * NS_IN_MSEC, false);
 

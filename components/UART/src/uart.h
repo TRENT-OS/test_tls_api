@@ -16,8 +16,9 @@
     Up to now this code has only been tested with QEMU. In theory it could also be used in
     case the seL4 is running on a real zynq7000 board. (In which case we would want to use
     and implement hardware flow control.)
-*/
+ */
 
 void Uart_enable();
-void Uart_putChar(char byte);
+void Uart_putChar(
+    char byte);
 char Uart_getChar();

@@ -100,7 +100,8 @@ nic_driver_tx_data(
 
 //------------------------------------------------------------------------------
 seos_err_t
-nic_driver_get_mac(void)
+nic_driver_get_mac(
+    void)
 {
     return seos_chanmux_nic_driver_rpc_get_mac();
 }

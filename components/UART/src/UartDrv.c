@@ -10,7 +10,8 @@ void UartDrv__init()
     Uart_enable();
 }
 
-void UartDrv_write(size_t len)
+void UartDrv_write(
+    size_t len)
 {
     const char* buf = (const char*) inputDataPort;
 

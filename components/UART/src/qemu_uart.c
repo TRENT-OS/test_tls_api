@@ -14,7 +14,7 @@
     Up to now this code has only been tested with QEMU. In theory it could also be used in
     case the seL4 is running on a real zynq7000 board. (In which case we would want to use
     and implement hardware flow control.)
-*/
+ */
 #include "uart.h"
 
 #include <stdio.h>
@@ -44,19 +44,22 @@
 #include <camkes.h>
 
 static unsigned
-readReg(unsigned offset)
+readReg(
+    unsigned offset)
 {
     return (unsigned int)(*UART_REG(uartRegBase, offset));
 }
 
 static void
-writeReg(unsigned offset, unsigned value)
+writeReg(
+    unsigned offset, unsigned value)
 {
     *UART_REG(uartRegBase, offset) = value;
 }
 
 void
-Uart_enable(void)
+Uart_enable(
+    void)
 {
     uint32_t v = readReg(UART_CONTROL);
 
@@ -72,7 +75,8 @@ Uart_enable(void)
 }
 
 void
-Uart_putChar(char byte)
+Uart_putChar(
+    char byte)
 {
     writeReg(UART_TX_RX_FIFO, byte);
     // Wait completion, fifo empty
@@ -80,7 +84,8 @@ Uart_putChar(char byte)
 }
 
 char
-Uart_getChar(void)
+Uart_getChar(
+    void)
 {
     // Wait a byte, fifo not empty
     while ((readReg(UART_CHANNEL_STS) & UART_CHANNEL_STS_RXEMPTY) != 0);

@@ -15,7 +15,8 @@ static unsigned int counterMs = 0;
 
 //------------------------------------------------------------------------------
 int
-run(void)
+run(
+    void)
 {
     Debug_LOG_INFO("Starting TimerClient");
 
@@ -36,7 +37,8 @@ run(void)
 
 //------------------------------------------------------------------------------
 unsigned int
-TimerClient_getTimeMs(void)
+TimerClient_getTimeMs(
+    void)
 {
     return counterMs;
 }

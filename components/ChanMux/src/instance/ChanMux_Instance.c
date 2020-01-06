@@ -50,10 +50,10 @@ typedef struct {
 #define CHANMUX_DATA_PORT( _pBuf_, _len_ )     { .io = _pBuf_, .len = _len_ }
 
 #define CHANMUX_DATA_PORT_RW_SHARED(_pBuf_, _len_) \
-            { \
-                .read = CHANMUX_DATA_PORT(_pBuf_, _len_), \
-                .write = CHANMUX_DATA_PORT(_pBuf_, _len_) \
-            }
+    { \
+        .read = CHANMUX_DATA_PORT(_pBuf_, _len_), \
+        .write = CHANMUX_DATA_PORT(_pBuf_, _len_) \
+    }
 
 #define NO_CHANMUX_DATA_PORT_RW     CHANMUX_DATA_PORT_RW_SHARED(NULL, 0)
 
@@ -120,7 +120,7 @@ static ChanMux*
 ChanMux_getInstance(void)
 {
     // singleton
-    static ChanMux  theOne;
+    static ChanMux theOne;
     static ChanMux* self = NULL;
     static Channel_t channels[CHANMUX_NUM_CHANNELS];
 
@@ -139,7 +139,8 @@ ChanMux_getInstance(void)
 
 
 void
-ChanMuxOut_takeByte(char byte)
+ChanMuxOut_takeByte(
+    char byte)
 {
     ChanMux_takeByte(ChanMux_getInstance(), byte);
 }
@@ -155,9 +156,9 @@ ChanMuxOut_takeByte(char byte)
 //------------------------------------------------------------------------------
 seos_err_t
 ChanMux_driver_write(
-    unsigned int  chanNum,
-    size_t        len,
-    size_t*       lenWritten)
+    unsigned int chanNum,
+    size_t       len,
+    size_t*      lenWritten)
 {
     Debug_LOG_TRACE("%s(): channel %u, len %u", __func__, chanNum, len);
 
@@ -194,9 +195,9 @@ ChanMux_driver_write(
 //------------------------------------------------------------------------------
 seos_err_t
 ChanMux_driver_read(
-    unsigned int  chanNum,
-    size_t        len,
-    size_t*       lenRead)
+    unsigned int chanNum,
+    size_t       len,
+    size_t*      lenRead)
 {
     Debug_LOG_TRACE("%s(): channel %u, len %u", __func__, chanNum, len);
 
