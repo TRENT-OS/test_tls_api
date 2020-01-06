@@ -18,7 +18,7 @@ project(tests_tls_api C)
 
 DeclareCAmkESComponent(TEST_TLS
     INCLUDES
-        common
+        common/
         components/TlsRpcServer/src/
     SOURCES
         components/TEST_TLS/src/testRunner.c
@@ -35,7 +35,7 @@ DeclareCAmkESComponent(TEST_TLS
 
 DeclareCAmkESComponent(TlsRpcServer
     INCLUDES
-        common
+        common/
         components/TlsRpcServer/src/
     SOURCES
         components/TlsRpcServer/src/TlsRpcServer.c
