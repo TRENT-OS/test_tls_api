@@ -4,7 +4,8 @@
  *  Copyright (C) 2019, Hensoldt Cyber GmbH
  */
 
-#include "ChanMux_config.h"
+#include "system_config.h"
+
 #include "LibDebug/Debug.h"
 #include "nic_driver_common.h"
 #include <camkes.h>

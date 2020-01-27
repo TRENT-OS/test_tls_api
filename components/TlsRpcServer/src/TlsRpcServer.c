@@ -4,7 +4,7 @@
 
 #include "TlsRpcServer.h"
 
-#include "tlsHost.h"
+#include "test_config.h"
 
 #include "SeosCryptoApi.h"
 

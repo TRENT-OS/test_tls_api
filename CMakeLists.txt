@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.7.2)
 
-seos_set_config_file(config.h)
+seos_set_config_file(config/system_config.h)
 
 seos_use_libs(
     SEOS_LIBS
@@ -18,8 +18,8 @@ project(tests_tls_api C)
 
 DeclareCAmkESComponent(TEST_TLS
     INCLUDES
-        common/
-        components/TlsRpcServer/src/
+        config
+        components/TlsRpcServer/src
     SOURCES
         components/TEST_TLS/src/testRunner.c
         ${SEOS_LIBS_DIR}/seos_nwstack/network-client-lib/seos_nw_api_interface.c
@@ -35,8 +35,8 @@ DeclareCAmkESComponent(TEST_TLS
 
 DeclareCAmkESComponent(TlsRpcServer
     INCLUDES
-        common/
-        components/TlsRpcServer/src/
+        config
+        components/TlsRpcServer/src
     SOURCES
         components/TlsRpcServer/src/TlsRpcServer.c
         ${SEOS_LIBS_DIR}/seos_nwstack/network-client-lib/seos_nw_api_interface.c
