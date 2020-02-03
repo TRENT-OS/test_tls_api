@@ -139,5 +139,10 @@ assembly {
 
         /* assign an initial value to semaphore */
         timer.sem_value = 0;
+
+        // assign endpoint badges for n:1 RPC interface of ChanMUX. The generic
+        // naming scheme is <component>.<interface>_attributes = <badge ID>
+        nwDriver_1.ChanMux_attributes = 1;
+        nwDriver_2.ChanMux_attributes = 2;
     }
 }

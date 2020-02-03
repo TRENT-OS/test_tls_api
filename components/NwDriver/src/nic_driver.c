@@ -7,15 +7,14 @@
 #include "LibDebug/Debug.h"
 #include "SeosError.h"
 #include "seos_api_chanmux_nic_drv.h"
-#include "nic_driver_common.h"
 #include <camkes.h>
 #include <limits.h>
 
 //------------------------------------------------------------------------------
-int chanmux_nic_driver_start(
-    unsigned int channel_crtl,
-    unsigned int channel_data)
+int run()
 {
+    Debug_LOG_INFO("[NIC '%s'] starting driver", get_instance_name());
+
     // can't make this "static const" or even "static" because the data ports
     // are allocated at runtime
     seos_camkes_chanmx_nic_drv_config_t config =
@@ -26,7 +25,7 @@ int chanmux_nic_driver_start(
         {
             .ctrl =
             {
-                .id            = channel_crtl,
+                .id            = CFG_CHANMUX_CHANNEL_CRTL,
                 .port =
                 {
                     .buffer    = port_chanMux_ctrl,
@@ -35,7 +34,7 @@ int chanmux_nic_driver_start(
             },
             .data =
             {
-                .id            = channel_data,
+                .id            = CFG_CHANMUX_CHANNEL_DATA,
                 .port_read =
                 {
                     .buffer    = port_chanMux_data_read,
@@ -65,18 +64,18 @@ int chanmux_nic_driver_start(
         }
     };
 
-    Debug_LOG_INFO("starting network driver, ctrl=%u, data=%u",
-                   config.chanmux.ctrl.id,
-                   config.chanmux.data.id);
-
     seos_err_t ret = seos_chanmux_nic_driver_run(&config);
     if (ret != SEOS_SUCCESS)
     {
-        Debug_LOG_FATAL("seos_chanmx_network_driver_init() failed, error %d", ret);
+        Debug_LOG_FATAL("[NIC '%s'] seos_chanmux_nic_driver_run() failed, error %d",
+                        get_instance_name(), ret);
         return -1;
     }
 
-    Debug_LOG_INFO("network driver main loop terminated");
+    // actually, seos_chanmux_nic_driver_run() is not supposed to return with
+    // SEOS_SUCCESS. We have to assume this is a graceful shutdown for some
+    // reason
+    Debug_LOG_WARNING("[NIC '%s'] graceful termination", get_instance_name());
 
     return 0;
 }
@@ -100,8 +99,7 @@ nic_driver_tx_data(
 
 //------------------------------------------------------------------------------
 seos_err_t
-nic_driver_get_mac(
-    void)
+nic_driver_get_mac(void)
 {
     return seos_chanmux_nic_driver_rpc_get_mac();
 }

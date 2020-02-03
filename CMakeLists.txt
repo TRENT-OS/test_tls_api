@@ -58,13 +58,15 @@ DeclareCAmkESComponent(TlsRpcServer
 
 DeclareCAmkESComponent(NwStack_1
     INCLUDES
-        components/ChanMux/src/instance
         config
     SOURCES
-        components/NwStack/network_stack_1.c
+        components/NwStack/src/network_stack.c
     C_FLAGS
         -Wall -Werror
         -DSEOS_NWSTACK_AS_CLIENT
+        -DCFG_ETH_ADDR=ETH_1_ADDR
+        -DCFG_ETH_GATEWAY_ADDR=ETH_1_GATEWAY_ADDR
+        -DCFG_ETH_SUBNET_MASK=ETH_1_SUBNET_MASK
     LIBS
         seos_core_api
         seos_libs
@@ -72,14 +74,12 @@ DeclareCAmkESComponent(NwStack_1
 )
 
 DeclareCAmkESComponent(NwDriver_1
-    INCLUDES
-        components/ChanMux/src/instance
-        config
     SOURCES
-        components/NwDriver/nic_driver_common.c
-        components/NwDriver/nic_driver_1.c
+        components/NwDriver/src/nic_driver.c
     C_FLAGS
         -Wall -Werror
+        -DCFG_CHANMUX_CHANNEL_CRTL=CHANMUX_CHANNEL_NIC_1_CTRL
+        -DCFG_CHANMUX_CHANNEL_DATA=CHANMUX_CHANNEL_NIC_1_DATA
     LIBS
         seos_core_api
         seos_libs
@@ -87,14 +87,14 @@ DeclareCAmkESComponent(NwDriver_1
 )
 
 DeclareCAmkESComponent(NwStack_2
-    INCLUDES
-        components/ChanMux/src/instance
-        config
     SOURCES
-        components/NwStack/network_stack_2.c
+        components/NwStack/src/network_stack.c
     C_FLAGS
         -Wall -Werror
         -DSEOS_NWSTACK_AS_CLIENT
+        -DCFG_ETH_ADDR=ETH_2_ADDR
+        -DCFG_ETH_GATEWAY_ADDR=ETH_2_GATEWAY_ADDR
+        -DCFG_ETH_SUBNET_MASK=ETH_2_SUBNET_MASK
     LIBS
         seos_core_api
         seos_libs
@@ -103,13 +103,13 @@ DeclareCAmkESComponent(NwStack_2
 
 DeclareCAmkESComponent(NwDriver_2
     INCLUDES
-        components/ChanMux/src/instance
         config
     SOURCES
-        components/NwDriver/nic_driver_common.c
-        components/NwDriver/nic_driver_2.c
+        components/NwDriver/src/nic_driver.c
     C_FLAGS
         -Wall -Werror
+        -DCFG_CHANMUX_CHANNEL_CRTL=CHANMUX_CHANNEL_NIC_2_CTRL
+        -DCFG_CHANMUX_CHANNEL_DATA=CHANMUX_CHANNEL_NIC_2_DATA
     LIBS
         seos_core_api
         seos_libs
@@ -117,11 +117,14 @@ DeclareCAmkESComponent(NwDriver_2
 )
 
 DeclareCAmkESComponent(ChanMux
+    INCLUDES
+        config
     SOURCES
-        components/ChanMux/src/instance/ChanMux_Instance.c
+        components/ChanMux/src/ChanMux.c
     C_FLAGS
         -Wall -Werror
     LIBS
+        seos_core_api
         seos_libs
 )
 

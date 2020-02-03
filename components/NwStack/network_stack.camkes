@@ -11,11 +11,9 @@ import <seos_if_socket.camkes>;
 import "../TimerClient/TimerClientInf.camkes";
 
 component NwStack_1 {
-
     control;
 
     consumes    NwStack_DataAvailable   event_tick_or_data;
-
     emits       NwStack_DataAvailable   event_internal;
 
     emits       NwStack_WrEv            e_write;
@@ -24,11 +22,9 @@ component NwStack_1 {
     emits       NwStack_RdEv            e_read;
     consumes    NwStack_RdEv            c_read;
 
-
     //-------------------------------------------------
     // interface Timer
     uses        timer_client_inf        Timer;
-
 
     //-------------------------------------------------
     // interface Ethernet NIC driver
@@ -37,7 +33,6 @@ component NwStack_1 {
     dataport    Buf                     port_nic_to;   // stack -> NIC
     consumes    ServiceReady            event_nic_init_done;
 
-
     //-------------------------------------------------
     // interface Application
     provides    seos_if_socket          network_stack_rpc;
@@ -45,13 +40,10 @@ component NwStack_1 {
     emits       ServiceReady            event_network_init_done;
 }
 
-
 component NwStack_2 {
-
     control;
 
     consumes   NwStack_DataAvailable    event_tick_or_data;
-
     emits      NwStack_DataAvailable    event_internal;
 
     emits      NwStack_WrEv             e_write;
@@ -63,11 +55,9 @@ component NwStack_2 {
     emits      NwStack_ConnEv           e_conn;
     consumes   NwStack_ConnEv           c_conn;
 
-
     //-------------------------------------------------
     // interface Timer
     uses        timer_client_inf        Timer;
-
 
     //-------------------------------------------------
     // interface Ethernet NIC driver
@@ -75,7 +65,6 @@ component NwStack_2 {
     dataport    Buf                     port_nic_from; // NIC -> stack
     dataport    Buf                     port_nic_to;   // stack -> NIC
     consumes    ServiceReady            event_nic_init_done;
-
 
     //-------------------------------------------------
     // interface Application

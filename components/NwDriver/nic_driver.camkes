@@ -24,9 +24,7 @@ component NwDriver_1 {
     emits       NwStack_DataAvailable   event_nwstack_hasData;
     dataport    Buf                     port_nwStack_to;   // driver -> network stack
     dataport    Buf                     port_nwStack_from; // network stack -> driver
-
 }
-
 
 //------------------------------------------------------------------------------
 component NwDriver_2 {
@@ -44,5 +42,4 @@ component NwDriver_2 {
     emits       NwStack_DataAvailable   event_nwstack_hasData;
     dataport    Buf                     port_nwStack_to;   // driver -> network stack
     dataport    Buf                     port_nwStack_from; // network stack -> driver
-
 }

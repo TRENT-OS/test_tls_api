@@ -1,4 +1,0 @@
-# SEOS ChanMux
-
-## Dependencies
-
