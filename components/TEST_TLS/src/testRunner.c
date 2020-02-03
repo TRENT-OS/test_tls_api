@@ -85,10 +85,8 @@ getIndexTls(
     SeosTlsApi_Context* ctx)
 {
     seos_err_t err = SEOS_ERROR_GENERIC;
-    bool foundHeader;
     unsigned char buffer[1024];
-    const char* request =
-        "GET / HTTP/1.0\r\nHost: example.com\r\nConnection: close\r\n\r\n";
+    const char* request = "ThisIsATestStringPleaseSendItBackToMe!";
     size_t len;
 
     Debug_LOG_INFO("Starting TLS handshake..\n");
@@ -98,7 +96,7 @@ getIndexTls(
         return err;
     }
 
-    Debug_LOG_INFO("Sending request over TLS..\n");
+    Debug_LOG_INFO("Sending data over TLS..\n");
     len = strlen(request);
     if ((err = SeosTlsApi_write(ctx, request, len)) != SEOS_SUCCESS)
     {
@@ -107,29 +105,16 @@ getIndexTls(
     }
 
     Debug_LOG_INFO("Reading reply over TLS..\n");
-    foundHeader = false;
-    for (;;)
-    {
-        len = sizeof(buffer);
-        memset(buffer, 0, sizeof(buffer));
-        if ((err = SeosTlsApi_read(ctx, buffer, &len)) != SEOS_SUCCESS)
-        {
-            Debug_LOG_WARNING("SeosTlsApi_read failed with err=%i\n", err);
-            return err;
-        }
 
-        if (len > 0
-            && strstr("<title>Example Domain</title>", (const char*)buffer) != NULL)
-        {
-            foundHeader = true;
-        }
-        else
-        {
-            break;
-        }
+    len = sizeof(buffer);
+    memset(buffer, 0, sizeof(buffer));
+    if ((err = SeosTlsApi_read(ctx, buffer, &len)) != SEOS_SUCCESS)
+    {
+        Debug_LOG_WARNING("SeosTlsApi_read failed with err=%i\n", err);
+        return err;
     }
 
-    return foundHeader ? SEOS_ERROR_GENERIC : SEOS_SUCCESS;
+    return !memcmp(buffer, request, strlen(request)) ? SEOS_SUCCESS : SEOS_ERROR_GENERIC;
 }
 
 static void
