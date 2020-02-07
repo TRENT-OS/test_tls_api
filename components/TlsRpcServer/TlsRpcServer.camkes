@@ -6,20 +6,20 @@
  */
 
 import <seos_if_socket.camkes>;
+import <seos_if_seosTlsRpcServer.camkes>;
 
 import "TlsRpcServerInf.camkes";
-import "SeosTlsRpcServerInf.camkes";
 
 component TlsRpcServer {
     control;
 
     // Networking
-    uses        seos_if_socket          network_stack_rpc;
-    dataport    Buf                     NwAppDataPort;
-    consumes    ServiceReady            event_network_stack_init_done;
+    uses        seos_if_socket              network_stack_rpc;
+    dataport    Buf                         NwAppDataPort;
+    consumes    ServiceReady                event_network_stack_init_done;
 
     // TLS
-    provides    TlsRpcServerInf         TlsRpcServer;
-    provides    SeosTlsRpcServerInf     SeosTlsRpcServer;
-    dataport    Buf                     tlsServerDataport;
+    provides    TlsRpcServerInf             TlsRpcServer;
+    provides    seos_if_seosTlsRpcServer    SeosTlsRpcServer;
+    dataport    Buf                         tlsServerDataport;
 }
