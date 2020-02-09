@@ -27,6 +27,9 @@
 
 #define MAX_NW_SIZE 2048
 
+// Use for read/write testing with ECHO server
+#define ECHO_STRING "ThisIsATestStringPleaseSendItBackToMe!!"
+
 // In case we need a not-NULL address to test something
 #define NOT_NULL ((void*) 1)
 
@@ -480,6 +483,96 @@ test_SeosTlsApi_handshake_fail(
 }
 
 static void
+test_SeosTlsApi_write_fail(
+    SeosTlsApi_Context* api)
+{
+    seos_err_t err;
+    char* request = ECHO_STRING;
+    size_t len = sizeof(request);
+
+    // No context
+    err = SeosTlsApi_write(NULL, request, len);
+    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+
+    // No buffer
+    err = SeosTlsApi_write(api, NULL, len);
+    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+
+    // Zero length write
+    len = 0;
+    err = SeosTlsApi_write(api, request, len);
+    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+
+    TEST_OK(api->mode);
+}
+
+static void
+test_SeosTlsApi_write_ok(
+    SeosTlsApi_Context* api)
+{
+    seos_err_t err;
+    char request[] = ECHO_STRING;
+    size_t len = sizeof(request);
+
+    err = SeosTlsApi_write(api, request, len);
+    Debug_ASSERT(SEOS_SUCCESS == err);
+
+    TEST_OK(api->mode);
+}
+
+static void
+test_SeosTlsApi_read_fail(
+    SeosTlsApi_Context* api)
+{
+    seos_err_t err;
+    unsigned char buffer[1024];
+    size_t len = sizeof(buffer);
+
+    // No context
+    err = SeosTlsApi_read(NULL, buffer, &len);
+    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+
+    // No buffer
+    err = SeosTlsApi_read(api, NULL, &len);
+    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+
+    // No len
+    err = SeosTlsApi_read(api, buffer, NULL);
+    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+
+    // Zero length
+    len = 0;
+    err = SeosTlsApi_read(api, buffer, &len);
+    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+
+    TEST_OK(api->mode);
+}
+
+static void
+test_SeosTlsApi_read_ok(
+    SeosTlsApi_Context* api)
+{
+    seos_err_t err;
+    unsigned char buffer[1024];
+    const char answer[] = ECHO_STRING;
+    size_t len = sizeof(buffer);
+
+    /*
+     * Before executing this test, we should have sent the ECHO_STRING to the
+     * echo server already as part of the write test.
+     */
+
+    len = sizeof(buffer);
+    memset(buffer, 0, sizeof(buffer));
+    err = SeosTlsApi_read(api, buffer, &len);
+    Debug_ASSERT_PRINTFLN(SEOS_SUCCESS == err, "err %d", err);
+    Debug_ASSERT(len == sizeof(answer));
+    Debug_ASSERT(!memcmp(buffer, answer, len));
+
+    TEST_OK(api->mode);
+}
+
+static void
 test_SeosTlsApi_mode(
     SeosTlsApi_Context* api,
     seos_socket_handle_t* socket)
@@ -500,8 +593,33 @@ test_SeosTlsApi_mode(
 
     Debug_PRINTF("Testing TLS API in %s mode:\n", mode);
 
+    /*
+     * The following three (six) tests should follow in this order:
+     * 1. handshake_ok() establishes a TLS session
+     * 2. handshake_fail() requires an established session, but does not
+     *    change it.
+     * 3. write_fail() does not change the TLS session
+     * 4. write_ok() writes to the echo server, does not read anything and does
+     *    not change the session.
+     * 5. read_fail() does not change the TLS session.
+     * 6. read_ok() reads from the echo server (the string that write_ok() has
+     *    written there.
+     *
+     * The echo server then will close the socket!
+     *
+     * TODO: Ideally, all these tests would be self-contained and not require any
+     *       particular order, but as long as the NW is so slow, it makes sense
+     *       to re-use established sockets and sessions.
+     */
+
     test_SeosTlsApi_handshake_ok(api);
     test_SeosTlsApi_handshake_fail(api);
+
+    test_SeosTlsApi_write_fail(api);
+    test_SeosTlsApi_write_ok(api);
+
+    test_SeosTlsApi_read_fail(api);
+    test_SeosTlsApi_read_ok(api);
 }
 
 // Public functions ------------------------------------------------------------
