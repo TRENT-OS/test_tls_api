@@ -12,7 +12,7 @@
 #include "SeosCryptoApi.h"
 #include "SeosTlsApi.h"
 
-#include "test_config.h"
+#include "TestConfig.h"
 
 #include "LibDebug/Debug.h"
 

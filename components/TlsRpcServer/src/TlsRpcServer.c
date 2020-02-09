@@ -2,10 +2,9 @@
  * Copyright (C) 2019, Hensoldt Cyber GmbH
  */
 
+#include "TestConfig.h"
+
 #include "TlsRpcServer.h"
-
-#include "test_config.h"
-
 #include "SeosCryptoApi.h"
 
 #include "seos_nw_api.h"

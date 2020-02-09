@@ -5,7 +5,7 @@
  *
  */
 
-#include "system_config.h"
+#include "SystemConfig.h"
 
 #include "LibDebug/Debug.h"
 #include "SeosError.h"

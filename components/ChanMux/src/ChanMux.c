@@ -4,7 +4,7 @@
  *  Copyright (C) 2019, Hensoldt Cyber GmbH
  */
 
-#include "system_config.h"
+#include "SystemConfig.h"
 
 #include "ChanMux/ChanMux.h"
 #include "SeosError.h"
