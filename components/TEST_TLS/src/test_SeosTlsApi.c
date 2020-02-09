@@ -137,6 +137,39 @@ closeSocket(
     return Seos_socket_close(*socket);
 }
 
+static seos_err_t
+resetSocket(
+    seos_socket_handle_t* socket)
+{
+    seos_err_t err;
+
+    // Reset either the local socket or the one on the RPC server
+    if (NULL != socket)
+    {
+        if ((err = closeSocket(socket)) != SEOS_SUCCESS)
+        {
+            return err;
+        }
+        if ((err = connectSocket(socket)) != SEOS_SUCCESS)
+        {
+            return err;
+        }
+    }
+    else
+    {
+        if ((err = TlsRpcServer_closeSocket()) != SEOS_SUCCESS)
+        {
+            return err;
+        }
+        if ((err = TlsRpcServer_connectSocket()) != SEOS_SUCCESS)
+        {
+            return err;
+        }
+    }
+
+    return SEOS_SUCCESS;
+}
+
 // Test functions executed once ------------------------------------------------
 
 static void
@@ -573,6 +606,44 @@ test_SeosTlsApi_read_ok(
 }
 
 static void
+test_SeosTlsApi_reset_ok(
+    SeosTlsApi_Context* api,
+    seos_socket_handle_t* socket)
+{
+    seos_err_t err;
+
+    /*
+     * For this test we expect the socket to be closed and the TLS session to
+     * be finished as well.
+     */
+
+    // Reset the API and the socket
+    err = SeosTlsApi_reset(api);
+    Debug_ASSERT(SEOS_SUCCESS == err);
+    err = resetSocket(socket);
+    Debug_ASSERT(SEOS_SUCCESS == err);
+
+    // Do the handshake again
+    err = SeosTlsApi_handshake(api);
+    Debug_ASSERT(SEOS_SUCCESS == err);
+
+    TEST_OK(api->mode);
+}
+
+static void
+test_SeosTlsApi_reset_fail(
+    SeosTlsApi_Context* api,
+    seos_socket_handle_t* socket)
+{
+    seos_err_t err;
+
+    err = SeosTlsApi_reset(NULL);
+    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+
+    TEST_OK(api->mode);
+}
+
+static void
 test_SeosTlsApi_mode(
     SeosTlsApi_Context* api,
     seos_socket_handle_t* socket)
@@ -620,6 +691,15 @@ test_SeosTlsApi_mode(
 
     test_SeosTlsApi_read_fail(api);
     test_SeosTlsApi_read_ok(api);
+
+    /*
+     * Here the TLS session and socket should be closed by the server. We will
+     * now re-set it with these tests to see if we can make the handshake work
+     * again.
+     */
+
+    test_SeosTlsApi_reset_fail(api, socket);
+    test_SeosTlsApi_reset_ok(api, socket);
 }
 
 // Public functions ------------------------------------------------------------
