@@ -173,7 +173,7 @@ resetSocket(
 // Test functions executed once ------------------------------------------------
 
 static void
-test_SeosTlsApi_init_ok()
+test_SeosTlsApi_init_pos()
 {
     seos_err_t err;
     SeosTlsApi_Context tls;
@@ -266,7 +266,7 @@ test_SeosTlsApi_init_ok()
 }
 
 static void
-test_SeosTlsApi_init_fail()
+test_SeosTlsApi_init_neg()
 {
     seos_err_t err;
     SeosTlsApi_Context tls;
@@ -432,7 +432,7 @@ test_SeosTlsApi_init_fail()
 }
 
 static void
-test_SeosTlsApi_free_ok()
+test_SeosTlsApi_free_pos()
 {
     seos_err_t err;
     SeosTlsApi_Context tls;
@@ -471,7 +471,7 @@ test_SeosTlsApi_free_ok()
 }
 
 static void
-test_SeosTlsApi_free_fail()
+test_SeosTlsApi_free_neg()
 {
     seos_err_t err;
 
@@ -485,9 +485,8 @@ test_SeosTlsApi_free_fail()
 // Test functions executed for different API modes -----------------------------
 
 static void
-test_SeosTlsApi_handshake_ok(
+test_SeosTlsApi_handshake_pos(
     SeosTlsApi_Context* api)
-
 {
     seos_err_t err;
 
@@ -499,7 +498,7 @@ test_SeosTlsApi_handshake_ok(
 }
 
 static void
-test_SeosTlsApi_handshake_fail(
+test_SeosTlsApi_handshake_neg(
     SeosTlsApi_Context* api)
 {
     seos_err_t err;
@@ -516,7 +515,7 @@ test_SeosTlsApi_handshake_fail(
 }
 
 static void
-test_SeosTlsApi_write_fail(
+test_SeosTlsApi_write_neg(
     SeosTlsApi_Context* api)
 {
     seos_err_t err;
@@ -540,7 +539,7 @@ test_SeosTlsApi_write_fail(
 }
 
 static void
-test_SeosTlsApi_write_ok(
+test_SeosTlsApi_write_pos(
     SeosTlsApi_Context* api)
 {
     seos_err_t err;
@@ -554,7 +553,7 @@ test_SeosTlsApi_write_ok(
 }
 
 static void
-test_SeosTlsApi_read_fail(
+test_SeosTlsApi_read_neg(
     SeosTlsApi_Context* api)
 {
     seos_err_t err;
@@ -582,7 +581,7 @@ test_SeosTlsApi_read_fail(
 }
 
 static void
-test_SeosTlsApi_read_ok(
+test_SeosTlsApi_read_pos(
     SeosTlsApi_Context* api)
 {
     seos_err_t err;
@@ -606,7 +605,7 @@ test_SeosTlsApi_read_ok(
 }
 
 static void
-test_SeosTlsApi_reset_ok(
+test_SeosTlsApi_reset_pos(
     SeosTlsApi_Context*   api,
     seos_socket_handle_t* socket)
 {
@@ -631,7 +630,7 @@ test_SeosTlsApi_reset_ok(
 }
 
 static void
-test_SeosTlsApi_reset_fail(
+test_SeosTlsApi_reset_neg(
     SeosTlsApi_Context*   api,
     seos_socket_handle_t* socket)
 {
@@ -666,14 +665,14 @@ test_SeosTlsApi_mode(
 
     /*
      * The following three (six) tests should follow in this order:
-     * 1. handshake_ok() establishes a TLS session
-     * 2. handshake_fail() requires an established session, but does not
+     * 1. handshake_pos() establishes a TLS session
+     * 2. handshake_neg() requires an established session, but does not
      *    change it.
-     * 3. write_fail() does not change the TLS session
-     * 4. write_ok() writes to the echo server, does not read anything and does
+     * 3. write_neg() does not change the TLS session
+     * 4. write_pos() writes to the echo server, does not read anything and does
      *    not change the session.
-     * 5. read_fail() does not change the TLS session.
-     * 6. read_ok() reads from the echo server (the string that write_ok() has
+     * 5. read_neg() does not change the TLS session.
+     * 6. read_pos() reads from the echo server (the string that write_pos() has
      *    written there.
      *
      * The echo server then will close the socket!
@@ -683,14 +682,14 @@ test_SeosTlsApi_mode(
      *       to re-use established sockets and sessions.
      */
 
-    test_SeosTlsApi_handshake_ok(api);
-    test_SeosTlsApi_handshake_fail(api);
+    test_SeosTlsApi_handshake_pos(api);
+    test_SeosTlsApi_handshake_neg(api);
 
-    test_SeosTlsApi_write_fail(api);
-    test_SeosTlsApi_write_ok(api);
+    test_SeosTlsApi_write_neg(api);
+    test_SeosTlsApi_write_pos(api);
 
-    test_SeosTlsApi_read_fail(api);
-    test_SeosTlsApi_read_ok(api);
+    test_SeosTlsApi_read_neg(api);
+    test_SeosTlsApi_read_pos(api);
 
     /*
      * Here the TLS session and socket should be closed by the server. We will
@@ -698,8 +697,8 @@ test_SeosTlsApi_mode(
      * again.
      */
 
-    test_SeosTlsApi_reset_fail(api, socket);
-    test_SeosTlsApi_reset_ok(api, socket);
+    test_SeosTlsApi_reset_neg(api, socket);
+    test_SeosTlsApi_reset_pos(api, socket);
 }
 
 // Public functions ------------------------------------------------------------
@@ -739,11 +738,11 @@ int run()
     Debug_PRINTF("Testing TLS API:\n");
 
     // Test init and free independent of API mode
-    test_SeosTlsApi_init_ok();
-    test_SeosTlsApi_init_fail();
+    test_SeosTlsApi_init_pos();
+    test_SeosTlsApi_init_neg();
 
-    test_SeosTlsApi_free_ok();
-    test_SeosTlsApi_free_fail();
+    test_SeosTlsApi_free_pos();
+    test_SeosTlsApi_free_neg();
 
     Debug_PRINTF("\n");
 
