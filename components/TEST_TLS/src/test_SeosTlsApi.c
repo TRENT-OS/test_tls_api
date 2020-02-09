@@ -27,6 +27,9 @@
 
 #define MAX_NW_SIZE 2048
 
+// In case we need a not-NULL address to test something
+#define NOT_NULL ((void*) 1)
+
 extern seos_err_t
 Seos_NwAPP_RT(
     Seos_nw_context ctx);
@@ -131,6 +134,267 @@ closeSocket(
     return Seos_socket_close(*socket);
 }
 
+// Test functions executed once ------------------------------------------------
+
+static void
+test_SeosTlsApi_init_ok()
+{
+    seos_err_t err;
+    SeosTlsApi_Context tls;
+    static SeosCryptoApi crypto;
+    static SeosTlsApi_Config cfgRpcClient =
+    {
+        .mode = SeosTlsApi_Mode_AS_RPC_CLIENT,
+        .config.client.handle = NOT_NULL
+    };
+    static SeosTlsApi_Config cfgAllSuites =
+    {
+        .mode = SeosTlsApi_Mode_AS_LIBRARY,
+        .config.library = {
+            .socket = {
+                .recv = recvFunc,
+                .send = sendFunc,
+            },
+            .crypto = {
+                .context = &crypto,
+                .caCert = TLS_HOST_CERT,
+                .cipherSuites = {
+                    SeosTlsLib_CipherSuite_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                    SeosTlsLib_CipherSuite_DHE_RSA_WITH_AES_128_GCM_SHA256
+                },
+                .cipherSuitesLen = 2
+            }
+        },
+    };
+    static SeosTlsApi_Config cfgOneSuite =
+    {
+        .mode = SeosTlsApi_Mode_AS_LIBRARY,
+        .config.library = {
+            .socket = {
+                .recv = recvFunc,
+                .send = sendFunc,
+            },
+            .crypto = {
+                .context = &crypto,
+                .caCert = TLS_HOST_CERT,
+                .cipherSuites = {
+                    SeosTlsLib_CipherSuite_DHE_RSA_WITH_AES_128_GCM_SHA256
+                },
+                .cipherSuitesLen = 1
+            }
+        },
+    };
+    static SeosTlsLib_Policy policy =
+    {
+        .sessionDigests = {SeosTlsLib_Digest_SHA256},
+        .sessionDigestsLen = 1,
+        .signatureDigests = {SeosTlsLib_Digest_SHA256},
+        .signatureDigestsLen = 1,
+        .rsaMinBits = SeosCryptoApi_Key_SIZE_RSA_MIN * 8,
+        .dhMinBits = SeosCryptoApi_Key_SIZE_DH_MAX * 8
+    };
+
+    err = SeosCryptoApi_init(&crypto, &cryptoCfg);
+    Debug_ASSERT(SEOS_SUCCESS == err);
+
+    // Test RPC CLIENT mode
+    cfgRpcClient.config.client.dataport = tlsClientDataport,
+    err = SeosTlsApi_init(&tls, &cfgRpcClient);
+    Debug_ASSERT(SEOS_SUCCESS == err);
+    err = SeosTlsApi_free(&tls);
+    Debug_ASSERT(SEOS_SUCCESS == err);
+
+    // Test with all ciphersuites enabled
+    err = SeosTlsApi_init(&tls, &cfgAllSuites);
+    Debug_ASSERT(SEOS_SUCCESS == err);
+    err = SeosTlsApi_free(&tls);
+    Debug_ASSERT(SEOS_SUCCESS == err);
+
+    // Test with only one ciphersuite enabled
+    err = SeosTlsApi_init(&tls, &cfgOneSuite);
+    Debug_ASSERT(SEOS_SUCCESS == err);
+    err = SeosTlsApi_free(&tls);
+    Debug_ASSERT(SEOS_SUCCESS == err);
+
+    // Test with all ciphersuites and policy options
+    cfgAllSuites.config.library.crypto.policy = &policy;
+    err = SeosTlsApi_init(&tls, &cfgAllSuites);
+    Debug_ASSERT(SEOS_SUCCESS == err);
+    err = SeosTlsApi_free(&tls);
+    Debug_ASSERT(SEOS_SUCCESS == err);
+
+    err = SeosCryptoApi_free(&crypto);
+    Debug_ASSERT(SEOS_SUCCESS == err);
+
+    TEST_OK();
+}
+
+static void
+test_SeosTlsApi_init_fail()
+{
+    seos_err_t err;
+    SeosTlsApi_Context tls;
+    static SeosCryptoApi crypto;
+    static SeosTlsLib_Policy badPolicy, goodPolicy =
+    {
+        .sessionDigests = {SeosTlsLib_Digest_SHA256},
+        .sessionDigestsLen = 1,
+        .signatureDigests = {SeosTlsLib_Digest_SHA256},
+        .signatureDigestsLen = 1,
+        .rsaMinBits = SeosCryptoApi_Key_SIZE_RSA_MIN * 8,
+        .dhMinBits = SeosCryptoApi_Key_SIZE_DH_MIN * 8
+    };
+    static SeosTlsApi_Config badCfg, goodCfg =
+    {
+        .mode = SeosTlsApi_Mode_AS_LIBRARY,
+        .config.library = {
+            .socket = {
+                .recv = recvFunc,
+                .send = sendFunc,
+            },
+            .crypto = {
+                .context = &crypto,
+                .policy = NULL,
+                .caCert = TLS_HOST_CERT,
+                .cipherSuites = {
+                    SeosTlsLib_CipherSuite_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                    SeosTlsLib_CipherSuite_DHE_RSA_WITH_AES_128_GCM_SHA256
+                },
+                .cipherSuitesLen = 2
+            }
+        },
+    };
+    static SeosTlsApi_Config cfgRpcClient =
+    {
+        .mode = SeosTlsApi_Mode_AS_RPC_CLIENT,
+        .config.client.handle = NOT_NULL
+    };
+
+    cfgRpcClient.config.client.dataport = tlsClientDataport,
+
+    // Test in RPC Client mode without dataport
+    memcpy(&badCfg, &cfgRpcClient, sizeof(SeosTlsApi_Config));
+    badCfg.config.client.dataport = NULL;
+    err = SeosTlsApi_init(&tls, &badCfg);
+    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+
+    // Test in RPC Client mode without client handle
+    memcpy(&badCfg, &cfgRpcClient, sizeof(SeosTlsApi_Config));
+    badCfg.config.client.handle = NULL;
+    err = SeosTlsApi_init(&tls, &badCfg);
+    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+
+    err = SeosCryptoApi_init(&crypto, &cryptoCfg);
+    Debug_ASSERT(SEOS_SUCCESS == err);
+
+    // Provide bad mode
+    memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
+    badCfg.mode = 666;
+    err = SeosTlsApi_init(&tls, &badCfg);
+    Debug_ASSERT(SEOS_ERROR_NOT_SUPPORTED == err);
+
+    // No RECV callback
+    memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
+    badCfg.config.library.socket.recv = NULL;
+    err = SeosTlsApi_init(&tls, &badCfg);
+    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+
+    // No SEND callback
+    memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
+    badCfg.config.library.socket.send = NULL;
+    err = SeosTlsApi_init(&tls, &badCfg);
+    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+
+    // No crypto context
+    memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
+    badCfg.config.library.crypto.context = NULL;
+    err = SeosTlsApi_init(&tls, &badCfg);
+    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+
+    memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
+    badCfg.config.library.crypto.policy = &badPolicy;
+
+    // Invalid session digest algorithm
+    memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
+    badPolicy.sessionDigests[1] = 666;
+    badPolicy.sessionDigestsLen = 2;
+    err = SeosTlsApi_init(&tls, &badCfg);
+    Debug_ASSERT(SEOS_ERROR_NOT_SUPPORTED == err);
+
+    // Too many session digests
+    memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
+    badPolicy.sessionDigestsLen = SeosTlsLib_MAX_DIGESTS + 1;
+    err = SeosTlsApi_init(&tls, &badCfg);
+    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+
+    // Invalid signature digest algorithm
+    memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
+    badPolicy.signatureDigests[1] = 666;
+    badPolicy.signatureDigestsLen = 2;
+    err = SeosTlsApi_init(&tls, &badCfg);
+    Debug_ASSERT(SEOS_ERROR_NOT_SUPPORTED == err);
+
+    // Too many signature digests
+    memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
+    badPolicy.signatureDigestsLen = SeosTlsLib_MAX_DIGESTS + 1;
+    err = SeosTlsApi_init(&tls, &badCfg);
+    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+
+    // Min size for DH too big
+    memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
+    badPolicy.dhMinBits = (SeosCryptoApi_Key_SIZE_DH_MAX * 8) + 1;
+    err = SeosTlsApi_init(&tls, &badCfg);
+    Debug_ASSERT(SEOS_ERROR_NOT_SUPPORTED == err);
+
+    // Min size for DH too small
+    memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
+    badPolicy.dhMinBits = (SeosCryptoApi_Key_SIZE_DH_MIN * 8) - 1;
+    err = SeosTlsApi_init(&tls, &badCfg);
+    Debug_ASSERT(SEOS_ERROR_NOT_SUPPORTED == err);
+
+    // Min size for RSA too big
+    memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
+    badPolicy.rsaMinBits = (SeosCryptoApi_Key_SIZE_RSA_MAX * 8) + 1;
+    err = SeosTlsApi_init(&tls, &badCfg);
+    Debug_ASSERT(SEOS_ERROR_NOT_SUPPORTED == err);
+
+    // Min size for RSA too small
+    memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
+    badPolicy.rsaMinBits = (SeosCryptoApi_Key_SIZE_RSA_MIN * 8) - 1;
+    err = SeosTlsApi_init(&tls, &badCfg);
+    Debug_ASSERT(SEOS_ERROR_NOT_SUPPORTED == err);
+
+    // Cert is not properly PEM encoded
+    memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
+    // Invalidate the "-----BEGIN" part of the PEM encoded cert
+    memset(badCfg.config.library.crypto.caCert, 0, 10);
+    err = SeosTlsApi_init(&tls, &badCfg);
+    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+
+    // Invalid cipher suite
+    memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
+    badCfg.config.library.crypto.cipherSuites[0] = 666;
+    err = SeosTlsApi_init(&tls, &badCfg);
+    Debug_ASSERT(SEOS_ERROR_NOT_SUPPORTED == err);
+
+    // Too many cipher suites
+    memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
+    badCfg.config.library.crypto.cipherSuitesLen = SeosTlsLib_MAX_CIPHERSUITES + 1;
+    err = SeosTlsApi_init(&tls, &badCfg);
+    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+
+    // No ciphersuites at all
+    memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
+    badCfg.config.library.crypto.cipherSuitesLen = 0;
+    err = SeosTlsApi_init(&tls, &badCfg);
+    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+
+    err = SeosCryptoApi_free(&crypto);
+    Debug_ASSERT(SEOS_SUCCESS == err);
+
+    TEST_OK();
+}
+
 static void
 test_SeosTlsApi_mode(
     SeosTlsApi_Context* api,
@@ -186,6 +450,14 @@ int run()
         .mode = SeosTlsApi_Mode_AS_RPC_CLIENT,
         .config.client.dataport = tlsClientDataport,
     };
+
+    Debug_PRINTF("Testing TLS API:\n");
+
+    // Test init and free independent of API mode
+    test_SeosTlsApi_init_ok();
+    test_SeosTlsApi_init_fail();
+
+    Debug_PRINTF("\n");
 
     Seos_NwAPP_RT(NULL);
 
