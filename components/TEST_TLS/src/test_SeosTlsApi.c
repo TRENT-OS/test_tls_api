@@ -396,6 +396,59 @@ test_SeosTlsApi_init_fail()
 }
 
 static void
+test_SeosTlsApi_free_ok()
+{
+    seos_err_t err;
+    SeosTlsApi_Context tls;
+    static SeosCryptoApi crypto;
+    static SeosTlsApi_Config cfg =
+    {
+        .mode = SeosTlsApi_Mode_AS_LIBRARY,
+        .config.library = {
+            .socket = {
+                .recv = recvFunc,
+                .send = sendFunc,
+            },
+            .crypto = {
+                .context = &crypto,
+                .caCert = TLS_HOST_CERT,
+                .cipherSuites = {
+                    SeosTlsLib_CipherSuite_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                },
+                .cipherSuitesLen = 1
+            }
+        },
+    };
+
+    err = SeosCryptoApi_init(&crypto, &cryptoCfg);
+    Debug_ASSERT(SEOS_SUCCESS == err);
+
+    err = SeosTlsApi_init(&tls, &cfg);
+    Debug_ASSERT(SEOS_SUCCESS == err);
+    err = SeosTlsApi_free(&tls);
+    Debug_ASSERT(SEOS_SUCCESS == err);
+
+    err = SeosCryptoApi_free(&crypto);
+    Debug_ASSERT(SEOS_SUCCESS == err);
+
+    TEST_OK();
+}
+
+static void
+test_SeosTlsApi_free_fail()
+{
+    seos_err_t err;
+
+    // Empty context
+    err = SeosTlsApi_free(NULL);
+    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+
+    TEST_OK();
+}
+
+// Test functions executed for different API modes -----------------------------
+
+static void
 test_SeosTlsApi_mode(
     SeosTlsApi_Context* api,
     seos_socket_handle_t* socket)
@@ -456,6 +509,9 @@ int run()
     // Test init and free independent of API mode
     test_SeosTlsApi_init_ok();
     test_SeosTlsApi_init_fail();
+
+    test_SeosTlsApi_free_ok();
+    test_SeosTlsApi_free_fail();
 
     Debug_PRINTF("\n");
 
