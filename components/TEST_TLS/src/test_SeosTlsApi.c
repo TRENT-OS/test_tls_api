@@ -449,6 +449,37 @@ test_SeosTlsApi_free_fail()
 // Test functions executed for different API modes -----------------------------
 
 static void
+test_SeosTlsApi_handshake_ok(
+    SeosTlsApi_Context* api)
+
+{
+    seos_err_t err;
+
+    // Do the handshake
+    err = SeosTlsApi_handshake(api);
+    Debug_ASSERT(SEOS_SUCCESS == err);
+
+    TEST_OK(api->mode);
+}
+
+static void
+test_SeosTlsApi_handshake_fail(
+    SeosTlsApi_Context* api)
+{
+    seos_err_t err;
+
+    // Handshake again on an already existing TLS session
+    err = SeosTlsApi_handshake(api);
+    Debug_ASSERT(SEOS_ERROR_OPERATION_DENIED == err);
+
+    // Without context
+    err = SeosTlsApi_handshake(NULL);
+    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+
+    TEST_OK(api->mode);
+}
+
+static void
 test_SeosTlsApi_mode(
     SeosTlsApi_Context* api,
     seos_socket_handle_t* socket)
@@ -468,6 +499,9 @@ test_SeosTlsApi_mode(
     }
 
     Debug_PRINTF("Testing TLS API in %s mode:\n", mode);
+
+    test_SeosTlsApi_handshake_ok(api);
+    test_SeosTlsApi_handshake_fail(api);
 }
 
 // Public functions ------------------------------------------------------------
