@@ -70,7 +70,7 @@ static SeosCryptoApi_Config cryptoCfg =
     },
     .impl.lib.rng.entropy = entropy
 };
-static     seos_nw_client_struct socketCfg =
+static seos_nw_client_struct socketCfg =
 {
     .domain = SEOS_AF_INET,
     .type   = SEOS_SOCK_STREAM,

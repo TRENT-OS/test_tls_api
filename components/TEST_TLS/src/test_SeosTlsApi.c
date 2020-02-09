@@ -607,7 +607,7 @@ test_SeosTlsApi_read_ok(
 
 static void
 test_SeosTlsApi_reset_ok(
-    SeosTlsApi_Context* api,
+    SeosTlsApi_Context*   api,
     seos_socket_handle_t* socket)
 {
     seos_err_t err;
@@ -632,7 +632,7 @@ test_SeosTlsApi_reset_ok(
 
 static void
 test_SeosTlsApi_reset_fail(
-    SeosTlsApi_Context* api,
+    SeosTlsApi_Context*   api,
     seos_socket_handle_t* socket)
 {
     seos_err_t err;
@@ -645,7 +645,7 @@ test_SeosTlsApi_reset_fail(
 
 static void
 test_SeosTlsApi_mode(
-    SeosTlsApi_Context* api,
+    SeosTlsApi_Context*   api,
     seos_socket_handle_t* socket)
 {
     char mode[128];
