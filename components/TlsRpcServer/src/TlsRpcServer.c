@@ -4,10 +4,15 @@
 
 #include "TestConfig.h"
 
-#include "TlsRpcServer.h"
 #include "SeosCryptoApi.h"
-
+#include "SeosTlsApi_Impl.h"
 #include "seos_nw_api.h"
+
+#include "TlsRpcServer.h"
+
+#ifdef WAIT_FOR_CLIENT_CONNECT
+#include <sel4/sel4.h> // needed for seL4_yield()
+#endif
 
 #include <camkes.h>
 #include <string.h>
@@ -35,7 +40,7 @@ entropy(
     unsigned char* buf,
     size_t         len);
 
-static SeosTlsApi_Config serverCfg =
+static SeosTlsApi_Config tlsCfg =
 {
     .mode = SeosTlsApi_Mode_AS_RPC_SERVER,
     .config.server.library = {
@@ -56,11 +61,26 @@ static SeosTlsApi_Config serverCfg =
         }
     }
 };
+static SeosCryptoApi_Config cryptoCfg =
+{
+    .mode = SeosCryptoApi_Mode_LIBRARY,
+    .mem = {
+        .malloc = malloc,
+        .free = free,
+    },
+    .impl.lib.rng.entropy = entropy
+};
+static     seos_nw_client_struct socketCfg =
+{
+    .domain = SEOS_AF_INET,
+    .type   = SEOS_SOCK_STREAM,
+    .name   = TLS_HOST_IP,
+    .port   = TLS_HOST_PORT
+};
 
 static SeosTlsApi_Context tlsContext;
 static SeosCryptoApi cryptoContext;
 static seos_socket_handle_t socket;
-static TlsRpcServer_Config config;
 
 // Private static functions ----------------------------------------------------
 
@@ -119,58 +139,57 @@ entropy(
 
 int run()
 {
-    Debug_PRINTF("Starting TlsRpcServer networking...\n");
-
-    Seos_NwAPP_RT(NULL);
-
     return 0;
 }
 
 seos_err_t
 TlsRpcServer_init(
-    SeosTlsRpcServer_Handle* ctx,
-    TlsRpcServer_Config      cfg)
+    SeosTlsRpcServer_Handle* ctx)
 {
     seos_err_t err;
-    seos_nw_client_struct socketCfg =
-    {
-        .domain = SEOS_AF_INET,
-        .type   = SEOS_SOCK_STREAM,
-        .name   = config.ip,
-    };
-    SeosCryptoApi_Config cryptoCfg =
-    {
-        .mode = SeosCryptoApi_Mode_LIBRARY,
-        .mem = {
-            .malloc = malloc,
-            .free = free,
-        },
-        .impl.lib.rng = {
-            .entropy = entropy,
-            .context = NULL
-        }
-    };
 
-    printf("TlsRpcServer is connecting to: %s:%i\n", cfg.ip, cfg.port);
-
-    memcpy(&config, &cfg, sizeof(TlsRpcServer_Config));
-    socketCfg.port = cfg.port;
-    err = Seos_client_socket_create(NULL, &socketCfg, &socket);
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    // Apparently this needs to be done in the RPC thread...?!
+    Seos_NwAPP_RT(NULL);
 
     err = SeosCryptoApi_init(&cryptoContext, &cryptoCfg);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
-    serverCfg.config.server.dataport               = tlsServerDataport;
-    serverCfg.config.server.library.socket.context = &socket;
-    serverCfg.config.server.library.crypto.context = &cryptoContext;
+    tlsCfg.config.server.dataport               = tlsServerDataport;
+    tlsCfg.config.server.library.crypto.context = &cryptoContext;
+    // Socket will be connected later, by call to _connectSocket()
+    tlsCfg.config.server.library.socket.context = &socket;
 
-    err = SeosTlsApi_init(&tlsContext, &serverCfg);
+    err = SeosTlsApi_init(&tlsContext, &tlsCfg);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
     *ctx = &tlsContext;
 
     return 0;
+}
+
+seos_err_t
+TlsRpcServer_connectSocket()
+{
+    seos_err_t err;
+
+    err = Seos_client_socket_create(NULL, &socketCfg, &socket);
+
+#ifdef WAIT_FOR_CLIENT_CONNECT
+    Debug_PRINTFLN("%s: Waiting for a while before trying to use socket..",
+                   __func__);
+    for (size_t i = 0; i < 500; i++)
+    {
+        seL4_Yield();
+    }
+#endif
+
+    return err;
+}
+
+seos_err_t
+TlsRpcServer_closeSocket()
+{
+    return Seos_socket_close(socket);
 }
 
 seos_err_t

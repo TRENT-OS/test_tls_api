@@ -7,8 +7,9 @@
 
 procedure TlsRpcServerInf {
     include "SeosTlsApi_Impl.h";
-    include "TlsRpcServer.h";
 
-    seos_err_t  init        (out SeosTlsRpcServer_Handle ctx, in TlsRpcServer_Config cfg);
-    seos_err_t  free        ();
+    seos_err_t  init            (out SeosTlsRpcServer_Handle ctx);
+    seos_err_t  connectSocket   ();
+    seos_err_t  closeSocket     ();
+    seos_err_t  free            ();
 };

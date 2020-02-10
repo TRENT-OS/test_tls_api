@@ -6,16 +6,15 @@
 
 #include "SeosTlsApi.h"
 
-#define SeosTlsServer_SIZE_IP   32
-
-typedef struct {
-    char ip[SeosTlsServer_SIZE_IP];
-    int port;
-} TlsRpcServer_Config;
-
 seos_err_t
 TlsRpcServer_init(
-    SeosTlsRpcServer_Handle* ctx, TlsRpcServer_Config cfg);
+    SeosTlsRpcServer_Handle* ctx);
+
+seos_err_t
+TlsRpcServer_connect();
+
+seos_err_t
+TlsRpcServer_close();
 
 seos_err_t
 TlsRpcServer_free();
