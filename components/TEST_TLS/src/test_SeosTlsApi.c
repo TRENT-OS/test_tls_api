@@ -120,7 +120,8 @@ connectSocket(
     err = Seos_client_socket_create(NULL, &socketCfg, socket);
 
 #ifdef WAIT_FOR_CLIENT_CONNECT
-    Debug_PRINTFLN("%s: Waiting for a while before trying to use socket..", __func__);
+    Debug_PRINTFLN("%s: Waiting for a while before trying to use socket..",
+                   __func__);
     for (size_t i = 0; i < 500; i++)
     {
         seL4_Yield();
@@ -175,7 +176,6 @@ resetSocket(
 static void
 test_SeosTlsApi_init_pos()
 {
-    seos_err_t err;
     SeosTlsApi_Context tls;
     static SeosCryptoApi crypto;
     static SeosTlsApi_Config cfgRpcClient =
@@ -230,37 +230,27 @@ test_SeosTlsApi_init_pos()
         .dhMinBits = SeosCryptoApi_Key_SIZE_DH_MAX * 8
     };
 
-    err = SeosCryptoApi_init(&crypto, &cryptoCfg);
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    TEST_SUCCESS(SeosCryptoApi_init(&crypto, &cryptoCfg));
 
     // Test RPC CLIENT mode
     cfgRpcClient.config.client.dataport = tlsClientDataport,
-    err = SeosTlsApi_init(&tls, &cfgRpcClient);
-    Debug_ASSERT(SEOS_SUCCESS == err);
-    err = SeosTlsApi_free(&tls);
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    TEST_SUCCESS(SeosTlsApi_init(&tls, &cfgRpcClient));
+    TEST_SUCCESS(SeosTlsApi_free(&tls));
 
     // Test with all ciphersuites enabled
-    err = SeosTlsApi_init(&tls, &cfgAllSuites);
-    Debug_ASSERT(SEOS_SUCCESS == err);
-    err = SeosTlsApi_free(&tls);
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    TEST_SUCCESS(SeosTlsApi_init(&tls, &cfgAllSuites));
+    TEST_SUCCESS(SeosTlsApi_free(&tls));
 
     // Test with only one ciphersuite enabled
-    err = SeosTlsApi_init(&tls, &cfgOneSuite);
-    Debug_ASSERT(SEOS_SUCCESS == err);
-    err = SeosTlsApi_free(&tls);
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    TEST_SUCCESS(SeosTlsApi_init(&tls, &cfgOneSuite));
+    TEST_SUCCESS(SeosTlsApi_free(&tls));
 
     // Test with all ciphersuites and policy options
     cfgAllSuites.config.library.crypto.policy = &policy;
-    err = SeosTlsApi_init(&tls, &cfgAllSuites);
-    Debug_ASSERT(SEOS_SUCCESS == err);
-    err = SeosTlsApi_free(&tls);
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    TEST_SUCCESS(SeosTlsApi_init(&tls, &cfgAllSuites));
+    TEST_SUCCESS(SeosTlsApi_free(&tls));
 
-    err = SeosCryptoApi_free(&crypto);
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    TEST_SUCCESS(SeosCryptoApi_free(&crypto));
 
     TEST_OK();
 }
@@ -268,7 +258,6 @@ test_SeosTlsApi_init_pos()
 static void
 test_SeosTlsApi_init_neg()
 {
-    seos_err_t err;
     SeosTlsApi_Context tls;
     static SeosCryptoApi crypto;
     static SeosTlsLib_Policy badPolicy, goodPolicy =
@@ -311,41 +300,34 @@ test_SeosTlsApi_init_neg()
     // Test in RPC Client mode without dataport
     memcpy(&badCfg, &cfgRpcClient, sizeof(SeosTlsApi_Config));
     badCfg.config.client.dataport = NULL;
-    err = SeosTlsApi_init(&tls, &badCfg);
-    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+    TEST_INVAL_PARAM(SeosTlsApi_init(&tls, &badCfg));
 
     // Test in RPC Client mode without client handle
     memcpy(&badCfg, &cfgRpcClient, sizeof(SeosTlsApi_Config));
     badCfg.config.client.handle = NULL;
-    err = SeosTlsApi_init(&tls, &badCfg);
-    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+    TEST_INVAL_PARAM(SeosTlsApi_init(&tls, &badCfg));
 
-    err = SeosCryptoApi_init(&crypto, &cryptoCfg);
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    TEST_SUCCESS(SeosCryptoApi_init(&crypto, &cryptoCfg));
 
     // Provide bad mode
     memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
     badCfg.mode = 666;
-    err = SeosTlsApi_init(&tls, &badCfg);
-    Debug_ASSERT(SEOS_ERROR_NOT_SUPPORTED == err);
+    TEST_NOT_SUPP(SeosTlsApi_init(&tls, &badCfg));
 
     // No RECV callback
     memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
     badCfg.config.library.socket.recv = NULL;
-    err = SeosTlsApi_init(&tls, &badCfg);
-    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+    TEST_INVAL_PARAM(SeosTlsApi_init(&tls, &badCfg));
 
     // No SEND callback
     memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
     badCfg.config.library.socket.send = NULL;
-    err = SeosTlsApi_init(&tls, &badCfg);
-    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+    TEST_INVAL_PARAM(SeosTlsApi_init(&tls, &badCfg));
 
     // No crypto context
     memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
     badCfg.config.library.crypto.context = NULL;
-    err = SeosTlsApi_init(&tls, &badCfg);
-    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+    TEST_INVAL_PARAM(SeosTlsApi_init(&tls, &badCfg));
 
     memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
     badCfg.config.library.crypto.policy = &badPolicy;
@@ -354,79 +336,66 @@ test_SeosTlsApi_init_neg()
     memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
     badPolicy.sessionDigests[1] = 666;
     badPolicy.sessionDigestsLen = 2;
-    err = SeosTlsApi_init(&tls, &badCfg);
-    Debug_ASSERT(SEOS_ERROR_NOT_SUPPORTED == err);
+    TEST_NOT_SUPP(SeosTlsApi_init(&tls, &badCfg));
 
     // Too many session digests
     memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
     badPolicy.sessionDigestsLen = SeosTlsLib_MAX_DIGESTS + 1;
-    err = SeosTlsApi_init(&tls, &badCfg);
-    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+    TEST_INVAL_PARAM(SeosTlsApi_init(&tls, &badCfg));
 
     // Invalid signature digest algorithm
     memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
     badPolicy.signatureDigests[1] = 666;
     badPolicy.signatureDigestsLen = 2;
-    err = SeosTlsApi_init(&tls, &badCfg);
-    Debug_ASSERT(SEOS_ERROR_NOT_SUPPORTED == err);
+    TEST_NOT_SUPP(SeosTlsApi_init(&tls, &badCfg));
 
     // Too many signature digests
     memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
     badPolicy.signatureDigestsLen = SeosTlsLib_MAX_DIGESTS + 1;
-    err = SeosTlsApi_init(&tls, &badCfg);
-    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+    TEST_INVAL_PARAM(SeosTlsApi_init(&tls, &badCfg));
 
     // Min size for DH too big
     memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
     badPolicy.dhMinBits = (SeosCryptoApi_Key_SIZE_DH_MAX * 8) + 1;
-    err = SeosTlsApi_init(&tls, &badCfg);
-    Debug_ASSERT(SEOS_ERROR_NOT_SUPPORTED == err);
+    TEST_NOT_SUPP(SeosTlsApi_init(&tls, &badCfg));
 
     // Min size for DH too small
     memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
     badPolicy.dhMinBits = (SeosCryptoApi_Key_SIZE_DH_MIN * 8) - 1;
-    err = SeosTlsApi_init(&tls, &badCfg);
-    Debug_ASSERT(SEOS_ERROR_NOT_SUPPORTED == err);
+    TEST_NOT_SUPP(SeosTlsApi_init(&tls, &badCfg));
 
     // Min size for RSA too big
     memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
     badPolicy.rsaMinBits = (SeosCryptoApi_Key_SIZE_RSA_MAX * 8) + 1;
-    err = SeosTlsApi_init(&tls, &badCfg);
-    Debug_ASSERT(SEOS_ERROR_NOT_SUPPORTED == err);
+    TEST_NOT_SUPP(SeosTlsApi_init(&tls, &badCfg));
 
     // Min size for RSA too small
     memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
     badPolicy.rsaMinBits = (SeosCryptoApi_Key_SIZE_RSA_MIN * 8) - 1;
-    err = SeosTlsApi_init(&tls, &badCfg);
-    Debug_ASSERT(SEOS_ERROR_NOT_SUPPORTED == err);
+    TEST_NOT_SUPP(SeosTlsApi_init(&tls, &badCfg));
 
     // Cert is not properly PEM encoded
     memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
     // Invalidate the "-----BEGIN" part of the PEM encoded cert
     memset(badCfg.config.library.crypto.caCert, 0, 10);
-    err = SeosTlsApi_init(&tls, &badCfg);
-    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+    TEST_INVAL_PARAM(SeosTlsApi_init(&tls, &badCfg));
 
     // Invalid cipher suite
     memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
     badCfg.config.library.crypto.cipherSuites[0] = 666;
-    err = SeosTlsApi_init(&tls, &badCfg);
-    Debug_ASSERT(SEOS_ERROR_NOT_SUPPORTED == err);
+    TEST_NOT_SUPP(SeosTlsApi_init(&tls, &badCfg));
 
     // Too many cipher suites
     memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
     badCfg.config.library.crypto.cipherSuitesLen = SeosTlsLib_MAX_CIPHERSUITES + 1;
-    err = SeosTlsApi_init(&tls, &badCfg);
-    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+    TEST_INVAL_PARAM(SeosTlsApi_init(&tls, &badCfg));
 
     // No ciphersuites at all
     memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
     badCfg.config.library.crypto.cipherSuitesLen = 0;
-    err = SeosTlsApi_init(&tls, &badCfg);
-    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+    TEST_INVAL_PARAM(SeosTlsApi_init(&tls, &badCfg));
 
-    err = SeosCryptoApi_free(&crypto);
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    TEST_SUCCESS(SeosCryptoApi_free(&crypto));
 
     TEST_OK();
 }
@@ -434,7 +403,7 @@ test_SeosTlsApi_init_neg()
 static void
 test_SeosTlsApi_free_pos()
 {
-    seos_err_t err;
+
     SeosTlsApi_Context tls;
     static SeosCryptoApi crypto;
     static SeosTlsApi_Config cfg =
@@ -456,16 +425,13 @@ test_SeosTlsApi_free_pos()
         },
     };
 
-    err = SeosCryptoApi_init(&crypto, &cryptoCfg);
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    TEST_SUCCESS(SeosCryptoApi_init(&crypto, &cryptoCfg));
 
-    err = SeosTlsApi_init(&tls, &cfg);
-    Debug_ASSERT(SEOS_SUCCESS == err);
-    err = SeosTlsApi_free(&tls);
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    // Simply init it and free again
+    TEST_SUCCESS(SeosTlsApi_init(&tls, &cfg));
+    TEST_SUCCESS(SeosTlsApi_free(&tls));
 
-    err = SeosCryptoApi_free(&crypto);
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    TEST_SUCCESS(SeosCryptoApi_free(&crypto));
 
     TEST_OK();
 }
@@ -473,11 +439,8 @@ test_SeosTlsApi_free_pos()
 static void
 test_SeosTlsApi_free_neg()
 {
-    seos_err_t err;
-
     // Empty context
-    err = SeosTlsApi_free(NULL);
-    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+    TEST_INVAL_PARAM(SeosTlsApi_free(NULL));
 
     TEST_OK();
 }
@@ -488,11 +451,8 @@ static void
 test_SeosTlsApi_handshake_pos(
     SeosTlsApi_Context* api)
 {
-    seos_err_t err;
-
     // Do the handshake
-    err = SeosTlsApi_handshake(api);
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    TEST_SUCCESS(SeosTlsApi_handshake(api));
 
     TEST_OK(api->mode);
 }
@@ -501,15 +461,11 @@ static void
 test_SeosTlsApi_handshake_neg(
     SeosTlsApi_Context* api)
 {
-    seos_err_t err;
-
     // Handshake again on an already existing TLS session
-    err = SeosTlsApi_handshake(api);
-    Debug_ASSERT(SEOS_ERROR_OPERATION_DENIED == err);
+    TEST_OP_DENIED(SeosTlsApi_handshake(api));
 
     // Without context
-    err = SeosTlsApi_handshake(NULL);
-    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+    TEST_INVAL_PARAM(SeosTlsApi_handshake(NULL));
 
     TEST_OK(api->mode);
 }
@@ -518,22 +474,18 @@ static void
 test_SeosTlsApi_write_neg(
     SeosTlsApi_Context* api)
 {
-    seos_err_t err;
     char* request = ECHO_STRING;
     size_t len = sizeof(request);
 
     // No context
-    err = SeosTlsApi_write(NULL, request, len);
-    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+    TEST_INVAL_PARAM(SeosTlsApi_write(NULL, request, len));
 
     // No buffer
-    err = SeosTlsApi_write(api, NULL, len);
-    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+    TEST_INVAL_PARAM(SeosTlsApi_write(api, NULL, len));
 
     // Zero length write
     len = 0;
-    err = SeosTlsApi_write(api, request, len);
-    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+    TEST_INVAL_PARAM(SeosTlsApi_write(api, request, len));
 
     TEST_OK(api->mode);
 }
@@ -542,12 +494,14 @@ static void
 test_SeosTlsApi_write_pos(
     SeosTlsApi_Context* api)
 {
-    seos_err_t err;
     char request[] = ECHO_STRING;
     size_t len = sizeof(request);
 
-    err = SeosTlsApi_write(api, request, len);
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    /*
+     * Before executing this test, a TLS sessions needs to be established
+     */
+
+    TEST_SUCCESS(SeosTlsApi_write(api, request, len));
 
     TEST_OK(api->mode);
 }
@@ -556,26 +510,21 @@ static void
 test_SeosTlsApi_read_neg(
     SeosTlsApi_Context* api)
 {
-    seos_err_t err;
     unsigned char buffer[1024];
     size_t len = sizeof(buffer);
 
     // No context
-    err = SeosTlsApi_read(NULL, buffer, &len);
-    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+    TEST_INVAL_PARAM(SeosTlsApi_read(NULL, buffer, &len));
 
     // No buffer
-    err = SeosTlsApi_read(api, NULL, &len);
-    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+    TEST_INVAL_PARAM(SeosTlsApi_read(api, NULL, &len));
 
     // No len
-    err = SeosTlsApi_read(api, buffer, NULL);
-    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+    TEST_INVAL_PARAM(SeosTlsApi_read(api, buffer, NULL));
 
     // Zero length
     len = 0;
-    err = SeosTlsApi_read(api, buffer, &len);
-    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+    TEST_INVAL_PARAM(SeosTlsApi_read(api, buffer, &len));
 
     TEST_OK(api->mode);
 }
@@ -584,7 +533,6 @@ static void
 test_SeosTlsApi_read_pos(
     SeosTlsApi_Context* api)
 {
-    seos_err_t err;
     unsigned char buffer[1024];
     const char answer[] = ECHO_STRING;
     size_t len = sizeof(buffer);
@@ -596,8 +544,7 @@ test_SeosTlsApi_read_pos(
 
     len = sizeof(buffer);
     memset(buffer, 0, sizeof(buffer));
-    err = SeosTlsApi_read(api, buffer, &len);
-    Debug_ASSERT_PRINTFLN(SEOS_SUCCESS == err, "err %d", err);
+    TEST_SUCCESS(SeosTlsApi_read(api, buffer, &len));
     Debug_ASSERT(len == sizeof(answer));
     Debug_ASSERT(!memcmp(buffer, answer, len));
 
@@ -609,22 +556,16 @@ test_SeosTlsApi_reset_pos(
     SeosTlsApi_Context*   api,
     seos_socket_handle_t* socket)
 {
-    seos_err_t err;
-
     /*
      * For this test we expect the socket to be closed and the TLS session to
      * be finished as well.
      */
 
     // Reset the API and the socket
-    err = SeosTlsApi_reset(api);
-    Debug_ASSERT(SEOS_SUCCESS == err);
-    err = resetSocket(socket);
-    Debug_ASSERT(SEOS_SUCCESS == err);
-
+    TEST_SUCCESS(SeosTlsApi_reset(api));
+    TEST_SUCCESS(resetSocket(socket));
     // Do the handshake again
-    err = SeosTlsApi_handshake(api);
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    TEST_SUCCESS(SeosTlsApi_handshake(api));
 
     TEST_OK(api->mode);
 }
@@ -634,10 +575,7 @@ test_SeosTlsApi_reset_neg(
     SeosTlsApi_Context*   api,
     seos_socket_handle_t* socket)
 {
-    seos_err_t err;
-
-    err = SeosTlsApi_reset(NULL);
-    Debug_ASSERT(SEOS_ERROR_INVALID_PARAMETER == err);
+    TEST_INVAL_PARAM(SeosTlsApi_reset(NULL));
 
     TEST_OK(api->mode);
 }
@@ -705,7 +643,6 @@ test_SeosTlsApi_mode(
 
 int run()
 {
-    seos_err_t err;
     SeosTlsApi_Context tls;
     static SeosCryptoApi crypto;
     static seos_socket_handle_t socket;
@@ -749,37 +686,25 @@ int run()
     Seos_NwAPP_RT(NULL);
 
     // Test library mode
-    err = connectSocket(&socket);
-    Debug_ASSERT(SEOS_SUCCESS == err);
-    err = SeosCryptoApi_init(&crypto, &cryptoCfg);
-    Debug_ASSERT(SEOS_SUCCESS == err);
-    err = SeosTlsApi_init(&tls, &localCfg);
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    TEST_SUCCESS(connectSocket(&socket));
+    TEST_SUCCESS(SeosCryptoApi_init(&crypto, &cryptoCfg));
+    TEST_SUCCESS(SeosTlsApi_init(&tls, &localCfg));
     test_SeosTlsApi_mode(&tls, &socket);
-    err = SeosTlsApi_free(&tls);
-    Debug_ASSERT(SEOS_SUCCESS == err);
-    err = SeosCryptoApi_free(&crypto);
-    Debug_ASSERT(SEOS_SUCCESS == err);
-    err = closeSocket(&socket);
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    TEST_SUCCESS(SeosTlsApi_free(&tls));
+    TEST_SUCCESS(SeosCryptoApi_free(&crypto));
+    TEST_SUCCESS(closeSocket(&socket));
 
     Debug_PRINTF("\n");
 
-    err = TlsRpcServer_init(&remoteCfg.config.client.handle);
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    TEST_SUCCESS(TlsRpcServer_init(&remoteCfg.config.client.handle));
 
     // Test RPC client mode (and implicitly the RPC server side as well)
-    err = TlsRpcServer_connectSocket();
-    Debug_ASSERT(SEOS_SUCCESS == err);
-    err = SeosTlsApi_init(&tls, &remoteCfg);
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    TEST_SUCCESS(TlsRpcServer_connectSocket());
+    TEST_SUCCESS(SeosTlsApi_init(&tls, &remoteCfg));
     test_SeosTlsApi_mode(&tls, NULL);
-    err = SeosTlsApi_free(&tls);
-    Debug_ASSERT(SEOS_SUCCESS == err);
-    err = TlsRpcServer_closeSocket();
-    Debug_ASSERT(SEOS_SUCCESS == err);
-    err = TlsRpcServer_free();
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    TEST_SUCCESS(SeosTlsApi_free(&tls));
+    TEST_SUCCESS(TlsRpcServer_closeSocket());
+    TEST_SUCCESS(TlsRpcServer_free());
 
     Debug_PRINTF("All tests successfully completed.\n");
 
