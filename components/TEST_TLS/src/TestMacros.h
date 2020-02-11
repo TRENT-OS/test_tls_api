@@ -26,3 +26,32 @@
     Debug_PRINTF("!!! %s: OK\n", __func__)
 #define TEST_OK(...) \
     SELECT_OK(_TEST_OK, ## __VA_ARGS__,STOP,2,1,0)(__VA_ARGS__)
+
+/**
+ * Shorthand macros to assert a function error code
+ */
+
+#define TEST_INSUFF_SPACE(fn) \
+    Debug_ASSERT(fn == SEOS_ERROR_INSUFFICIENT_SPACE)
+#define TEST_TOO_SMALL(fn) \
+    Debug_ASSERT(fn == SEOS_ERROR_BUFFER_TOO_SMALL)
+#define TEST_ABORTED(fn) \
+    Debug_ASSERT(fn == SEOS_ERROR_ABORTED)
+#define TEST_OP_DENIED(fn) \
+    Debug_ASSERT(fn == SEOS_ERROR_OPERATION_DENIED)
+#define TEST_ACC_DENIED(fn) \
+    Debug_ASSERT(fn == SEOS_ERROR_ACCESS_DENIED)
+#define TEST_NOT_FOUND(fn) \
+    Debug_ASSERT(fn == SEOS_ERROR_NOT_FOUND)
+#define TEST_INVAL_HANDLE(fn) \
+    Debug_ASSERT(fn == SEOS_ERROR_INVALID_HANDLE)
+#define TEST_INVAL_NAME(fn) \
+    Debug_ASSERT(fn == SEOS_ERROR_INVALID_NAME)
+#define TEST_INVAL_PARAM(fn) \
+    Debug_ASSERT(fn == SEOS_ERROR_INVALID_PARAMETER)
+#define TEST_NOT_SUPP(fn) \
+    Debug_ASSERT(fn == SEOS_ERROR_NOT_SUPPORTED)
+#define TEST_GENERIC(fn) \
+    Debug_ASSERT(fn == SEOS_ERROR_GENERIC)
+#define TEST_SUCCESS(fn) \
+    Debug_ASSERT(fn == SEOS_SUCCESS)
