@@ -97,7 +97,7 @@ sendFunc(
     n = len > MAX_NW_SIZE ? MAX_NW_SIZE : len;
     if ((err = Seos_socket_write(*sockHandle, buf, &n)) != SEOS_SUCCESS)
     {
-        Debug_LOG_WARNING("Error during socket write...error:%d", err);
+        Debug_LOG_ERROR("Error during socket write...error:%d", err);
         return -1;
     }
 
@@ -117,7 +117,7 @@ recvFunc(
     n = len > MAX_NW_SIZE ? MAX_NW_SIZE : len;
     if ((err = Seos_socket_read(*sockHandle, buf, &n)) != SEOS_SUCCESS)
     {
-        Debug_LOG_WARNING("Error during socket read...error:%d", err);
+        Debug_LOG_ERROR("Error during socket read...error:%d", err);
         return -1;
     }
 
