@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 #include <platsupport/plat/timer.h>
-#include <sel4utils/sel4_zf_logif.h>
+#include "LibDebug/Debug.h"
 
 #include <camkes.h>
 
@@ -35,10 +35,18 @@ void irq_handle(
 
     /* Signal the RPC interface. */
     error = sem_post();
-    ZF_LOGF_IF(error != 0, "Failed to post to semaphore");
+    if (error != 0)
+    {
+        Debug_LOG_ERROR("Failed to post to semaphore, code %d", error);
+        // we can't do anything here, so just continue
+    }
 
     error = irq_acknowledge();
-    ZF_LOGF_IF(error != 0, "Failed to acknowledge interrupt");
+    if (error != 0)
+    {
+        Debug_LOG_ERROR("Failed to acknowledge interrupt, code %d", error);
+        // we can't do anything here, so just continue
+    }
 }
 
 void Timer__init()
@@ -67,5 +75,9 @@ void Timer_sleep(
     ttc_start(&timer_drv);
 
     int error = sem_wait();
-    ZF_LOGF_IF(error != 0, "Failed to wait on semaphore");
+    if (error != 0)
+    {
+        Debug_LOG_ERROR("Failed to wait on semaphore, code %d", error);
+        // we can't do anything here, so just continue
+    }
 }
