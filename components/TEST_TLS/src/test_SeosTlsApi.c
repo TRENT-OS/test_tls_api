@@ -120,7 +120,7 @@ connectSocket(
     err = Seos_client_socket_create(NULL, &socketCfg, socket);
 
 #ifdef WAIT_FOR_CLIENT_CONNECT
-    Debug_PRINTFLN("%s: Waiting for a while before trying to use socket..",
+    Debug_LOG_INFO("%s: Waiting for a while before trying to use socket..",
                    __func__);
     for (size_t i = 0; i < 500; i++)
     {
@@ -599,7 +599,7 @@ test_SeosTlsApi_mode(
         Debug_ASSERT(1 == 0);
     }
 
-    Debug_PRINTF("Testing TLS API in %s mode:\n", mode);
+    Debug_LOG_INFO("Testing TLS API in %s mode:", mode);
 
     /*
      * The following three (six) tests should follow in this order:
@@ -672,7 +672,7 @@ int run()
         .config.client.dataport = tlsClientDataport,
     };
 
-    Debug_PRINTF("Testing TLS API:\n");
+    Debug_LOG_INFO("Testing TLS API:");
 
     // Test init and free independent of API mode
     test_SeosTlsApi_init_pos();
@@ -681,7 +681,7 @@ int run()
     test_SeosTlsApi_free_pos();
     test_SeosTlsApi_free_neg();
 
-    Debug_PRINTF("\n");
+    Debug_LOG_INFO("");
 
     Seos_NwAPP_RT(NULL);
 
@@ -694,7 +694,7 @@ int run()
     TEST_SUCCESS(SeosCryptoApi_free(&crypto));
     TEST_SUCCESS(closeSocket(&socket));
 
-    Debug_PRINTF("\n");
+    Debug_LOG_INFO("");
 
     TEST_SUCCESS(TlsRpcServer_init(&remoteCfg.config.client.handle));
 
@@ -706,7 +706,7 @@ int run()
     TEST_SUCCESS(TlsRpcServer_closeSocket());
     TEST_SUCCESS(TlsRpcServer_free());
 
-    Debug_PRINTF("All tests successfully completed.\n");
+    Debug_LOG_INFO("All tests successfully completed.");
 
     return 0;
 }

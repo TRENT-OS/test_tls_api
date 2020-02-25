@@ -175,7 +175,7 @@ TlsRpcServer_connectSocket()
     err = Seos_client_socket_create(NULL, &socketCfg, &socket);
 
 #ifdef WAIT_FOR_CLIENT_CONNECT
-    Debug_PRINTFLN("%s: Waiting for a while before trying to use socket..",
+    Debug_LOG_INFO("%s: Waiting for a while before trying to use socket..",
                    __func__);
     for (size_t i = 0; i < 500; i++)
     {
