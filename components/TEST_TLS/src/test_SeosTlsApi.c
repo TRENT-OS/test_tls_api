@@ -230,6 +230,8 @@ test_SeosTlsApi_init_pos()
         .dhMinBits = SeosCryptoApi_Key_SIZE_DH_MAX * 8
     };
 
+    TEST_START();
+
     TEST_SUCCESS(SeosCryptoApi_init(&crypto, &cryptoCfg));
 
     // Test RPC CLIENT mode
@@ -252,7 +254,7 @@ test_SeosTlsApi_init_pos()
 
     TEST_SUCCESS(SeosCryptoApi_free(&crypto));
 
-    TEST_OK();
+    TEST_FINISH();
 }
 
 static void
@@ -294,6 +296,8 @@ test_SeosTlsApi_init_neg()
         .mode = SeosTlsApi_Mode_AS_RPC_CLIENT,
         .config.client.handle = NOT_NULL
     };
+
+    TEST_START();
 
     cfgRpcClient.config.client.dataport = tlsClientDataport,
 
@@ -397,7 +401,7 @@ test_SeosTlsApi_init_neg()
 
     TEST_SUCCESS(SeosCryptoApi_free(&crypto));
 
-    TEST_OK();
+    TEST_FINISH();
 }
 
 static void
@@ -425,6 +429,8 @@ test_SeosTlsApi_free_pos()
         },
     };
 
+    TEST_START();
+
     TEST_SUCCESS(SeosCryptoApi_init(&crypto, &cryptoCfg));
 
     // Simply init it and free again
@@ -433,16 +439,18 @@ test_SeosTlsApi_free_pos()
 
     TEST_SUCCESS(SeosCryptoApi_free(&crypto));
 
-    TEST_OK();
+    TEST_FINISH();
 }
 
 static void
 test_SeosTlsApi_free_neg()
 {
+    TEST_START();
+
     // Empty context
     TEST_INVAL_PARAM(SeosTlsApi_free(NULL));
 
-    TEST_OK();
+    TEST_FINISH();
 }
 
 // Test functions executed for different API modes -----------------------------
@@ -451,23 +459,27 @@ static void
 test_SeosTlsApi_handshake_pos(
     SeosTlsApi_Context* api)
 {
+    TEST_START(api->mode);
+
     // Do the handshake
     TEST_SUCCESS(SeosTlsApi_handshake(api));
 
-    TEST_OK(api->mode);
+    TEST_FINISH();
 }
 
 static void
 test_SeosTlsApi_handshake_neg(
     SeosTlsApi_Context* api)
 {
+    TEST_START(api->mode);
+
     // Handshake again on an already existing TLS session
     TEST_OP_DENIED(SeosTlsApi_handshake(api));
 
     // Without context
     TEST_INVAL_PARAM(SeosTlsApi_handshake(NULL));
 
-    TEST_OK(api->mode);
+    TEST_FINISH();
 }
 
 static void
@@ -476,6 +488,8 @@ test_SeosTlsApi_write_neg(
 {
     char* request = ECHO_STRING;
     size_t len = sizeof(request);
+
+    TEST_START(api->mode);
 
     // No context
     TEST_INVAL_PARAM(SeosTlsApi_write(NULL, request, len));
@@ -487,7 +501,7 @@ test_SeosTlsApi_write_neg(
     len = 0;
     TEST_INVAL_PARAM(SeosTlsApi_write(api, request, len));
 
-    TEST_OK(api->mode);
+    TEST_FINISH();
 }
 
 static void
@@ -497,13 +511,15 @@ test_SeosTlsApi_write_pos(
     char request[] = ECHO_STRING;
     size_t len = sizeof(request);
 
+    TEST_START(api->mode);
+
     /*
      * Before executing this test, a TLS sessions needs to be established
      */
 
     TEST_SUCCESS(SeosTlsApi_write(api, request, len));
 
-    TEST_OK(api->mode);
+    TEST_FINISH();
 }
 
 static void
@@ -512,6 +528,8 @@ test_SeosTlsApi_read_neg(
 {
     unsigned char buffer[1024];
     size_t len = sizeof(buffer);
+
+    TEST_START(api->mode);
 
     // No context
     TEST_INVAL_PARAM(SeosTlsApi_read(NULL, buffer, &len));
@@ -526,7 +544,7 @@ test_SeosTlsApi_read_neg(
     len = 0;
     TEST_INVAL_PARAM(SeosTlsApi_read(api, buffer, &len));
 
-    TEST_OK(api->mode);
+    TEST_FINISH();
 }
 
 static void
@@ -537,6 +555,8 @@ test_SeosTlsApi_read_pos(
     const char answer[] = ECHO_STRING;
     size_t len = sizeof(buffer);
 
+    TEST_START(api->mode);
+
     /*
      * Before executing this test, we should have sent the ECHO_STRING to the
      * echo server already as part of the write test.
@@ -545,10 +565,10 @@ test_SeosTlsApi_read_pos(
     len = sizeof(buffer);
     memset(buffer, 0, sizeof(buffer));
     TEST_SUCCESS(SeosTlsApi_read(api, buffer, &len));
-    Debug_ASSERT(len == sizeof(answer));
-    Debug_ASSERT(!memcmp(buffer, answer, len));
+    TEST_TRUE(len == sizeof(answer));
+    TEST_TRUE(!memcmp(buffer, answer, len));
 
-    TEST_OK(api->mode);
+    TEST_FINISH();
 }
 
 static void
@@ -556,6 +576,8 @@ test_SeosTlsApi_reset_pos(
     SeosTlsApi_Context*   api,
     seos_socket_handle_t* socket)
 {
+    TEST_START(api->mode);
+
     /*
      * For this test we expect the socket to be closed and the TLS session to
      * be finished as well.
@@ -567,7 +589,7 @@ test_SeosTlsApi_reset_pos(
     // Do the handshake again
     TEST_SUCCESS(SeosTlsApi_handshake(api));
 
-    TEST_OK(api->mode);
+    TEST_FINISH();
 }
 
 static void
@@ -575,9 +597,11 @@ test_SeosTlsApi_reset_neg(
     SeosTlsApi_Context*   api,
     seos_socket_handle_t* socket)
 {
+    TEST_START(api->mode);
+
     TEST_INVAL_PARAM(SeosTlsApi_reset(NULL));
 
-    TEST_OK(api->mode);
+    TEST_FINISH();
 }
 
 static void
@@ -596,7 +620,7 @@ test_SeosTlsApi_mode(
         strcpy(mode, "SeosTlsApi_Mode_AS_RPC_CLIENT");
         break;
     default:
-        Debug_ASSERT(1 == 0);
+        TEST_TRUE(1 == 0);
     }
 
     Debug_LOG_INFO("Testing TLS API in %s mode:", mode);
