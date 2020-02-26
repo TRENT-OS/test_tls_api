@@ -235,7 +235,7 @@ test_SeosTlsApi_init_pos()
     TEST_SUCCESS(SeosCryptoApi_init(&crypto, &cryptoCfg));
 
     // Test RPC CLIENT mode
-    cfgRpcClient.config.client.dataport = tlsClientDataport,
+    cfgRpcClient.config.client.dataport = tlsClientDataport;
     TEST_SUCCESS(SeosTlsApi_init(&tls, &cfgRpcClient));
     TEST_SUCCESS(SeosTlsApi_free(&tls));
 
