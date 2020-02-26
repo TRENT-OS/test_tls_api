@@ -9,7 +9,7 @@
 #include <camkes.h>
 
 #define MSECS_TO_SLEEP      10
-#define SIGNAL_PERIOD_MS    1000
+#define SIGNAL_PERIOD_MS    50
 
 static unsigned int counterMs = 0;
 
