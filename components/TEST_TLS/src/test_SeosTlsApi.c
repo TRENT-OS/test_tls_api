@@ -25,7 +25,7 @@
 #include <camkes.h>
 #include <string.h>
 
-#define MAX_NW_SIZE 2048
+#define MAX_NW_SIZE 256
 
 // Use for read/write testing with ECHO server
 #define ECHO_STRING "ThisIsATestStringPleaseSendItBackToMe!!"
