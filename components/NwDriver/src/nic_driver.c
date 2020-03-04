@@ -61,6 +61,12 @@ int run()
                 .len           = PAGE_SIZE
             },
             .notify            = event_nwstack_hasData_emit
+        },
+
+        .nic_control_channel_mutex =
+        {
+            .lock    = nic_control_channel_mutex_lock,
+            .unlock  = nic_control_channel_mutex_unlock
         }
     };
 

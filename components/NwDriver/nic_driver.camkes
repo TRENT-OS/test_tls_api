@@ -24,6 +24,8 @@ component NwDriver_1 {
     emits       NwStack_DataAvailable   event_nwstack_hasData;
     dataport    Buf                     port_nwStack_to;   // driver -> network stack
     dataport    Buf                     port_nwStack_from; // network stack -> driver
+
+    has         mutex                   nic_control_channel_mutex;
 }
 
 //------------------------------------------------------------------------------
@@ -42,4 +44,6 @@ component NwDriver_2 {
     emits       NwStack_DataAvailable   event_nwstack_hasData;
     dataport    Buf                     port_nwStack_to;   // driver -> network stack
     dataport    Buf                     port_nwStack_from; // network stack -> driver
+
+    has         mutex                   nic_control_channel_mutex;
 }

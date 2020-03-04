@@ -38,6 +38,9 @@ component NwStack_1 {
     provides    seos_if_socket          network_stack_rpc;
     dataport    Buf                     port_app_io;
     emits       ServiceReady            event_network_init_done;
+
+    has         mutex                   allocatorMutex;
+    has         mutex                   nwstackMutex;
 }
 
 component NwStack_2 {
@@ -71,4 +74,7 @@ component NwStack_2 {
     provides   seos_if_socket          network_stack_rpc;
     dataport   Buf                     port_app_io;
     emits      ServiceReady            event_network_init_done;
+
+    has         mutex                   allocatorMutex;
+    has         mutex                   nwstackMutex;
 }
