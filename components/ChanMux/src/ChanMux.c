@@ -16,11 +16,14 @@
 #define NO_CHANMUX_FIFO         { .buffer = NULL, .len = 0 }
 #define NO_CHANMUX_DATA_PORT    { .io = NULL, .len = 0 }
 
-
-static uint8_t nwFifoBuf[PAGE_SIZE];
+// Increased FIFO size to store 1 minute of network "background" traffic (seen in wireshark)
+// And then doubled it to cover our tests
+static uint8_t nwFifoBuf[1024 * PAGE_SIZE];
 static uint8_t nwCtrFifoBuf[128];
 
-static uint8_t nwFifoBuf_2[PAGE_SIZE];
+// Increased FIFO size to store 1 minute of network "background" traffic (seen in wireshark)
+// And then doubled it to cover our tests
+static uint8_t nwFifoBuf_2[1024 * PAGE_SIZE];
 static uint8_t nwCtrFifoBuf_2[128];
 
 static const ChanMuxConfig_t cfgChanMux =
@@ -44,7 +47,8 @@ static const ChanMuxConfig_t cfgChanMux =
 };
 
 
-typedef struct {
+typedef struct
+{
     ChannelDataport_t  read;
     ChannelDataport_t  write;
 } dataport_rw_t;
@@ -88,10 +92,11 @@ static const dataport_rw_t dataports[CHANMUX_NUM_CHANNELS] =
 #define INVALID_CHANNEL     ((unsigned int)(-1))
 
 
-typedef struct {
-    ChanMux *              chanMux;
+typedef struct
+{
+    ChanMux*               chanMux;
     unsigned int           chanNum_global;
-    const dataport_rw_t *  dataport_rw;
+    const dataport_rw_t*   dataport_rw;
 } chanMux_channel_ctx_t;
 
 
@@ -250,7 +255,7 @@ static seos_err_t
 ChanMux_resolve_ctx(
     unsigned int             sender_id,
     unsigned int             chanNum_local,
-    chanMux_channel_ctx_t *  ctx)
+    chanMux_channel_ctx_t*   ctx)
 {
     Debug_ASSERT( NULL != ctx );
 
