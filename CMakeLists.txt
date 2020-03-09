@@ -26,8 +26,6 @@ DeclareCAmkESComponent(TEST_TLS
     C_FLAGS
         -Wall -Werror
         -DCLIENT_CONFIG=1
-        # FIXME: Temporary fix to at least get NW to work locally (most of the times)
-        -DWAIT_FOR_CLIENT_CONNECT
     LIBS
         seos_core_api
         seos_libs
@@ -51,8 +49,6 @@ DeclareCAmkESComponent(TlsRpcServer
         -DMBEDTLS_CONFIG_FILE="${SEOS_LIBS_DIR}/seos_tls/configs/MbedTLS_Config.h"
         # For NW stack
         -DCLIENT_CONFIG=1
-        # FIXME: Temporary fix to at least get NW to work locally (most of the times)
-        -DWAIT_FOR_CLIENT_CONNECT
     LIBS
         seos_core_api
         seos_libs

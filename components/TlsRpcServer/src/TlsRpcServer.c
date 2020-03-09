@@ -10,10 +10,6 @@
 
 #include "TlsRpcServer.h"
 
-#ifdef WAIT_FOR_CLIENT_CONNECT
-#include <sel4/sel4.h> // needed for seL4_yield()
-#endif
-
 #include <camkes.h>
 #include <string.h>
 
@@ -170,20 +166,7 @@ TlsRpcServer_init(
 seos_err_t
 TlsRpcServer_connectSocket()
 {
-    seos_err_t err;
-
-    err = Seos_client_socket_create(NULL, &socketCfg, &socket);
-
-#ifdef WAIT_FOR_CLIENT_CONNECT
-    Debug_LOG_INFO("%s: Waiting for a while before trying to use socket..",
-                   __func__);
-    for (size_t i = 0; i < 500; i++)
-    {
-        seL4_Yield();
-    }
-#endif
-
-    return err;
+    return Seos_client_socket_create(NULL, &socketCfg, &socket);
 }
 
 seos_err_t
