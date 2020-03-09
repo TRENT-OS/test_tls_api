@@ -91,6 +91,8 @@ DeclareCAmkESComponent(NwDriver_1
 )
 
 DeclareCAmkESComponent(NwStack_2
+    INCLUDES
+        config
     SOURCES
         components/NwStack/src/network_stack.c
     C_FLAGS
