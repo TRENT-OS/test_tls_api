@@ -11,8 +11,6 @@ import <seos_if_tlsApi.camkes>;
 import "TlsRpcServerInf.camkes";
 
 component TlsRpcServer {
-    control;
-
     // Networking
     uses        seos_if_socket              network_stack_rpc;
     dataport    Buf                         NwAppDataPort;

@@ -133,6 +133,8 @@ entropy(
     return 0;
 }
 
+// Public functions ------------------------------------------------------------
+
 // We need to give the TLS RPC Server the context to use for a specific client;
 // we have only one client here, so it is easy.
 SeosTlsApiH
@@ -140,13 +142,6 @@ SeosTlsRpc_Server_getSeosTlsApi(
     void)
 {
     return hTls;
-}
-
-// Public functions ------------------------------------------------------------
-
-int run()
-{
-    return 0;
 }
 
 seos_err_t
