@@ -6,7 +6,7 @@
  */
 
 import <seos_if_socket.camkes>;
-import <seos_if_seosTlsRpcServer.camkes>;
+import <seos_if_tlsApi.camkes>;
 
 import "TlsRpcServerInf.camkes";
 
@@ -20,6 +20,6 @@ component TlsRpcServer {
 
     // TLS
     provides    TlsRpcServerInf             TlsRpcServer;
-    provides    seos_if_seosTlsRpcServer    SeosTlsRpcServer;
+    provides    seos_if_tlsApi              SeosTlsRpc_Server;
     dataport    Buf                         tlsServerDataport;
 }
