@@ -22,6 +22,9 @@ component NwStack_1 {
     emits       NwStack_RdEv            e_read;
     consumes    NwStack_RdEv            c_read;
 
+    emits      NwStack_ConnEv           e_conn;
+    consumes   NwStack_ConnEv           c_conn;
+
     //-------------------------------------------------
     // interface Timer
     uses        timer_client_inf        Timer;

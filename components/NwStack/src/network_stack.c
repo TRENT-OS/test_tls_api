@@ -43,13 +43,8 @@ int run()
             .notify_read        = e_read_emit,
             .wait_read          = c_read_wait,
 
-#if defined(SEOS_NWSTACK_AS_SERVER)
             .notify_connection  = e_conn_emit,
             .wait_connection    = c_conn_wait,
-#else
-            .notify_connection  = NULL,
-            .wait_connection    = NULL,
-#endif
         },
 
         .drv_nic =

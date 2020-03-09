@@ -61,6 +61,7 @@ assembly {
         connection seL4NotificationNative NwStackdataAvail2 (from nwStack_1.event_internal, to nwStack_1.event_tick_or_data);
         connection seL4Notification       NwStackEventsRxd1 (from nwStack_1.e_write,        to nwStack_1.c_write);
         connection seL4Notification       NwStackEventsRxd2 (from nwStack_1.e_read,         to nwStack_1.c_read);
+        connection seL4Notification       NwStackEventsRxd3 (from nwStack_1.e_conn,         to nwStack_1.c_conn);
 
         connection seL4NotificationNative NwStackdataAvail3 (from timerClient.e_timeout_nwstacktick_1, to nwStack_1.event_tick_or_data);
 
@@ -100,6 +101,7 @@ assembly {
         connection seL4NotificationNative NwStackdataAvail2_2 (from nwStack_2.event_internal, to nwStack_2.event_tick_or_data);
         connection seL4Notification       NwStackEventsRxd1_2 (from nwStack_2.e_write,        to nwStack_2.c_write);
         connection seL4Notification       NwStackEventsRxd2_2 (from nwStack_2.e_read,         to nwStack_2.c_read);
+        connection seL4Notification       NwStackEventsRxd3_2 (from nwStack_2.e_conn,         to nwStack_2.c_conn);
 
         connection seL4NotificationNative NwStackdataAvail3_2 (from timerClient.e_timeout_nwstacktick_2,  to nwStack_2.event_tick_or_data);
 
