@@ -5,7 +5,9 @@
 #include "TestConfig.h"
 
 #include "SeosCryptoApi.h"
-#include "SeosTlsApi_Impl.h"
+#include "SeosTlsApi.h"
+
+#include "LibDebug/Debug.h"
 #include "seos_nw_api.h"
 
 #include "TlsRpcServer.h"
@@ -38,7 +40,7 @@ entropy(
 
 static SeosTlsApi_Config tlsCfg =
 {
-    .mode = SeosTlsApi_Mode_AS_RPC_SERVER,
+    .mode = SeosTlsApi_Mode_RPC_SERVER,
     .config.server.library = {
         .socket = {
             .recv   = recvFunc,
@@ -74,7 +76,7 @@ static seos_nw_client_struct socketCfg =
     .port   = TLS_HOST_PORT
 };
 
-static SeosTlsApi_Context tlsContext;
+static SeosTlsApiH hTls;
 static SeosCryptoApi cryptoContext;
 static seos_socket_handle_t socket;
 
@@ -155,10 +157,10 @@ TlsRpcServer_init(
     // Socket will be connected later, by call to _connectSocket()
     tlsCfg.config.server.library.socket.context = &socket;
 
-    err = SeosTlsApi_init(&tlsContext, &tlsCfg);
+    err = SeosTlsApi_init(&hTls, &tlsCfg);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
-    *ctx = &tlsContext;
+    *ctx = hTls;
 
     return 0;
 }
@@ -180,7 +182,7 @@ TlsRpcServer_free()
 {
     seos_err_t err;
 
-    err = SeosTlsApi_free(&tlsContext);
+    err = SeosTlsApi_free(hTls);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
     err = SeosCryptoApi_free(&cryptoContext);

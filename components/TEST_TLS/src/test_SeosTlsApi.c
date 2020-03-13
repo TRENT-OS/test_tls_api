@@ -160,16 +160,16 @@ resetSocket(
 static void
 test_SeosTlsApi_init_pos()
 {
-    SeosTlsApi_Context tls;
+    SeosTlsApiH hTls;
     static SeosCryptoApi crypto;
     static SeosTlsApi_Config cfgRpcClient =
     {
-        .mode = SeosTlsApi_Mode_AS_RPC_CLIENT,
+        .mode = SeosTlsApi_Mode_RPC_CLIENT,
         .config.client.handle = NOT_NULL
     };
     static SeosTlsApi_Config cfgAllSuites =
     {
-        .mode = SeosTlsApi_Mode_AS_LIBRARY,
+        .mode = SeosTlsApi_Mode_LIBRARY,
         .config.library = {
             .socket = {
                 .recv = recvFunc,
@@ -188,7 +188,7 @@ test_SeosTlsApi_init_pos()
     };
     static SeosTlsApi_Config cfgOneSuite =
     {
-        .mode = SeosTlsApi_Mode_AS_LIBRARY,
+        .mode = SeosTlsApi_Mode_LIBRARY,
         .config.library = {
             .socket = {
                 .recv = recvFunc,
@@ -220,21 +220,21 @@ test_SeosTlsApi_init_pos()
 
     // Test RPC CLIENT mode
     cfgRpcClient.config.client.dataport = tlsClientDataport;
-    TEST_SUCCESS(SeosTlsApi_init(&tls, &cfgRpcClient));
-    TEST_SUCCESS(SeosTlsApi_free(&tls));
+    TEST_SUCCESS(SeosTlsApi_init(&hTls, &cfgRpcClient));
+    TEST_SUCCESS(SeosTlsApi_free(hTls));
 
     // Test with all ciphersuites enabled
-    TEST_SUCCESS(SeosTlsApi_init(&tls, &cfgAllSuites));
-    TEST_SUCCESS(SeosTlsApi_free(&tls));
+    TEST_SUCCESS(SeosTlsApi_init(&hTls, &cfgAllSuites));
+    TEST_SUCCESS(SeosTlsApi_free(hTls));
 
     // Test with only one ciphersuite enabled
-    TEST_SUCCESS(SeosTlsApi_init(&tls, &cfgOneSuite));
-    TEST_SUCCESS(SeosTlsApi_free(&tls));
+    TEST_SUCCESS(SeosTlsApi_init(&hTls, &cfgOneSuite));
+    TEST_SUCCESS(SeosTlsApi_free(hTls));
 
     // Test with all ciphersuites and policy options
     cfgAllSuites.config.library.crypto.policy = &policy;
-    TEST_SUCCESS(SeosTlsApi_init(&tls, &cfgAllSuites));
-    TEST_SUCCESS(SeosTlsApi_free(&tls));
+    TEST_SUCCESS(SeosTlsApi_init(&hTls, &cfgAllSuites));
+    TEST_SUCCESS(SeosTlsApi_free(hTls));
 
     TEST_SUCCESS(SeosCryptoApi_free(&crypto));
 
@@ -244,7 +244,7 @@ test_SeosTlsApi_init_pos()
 static void
 test_SeosTlsApi_init_neg()
 {
-    SeosTlsApi_Context tls;
+    SeosTlsApiH hTls;
     static SeosCryptoApi crypto;
     static SeosTlsLib_Policy badPolicy, goodPolicy =
     {
@@ -257,7 +257,7 @@ test_SeosTlsApi_init_neg()
     };
     static SeosTlsApi_Config badCfg, goodCfg =
     {
-        .mode = SeosTlsApi_Mode_AS_LIBRARY,
+        .mode = SeosTlsApi_Mode_LIBRARY,
         .config.library = {
             .socket = {
                 .recv = recvFunc,
@@ -277,7 +277,7 @@ test_SeosTlsApi_init_neg()
     };
     static SeosTlsApi_Config cfgRpcClient =
     {
-        .mode = SeosTlsApi_Mode_AS_RPC_CLIENT,
+        .mode = SeosTlsApi_Mode_RPC_CLIENT,
         .config.client.handle = NOT_NULL
     };
 
@@ -288,7 +288,7 @@ test_SeosTlsApi_init_neg()
     // Test in RPC Client mode without dataport
     memcpy(&badCfg, &cfgRpcClient, sizeof(SeosTlsApi_Config));
     badCfg.config.client.dataport = NULL;
-    TEST_INVAL_PARAM(SeosTlsApi_init(&tls, &badCfg));
+    TEST_INVAL_PARAM(SeosTlsApi_init(&hTls, &badCfg));
 
     // Test in RPC Client mode without client handle
     memcpy(&badCfg, &cfgRpcClient, sizeof(SeosTlsApi_Config));
@@ -300,22 +300,22 @@ test_SeosTlsApi_init_neg()
     // Provide bad mode
     memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
     badCfg.mode = 666;
-    TEST_NOT_SUPP(SeosTlsApi_init(&tls, &badCfg));
+    TEST_NOT_SUPP(SeosTlsApi_init(&hTls, &badCfg));
 
     // No RECV callback
     memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
     badCfg.config.library.socket.recv = NULL;
-    TEST_INVAL_PARAM(SeosTlsApi_init(&tls, &badCfg));
+    TEST_INVAL_PARAM(SeosTlsApi_init(&hTls, &badCfg));
 
     // No SEND callback
     memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
     badCfg.config.library.socket.send = NULL;
-    TEST_INVAL_PARAM(SeosTlsApi_init(&tls, &badCfg));
+    TEST_INVAL_PARAM(SeosTlsApi_init(&hTls, &badCfg));
 
     // No crypto context
     memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
     badCfg.config.library.crypto.context = NULL;
-    TEST_INVAL_PARAM(SeosTlsApi_init(&tls, &badCfg));
+    TEST_INVAL_PARAM(SeosTlsApi_init(&hTls, &badCfg));
 
     memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
     badCfg.config.library.crypto.policy = &badPolicy;
@@ -324,64 +324,64 @@ test_SeosTlsApi_init_neg()
     memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
     badPolicy.sessionDigests[1] = 666;
     badPolicy.sessionDigestsLen = 2;
-    TEST_NOT_SUPP(SeosTlsApi_init(&tls, &badCfg));
+    TEST_NOT_SUPP(SeosTlsApi_init(&hTls, &badCfg));
 
     // Too many session digests
     memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
     badPolicy.sessionDigestsLen = SeosTlsLib_MAX_DIGESTS + 1;
-    TEST_INVAL_PARAM(SeosTlsApi_init(&tls, &badCfg));
+    TEST_INVAL_PARAM(SeosTlsApi_init(&hTls, &badCfg));
 
     // Invalid signature digest algorithm
     memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
     badPolicy.signatureDigests[1] = 666;
     badPolicy.signatureDigestsLen = 2;
-    TEST_NOT_SUPP(SeosTlsApi_init(&tls, &badCfg));
+    TEST_NOT_SUPP(SeosTlsApi_init(&hTls, &badCfg));
 
     // Too many signature digests
     memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
     badPolicy.signatureDigestsLen = SeosTlsLib_MAX_DIGESTS + 1;
-    TEST_INVAL_PARAM(SeosTlsApi_init(&tls, &badCfg));
+    TEST_INVAL_PARAM(SeosTlsApi_init(&hTls, &badCfg));
 
     // Min size for DH too big
     memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
     badPolicy.dhMinBits = (SeosCryptoApi_Key_SIZE_DH_MAX * 8) + 1;
-    TEST_NOT_SUPP(SeosTlsApi_init(&tls, &badCfg));
+    TEST_NOT_SUPP(SeosTlsApi_init(&hTls, &badCfg));
 
     // Min size for DH too small
     memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
     badPolicy.dhMinBits = (SeosCryptoApi_Key_SIZE_DH_MIN * 8) - 1;
-    TEST_NOT_SUPP(SeosTlsApi_init(&tls, &badCfg));
+    TEST_NOT_SUPP(SeosTlsApi_init(&hTls, &badCfg));
 
     // Min size for RSA too big
     memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
     badPolicy.rsaMinBits = (SeosCryptoApi_Key_SIZE_RSA_MAX * 8) + 1;
-    TEST_NOT_SUPP(SeosTlsApi_init(&tls, &badCfg));
+    TEST_NOT_SUPP(SeosTlsApi_init(&hTls, &badCfg));
 
     // Min size for RSA too small
     memcpy(&badPolicy, &goodPolicy, sizeof(SeosTlsLib_Policy));
     badPolicy.rsaMinBits = (SeosCryptoApi_Key_SIZE_RSA_MIN * 8) - 1;
-    TEST_NOT_SUPP(SeosTlsApi_init(&tls, &badCfg));
+    TEST_NOT_SUPP(SeosTlsApi_init(&hTls, &badCfg));
 
     // Cert is not properly PEM encoded
     memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
     // Invalidate the "-----BEGIN" part of the PEM encoded cert
     memset(badCfg.config.library.crypto.caCert, 0, 10);
-    TEST_INVAL_PARAM(SeosTlsApi_init(&tls, &badCfg));
+    TEST_INVAL_PARAM(SeosTlsApi_init(&hTls, &badCfg));
 
     // Invalid cipher suite
     memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
     badCfg.config.library.crypto.cipherSuites[0] = 666;
-    TEST_NOT_SUPP(SeosTlsApi_init(&tls, &badCfg));
+    TEST_NOT_SUPP(SeosTlsApi_init(&hTls, &badCfg));
 
     // Too many cipher suites
     memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
     badCfg.config.library.crypto.cipherSuitesLen = SeosTlsLib_MAX_CIPHERSUITES + 1;
-    TEST_INVAL_PARAM(SeosTlsApi_init(&tls, &badCfg));
+    TEST_INVAL_PARAM(SeosTlsApi_init(&hTls, &badCfg));
 
     // No ciphersuites at all
     memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
     badCfg.config.library.crypto.cipherSuitesLen = 0;
-    TEST_INVAL_PARAM(SeosTlsApi_init(&tls, &badCfg));
+    TEST_INVAL_PARAM(SeosTlsApi_init(&hTls, &badCfg));
 
     TEST_SUCCESS(SeosCryptoApi_free(&crypto));
 
@@ -392,11 +392,11 @@ static void
 test_SeosTlsApi_free_pos()
 {
 
-    SeosTlsApi_Context tls;
+    SeosTlsApiH hTls;
     static SeosCryptoApi crypto;
     static SeosTlsApi_Config cfg =
     {
-        .mode = SeosTlsApi_Mode_AS_LIBRARY,
+        .mode = SeosTlsApi_Mode_LIBRARY,
         .config.library = {
             .socket = {
                 .recv = recvFunc,
@@ -418,8 +418,8 @@ test_SeosTlsApi_free_pos()
     TEST_SUCCESS(SeosCryptoApi_init(&crypto, &cryptoCfg));
 
     // Simply init it and free again
-    TEST_SUCCESS(SeosTlsApi_init(&tls, &cfg));
-    TEST_SUCCESS(SeosTlsApi_free(&tls));
+    TEST_SUCCESS(SeosTlsApi_init(&hTls, &cfg));
+    TEST_SUCCESS(SeosTlsApi_free(hTls));
 
     TEST_SUCCESS(SeosCryptoApi_free(&crypto));
 
@@ -441,24 +441,26 @@ test_SeosTlsApi_free_neg()
 
 static void
 test_SeosTlsApi_handshake_pos(
-    SeosTlsApi_Context* api)
+    SeosTlsApiH     hTls,
+    SeosTlsApi_Mode mode)
 {
-    TEST_START(api->mode);
+    TEST_START(mode);
 
     // Do the handshake
-    TEST_SUCCESS(SeosTlsApi_handshake(api));
+    TEST_SUCCESS(SeosTlsApi_handshake(hTls));
 
     TEST_FINISH();
 }
 
 static void
 test_SeosTlsApi_handshake_neg(
-    SeosTlsApi_Context* api)
+    SeosTlsApiH     hTls,
+    SeosTlsApi_Mode mode)
 {
-    TEST_START(api->mode);
+    TEST_START(mode);
 
     // Handshake again on an already existing TLS session
-    TEST_OP_DENIED(SeosTlsApi_handshake(api));
+    TEST_OP_DENIED(SeosTlsApi_handshake(hTls));
 
     // Without context
     TEST_INVAL_PARAM(SeosTlsApi_handshake(NULL));
@@ -468,78 +470,82 @@ test_SeosTlsApi_handshake_neg(
 
 static void
 test_SeosTlsApi_write_neg(
-    SeosTlsApi_Context* api)
+    SeosTlsApiH     hTls,
+    SeosTlsApi_Mode mode)
 {
     char* request = ECHO_STRING;
     size_t len = sizeof(request);
 
-    TEST_START(api->mode);
+    TEST_START(mode);
 
     // No context
     TEST_INVAL_PARAM(SeosTlsApi_write(NULL, request, len));
 
     // No buffer
-    TEST_INVAL_PARAM(SeosTlsApi_write(api, NULL, len));
+    TEST_INVAL_PARAM(SeosTlsApi_write(hTls, NULL, len));
 
     // Zero length write
     len = 0;
-    TEST_INVAL_PARAM(SeosTlsApi_write(api, request, len));
+    TEST_INVAL_PARAM(SeosTlsApi_write(hTls, request, len));
 
     TEST_FINISH();
 }
 
 static void
 test_SeosTlsApi_write_pos(
-    SeosTlsApi_Context* api)
+    SeosTlsApiH     hTls,
+    SeosTlsApi_Mode mode)
 {
     char request[] = ECHO_STRING;
     size_t len = sizeof(request);
 
-    TEST_START(api->mode);
+    TEST_START(mode);
 
     /*
      * Before executing this test, a TLS sessions needs to be established
      */
 
-    TEST_SUCCESS(SeosTlsApi_write(api, request, len));
+    TEST_SUCCESS(SeosTlsApi_write(hTls, request, len));
 
     TEST_FINISH();
 }
 
 static void
 test_SeosTlsApi_read_neg(
-    SeosTlsApi_Context* api)
+    SeosTlsApiH     hTls,
+    SeosTlsApi_Mode mode)
 {
     unsigned char buffer[1024];
     size_t len = sizeof(buffer);
 
-    TEST_START(api->mode);
+    TEST_START(mode);
 
     // No context
     TEST_INVAL_PARAM(SeosTlsApi_read(NULL, buffer, &len));
 
     // No buffer
-    TEST_INVAL_PARAM(SeosTlsApi_read(api, NULL, &len));
+    TEST_INVAL_PARAM(SeosTlsApi_read(hTls, NULL, &len));
 
     // No len
-    TEST_INVAL_PARAM(SeosTlsApi_read(api, buffer, NULL));
+    TEST_INVAL_PARAM(SeosTlsApi_read(hTls, buffer, NULL));
 
     // Zero length
     len = 0;
-    TEST_INVAL_PARAM(SeosTlsApi_read(api, buffer, &len));
+    TEST_INVAL_PARAM(SeosTlsApi_read(hTls, buffer, &len));
 
     TEST_FINISH();
 }
 
 static void
 test_SeosTlsApi_read_pos(
-    SeosTlsApi_Context* api)
+    SeosTlsApiH     hTls,
+    SeosTlsApi_Mode mode)
 {
     unsigned char buffer[1024];
     const char answer[] = ECHO_STRING;
     size_t len = sizeof(buffer);
 
-    TEST_START(api->mode);
+    TEST_START(mode);
 
     /*
      * Before executing this test, we should have sent the ECHO_STRING to the
@@ -548,7 +554,7 @@ test_SeosTlsApi_read_pos(
 
     len = sizeof(buffer);
     memset(buffer, 0, sizeof(buffer));
-    TEST_SUCCESS(SeosTlsApi_read(api, buffer, &len));
+    TEST_SUCCESS(SeosTlsApi_read(hTls, buffer, &len));
     TEST_TRUE(len == sizeof(answer));
     TEST_TRUE(!memcmp(buffer, answer, len));
 
@@ -557,10 +563,11 @@ test_SeosTlsApi_read_pos(
 
 static void
 test_SeosTlsApi_reset_pos(
-    SeosTlsApi_Context*   api,
+    SeosTlsApiH           hTls,
+    SeosTlsApi_Mode       mode,
     seos_socket_handle_t* socket)
 {
-    TEST_START(api->mode);
+    TEST_START(mode);
 
     /*
      * For this test we expect the socket to be closed and the TLS session to
@@ -568,20 +575,21 @@ test_SeosTlsApi_reset_pos(
      */
 
     // Reset the API and the socket
-    TEST_SUCCESS(SeosTlsApi_reset(api));
+    TEST_SUCCESS(SeosTlsApi_reset(hTls));
     TEST_SUCCESS(resetSocket(socket));
     // Do the handshake again
-    TEST_SUCCESS(SeosTlsApi_handshake(api));
+    TEST_SUCCESS(SeosTlsApi_handshake(hTls));
 
     TEST_FINISH();
 }
 
 static void
 test_SeosTlsApi_reset_neg(
-    SeosTlsApi_Context*   api,
+    SeosTlsApiH           hTls,
+    SeosTlsApi_Mode       mode,
     seos_socket_handle_t* socket)
 {
-    TEST_START(api->mode);
+    TEST_START(mode);
 
     TEST_INVAL_PARAM(SeosTlsApi_reset(NULL));
 
@@ -590,24 +598,25 @@ test_SeosTlsApi_reset_neg(
 
 static void
 test_SeosTlsApi_mode(
-    SeosTlsApi_Context*   api,
+    SeosTlsApiH           hTls,
     seos_socket_handle_t* socket)
 {
-    char mode[128];
+    SeosTlsApi_Mode mode = SeosTlsApi_getMode(hTls);
+    char desc[128];
 
-    switch (api->mode)
+    switch (mode)
     {
-    case SeosTlsApi_Mode_AS_LIBRARY:
-        strcpy(mode, "SeosTlsApi_Mode_AS_LIBRARY");
+    case SeosTlsApi_Mode_LIBRARY:
+        strcpy(desc, "SeosTlsApi_Mode_LIBRARY");
         break;
-    case SeosTlsApi_Mode_AS_RPC_CLIENT:
-        strcpy(mode, "SeosTlsApi_Mode_AS_RPC_CLIENT");
+    case SeosTlsApi_Mode_RPC_CLIENT:
+        strcpy(desc, "SeosTlsApi_Mode_RPC_CLIENT");
         break;
     default:
         TEST_TRUE(1 == 0);
     }
 
-    Debug_LOG_INFO("Testing TLS API in %s mode:", mode);
+    Debug_LOG_INFO("Testing TLS API in %s mode:", desc);
 
     /*
      * The following three (six) tests should follow in this order:
@@ -628,14 +637,14 @@ test_SeosTlsApi_mode(
      *       to re-use established sockets and sessions.
      */
 
-    test_SeosTlsApi_handshake_pos(api);
-    test_SeosTlsApi_handshake_neg(api);
+    test_SeosTlsApi_handshake_pos(hTls, mode);
+    test_SeosTlsApi_handshake_neg(hTls, mode);
 
-    test_SeosTlsApi_write_neg(api);
-    test_SeosTlsApi_write_pos(api);
+    test_SeosTlsApi_write_neg(hTls, mode);
+    test_SeosTlsApi_write_pos(hTls, mode);
 
-    test_SeosTlsApi_read_neg(api);
-    test_SeosTlsApi_read_pos(api);
+    test_SeosTlsApi_read_neg(hTls, mode);
+    test_SeosTlsApi_read_pos(hTls, mode);
 
     /*
      * Here the TLS session and socket should be closed by the server. We will
@@ -643,20 +652,20 @@ test_SeosTlsApi_mode(
      * again.
      */
 
-    test_SeosTlsApi_reset_neg(api, socket);
-    test_SeosTlsApi_reset_pos(api, socket);
+    test_SeosTlsApi_reset_neg(hTls, mode, socket);
+    test_SeosTlsApi_reset_pos(hTls, mode, socket);
 }
 
 // Public functions ------------------------------------------------------------
 
 int run()
 {
-    SeosTlsApi_Context tls;
+    SeosTlsApiH hTls;
     static SeosCryptoApi crypto;
     static seos_socket_handle_t socket;
     static SeosTlsApi_Config localCfg =
     {
-        .mode = SeosTlsApi_Mode_AS_LIBRARY,
+        .mode = SeosTlsApi_Mode_LIBRARY,
         .config.library = {
             .socket = {
                 .context = &socket,
@@ -676,7 +685,7 @@ int run()
     };
     SeosTlsApi_Config remoteCfg =
     {
-        .mode = SeosTlsApi_Mode_AS_RPC_CLIENT,
+        .mode = SeosTlsApi_Mode_RPC_CLIENT,
         .config.client.dataport = tlsClientDataport,
     };
 
@@ -696,9 +705,9 @@ int run()
     // Test library mode
     TEST_SUCCESS(connectSocket(&socket));
     TEST_SUCCESS(SeosCryptoApi_init(&crypto, &cryptoCfg));
-    TEST_SUCCESS(SeosTlsApi_init(&tls, &localCfg));
-    test_SeosTlsApi_mode(&tls, &socket);
-    TEST_SUCCESS(SeosTlsApi_free(&tls));
+    TEST_SUCCESS(SeosTlsApi_init(&hTls, &localCfg));
+    test_SeosTlsApi_mode(hTls, &socket);
+    TEST_SUCCESS(SeosTlsApi_free(hTls));
     TEST_SUCCESS(SeosCryptoApi_free(&crypto));
     TEST_SUCCESS(closeSocket(&socket));
 
@@ -708,9 +717,9 @@ int run()
 
     // Test RPC client mode (and implicitly the RPC server side as well)
     TEST_SUCCESS(TlsRpcServer_connectSocket());
-    TEST_SUCCESS(SeosTlsApi_init(&tls, &remoteCfg));
-    test_SeosTlsApi_mode(&tls, NULL);
-    TEST_SUCCESS(SeosTlsApi_free(&tls));
+    TEST_SUCCESS(SeosTlsApi_init(&hTls, &remoteCfg));
+    test_SeosTlsApi_mode(hTls, NULL);
+    TEST_SUCCESS(SeosTlsApi_free(hTls));
     TEST_SUCCESS(TlsRpcServer_closeSocket());
     TEST_SUCCESS(TlsRpcServer_free());
 

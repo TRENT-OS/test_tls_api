@@ -6,7 +6,7 @@
  */
 
 procedure TlsRpcServerInf {
-    include "SeosTlsApi_Impl.h";
+    include "SeosTlsApi.h";
 
     seos_err_t  init            (out SeosTlsRpcServer_Handle ctx);
     seos_err_t  connectSocket   ();
