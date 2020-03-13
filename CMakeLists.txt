@@ -16,12 +16,12 @@ seos_use_libs(
 
 project(tests_tls_api C)
 
-DeclareCAmkESComponent(TEST_TLS
+DeclareCAmkESComponent(test_SeosTlsApi
     INCLUDES
         config
         components/TlsRpcServer/src
     SOURCES
-        components/TEST_TLS/src/test_SeosTlsApi.c
+        components/Tests/src/test_SeosTlsApi.c
         ${SEOS_LIBS_DIR}/seos_nwstack/network-client-lib/seos_nw_api_interface.c
     C_FLAGS
         -Wall -Werror

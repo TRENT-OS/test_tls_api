@@ -8,7 +8,14 @@
 import <seos_if_socket.camkes>;
 import <seos_if_tlsApi.camkes>;
 
-import "TlsRpcServerInf.camkes";
+procedure TlsRpcServerInf {
+    include "SeosError.h";
+
+    seos_err_t  init            ();
+    seos_err_t  connectSocket   ();
+    seos_err_t  closeSocket     ();
+    seos_err_t  free            ();
+};
 
 component TlsRpcServer {
     // Networking

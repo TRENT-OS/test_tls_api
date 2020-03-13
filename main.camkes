@@ -6,8 +6,9 @@ import "components/NwDriver/nic_driver.camkes";
 import "components/UART/Uart.camkes";
 import "components/Timer/Timer.camkes";
 import "components/TimerClient/TimerClient.camkes";
-import "components/TEST_TLS/TEST_TLS.camkes";
 import "components/TlsRpcServer/TlsRpcServer.camkes";
+
+import "components/Tests/test_SeosTlsApi.camkes";
 
 assembly {
     composition {
@@ -39,8 +40,6 @@ assembly {
         connection seL4RPCCall           timerClient_timer    (from timerClient.Timer, to timer.Timer);
         connection seL4RPCCall           nwStack_timerClient  (from nwStack_1.Timer,   to timerClient.TimerClient);
         connection seL4RPCCall           nwStack2_timerClient (from nwStack_2.Timer,   to timerClient.TimerClient);
-
-
 
         //----------------------------------------------------------------------
         // Network Driver #1
@@ -74,13 +73,11 @@ assembly {
         //----------------------------------------------------------------------
         // Network Stack App #1
         //----------------------------------------------------------------------
-        component  TEST_TLS         testTls;
+        component  test_SeosTlsApi         unitTest;
 
-        connection seL4Notification NwAppInitDone        (from nwStack_1.event_network_init_done, to testTls.event_network_stack_init_done);
-        connection seL4RPCCall      NwApp_nwStack        (from testTls.network_stack_rpc,         to nwStack_1.network_stack_rpc);
-        connection seL4SharedData   NwApp_dataConnection (from testTls.NwAppDataPort,             to nwStack_1.port_app_io);
-
-
+        connection seL4Notification NwAppInitDone        (from nwStack_1.event_network_init_done,  to unitTest.event_network_stack_init_done);
+        connection seL4RPCCall      NwApp_nwStack        (from unitTest.network_stack_rpc,         to nwStack_1.network_stack_rpc);
+        connection seL4SharedData   NwApp_dataConnection (from unitTest.NwAppDataPort,             to nwStack_1.port_app_io);
 
         //----------------------------------------------------------------------
         // Network Driver #2
@@ -120,14 +117,12 @@ assembly {
         connection seL4RPCCall      NwApp_nwStack_2        (from tlsRpcServer.network_stack_rpc,        to nwStack_2.network_stack_rpc);
         connection seL4SharedData   NwApp_dataConnection_2 (from tlsRpcServer.NwAppDataPort,            to nwStack_2.port_app_io);
 
-
-
         //----------------------------------------------------------------------
         // Connecting TEST_TLS to tlsRpcServer
         //----------------------------------------------------------------------
-        connection seL4RPCCall      testTls_tlsRpcServer        (from testTls.TlsRpcServer,         to tlsRpcServer.TlsRpcServer);
-        connection seL4RPCCall      testTls_TlsApi              (from testTls.SeosTlsRpc_Server,    to tlsRpcServer.SeosTlsRpc_Server);
-        connection seL4SharedData   tlsDataport                 (from testTls.tlsClientDataport,    to tlsRpcServer.tlsServerDataport);
+        connection seL4RPCCall      testTls_tlsRpcServer        (from unitTest.TlsRpcServer,         to tlsRpcServer.TlsRpcServer);
+        connection seL4RPCCall      testTls_TlsApi              (from unitTest.SeosTlsRpc_Server,    to tlsRpcServer.SeosTlsRpc_Server);
+        connection seL4SharedData   tlsDataport                 (from unitTest.tlsClientDataport,    to tlsRpcServer.tlsServerDataport);
     }
 
     configuration {
