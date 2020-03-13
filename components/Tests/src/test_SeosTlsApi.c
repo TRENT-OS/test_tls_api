@@ -161,7 +161,7 @@ static void
 test_SeosTlsApi_init_pos()
 {
     SeosTlsApiH hTls;
-    static SeosCryptoApi crypto;
+    SeosCryptoApiH hCrypto;
     static SeosTlsApi_Config cfgRpcClient =
     {
         .mode = SeosTlsApi_Mode_RPC_CLIENT,
@@ -175,7 +175,6 @@ test_SeosTlsApi_init_pos()
                 .send = sendFunc,
             },
             .crypto = {
-                .context = &crypto,
                 .caCert = TLS_HOST_CERT,
                 .cipherSuites = {
                     SeosTlsLib_CipherSuite_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
@@ -194,7 +193,6 @@ test_SeosTlsApi_init_pos()
                 .send = sendFunc,
             },
             .crypto = {
-                .context = &crypto,
                 .caCert = TLS_HOST_CERT,
                 .cipherSuites = {
                     SeosTlsLib_CipherSuite_DHE_RSA_WITH_AES_128_GCM_SHA256
@@ -215,7 +213,9 @@ test_SeosTlsApi_init_pos()
 
     TEST_START();
 
-    TEST_SUCCESS(SeosCryptoApi_init(&crypto, &cryptoCfg));
+    TEST_SUCCESS(SeosCryptoApi_init(&hCrypto, &cryptoCfg));
+    cfgAllSuites.config.library.crypto.handle = hCrypto;
+    cfgOneSuite.config.library.crypto.handle = hCrypto;
 
     // Test RPC CLIENT mode
     cfgRpcClient.config.client.dataport = tlsClientDataport;
@@ -235,7 +235,7 @@ test_SeosTlsApi_init_pos()
     TEST_SUCCESS(SeosTlsApi_init(&hTls, &cfgAllSuites));
     TEST_SUCCESS(SeosTlsApi_free(hTls));
 
-    TEST_SUCCESS(SeosCryptoApi_free(&crypto));
+    TEST_SUCCESS(SeosCryptoApi_free(hCrypto));
 
     TEST_FINISH();
 }
@@ -244,7 +244,6 @@ static void
 test_SeosTlsApi_init_neg()
 {
     SeosTlsApiH hTls;
-    static SeosCryptoApi crypto;
     static SeosTlsLib_Policy badPolicy, goodPolicy =
     {
         .sessionDigests = {SeosTlsLib_Digest_SHA256},
@@ -263,7 +262,6 @@ test_SeosTlsApi_init_neg()
                 .send = sendFunc,
             },
             .crypto = {
-                .context = &crypto,
                 .policy = NULL,
                 .caCert = TLS_HOST_CERT,
                 .cipherSuites = {
@@ -281,14 +279,13 @@ test_SeosTlsApi_init_neg()
 
     TEST_START();
 
-    cfgRpcClient.config.client.dataport = tlsClientDataport,
+    cfgRpcClient.config.client.dataport = tlsClientDataport;
+    TEST_SUCCESS(SeosCryptoApi_init(&goodCfg.config.library.crypto.handle, &cryptoCfg));
 
     // Test in RPC Client mode without dataport
     memcpy(&badCfg, &cfgRpcClient, sizeof(SeosTlsApi_Config));
     badCfg.config.client.dataport = NULL;
     TEST_INVAL_PARAM(SeosTlsApi_init(&hTls, &badCfg));
-
-    TEST_SUCCESS(SeosCryptoApi_init(&crypto, &cryptoCfg));
 
     // Provide bad mode
     memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
@@ -307,7 +304,7 @@ test_SeosTlsApi_init_neg()
 
     // No crypto context
     memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
-    badCfg.config.library.crypto.context = NULL;
+    badCfg.config.library.crypto.handle = NULL;
     TEST_INVAL_PARAM(SeosTlsApi_init(&hTls, &badCfg));
 
     memcpy(&badCfg, &goodCfg, sizeof(SeosTlsApi_Config));
@@ -376,7 +373,7 @@ test_SeosTlsApi_init_neg()
     badCfg.config.library.crypto.cipherSuitesLen = 0;
     TEST_INVAL_PARAM(SeosTlsApi_init(&hTls, &badCfg));
 
-    TEST_SUCCESS(SeosCryptoApi_free(&crypto));
+    TEST_SUCCESS(SeosCryptoApi_free(goodCfg.config.library.crypto.handle));
 
     TEST_FINISH();
 }
@@ -386,7 +383,6 @@ test_SeosTlsApi_free_pos()
 {
 
     SeosTlsApiH hTls;
-    static SeosCryptoApi crypto;
     static SeosTlsApi_Config cfg =
     {
         .mode = SeosTlsApi_Mode_LIBRARY,
@@ -396,7 +392,6 @@ test_SeosTlsApi_free_pos()
                 .send = sendFunc,
             },
             .crypto = {
-                .context = &crypto,
                 .caCert = TLS_HOST_CERT,
                 .cipherSuites = {
                     SeosTlsLib_CipherSuite_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
@@ -408,13 +403,13 @@ test_SeosTlsApi_free_pos()
 
     TEST_START();
 
-    TEST_SUCCESS(SeosCryptoApi_init(&crypto, &cryptoCfg));
+    TEST_SUCCESS(SeosCryptoApi_init(&cfg.config.library.crypto.handle, &cryptoCfg));
 
     // Simply init it and free again
     TEST_SUCCESS(SeosTlsApi_init(&hTls, &cfg));
     TEST_SUCCESS(SeosTlsApi_free(hTls));
 
-    TEST_SUCCESS(SeosCryptoApi_free(&crypto));
+    TEST_SUCCESS(SeosCryptoApi_free(cfg.config.library.crypto.handle));
 
     TEST_FINISH();
 }
@@ -654,7 +649,6 @@ test_SeosTlsApi_mode(
 int run()
 {
     SeosTlsApiH hTls;
-    static SeosCryptoApi crypto;
     static seos_socket_handle_t socket;
     static SeosTlsApi_Config localCfg =
     {
@@ -667,7 +661,6 @@ int run()
             },
             .flags = SeosTlsLib_Flag_DEBUG,
             .crypto = {
-                .context = &crypto,
                 .caCert = TLS_HOST_CERT,
                 .cipherSuites = {
                     SeosTlsLib_CipherSuite_ECDHE_RSA_WITH_AES_128_GCM_SHA256
@@ -697,11 +690,11 @@ int run()
 
     // Test library mode
     TEST_SUCCESS(connectSocket(&socket));
-    TEST_SUCCESS(SeosCryptoApi_init(&crypto, &cryptoCfg));
+    TEST_SUCCESS(SeosCryptoApi_init(&localCfg.config.library.crypto.handle, &cryptoCfg));
     TEST_SUCCESS(SeosTlsApi_init(&hTls, &localCfg));
     test_SeosTlsApi_mode(hTls, &socket);
     TEST_SUCCESS(SeosTlsApi_free(hTls));
-    TEST_SUCCESS(SeosCryptoApi_free(&crypto));
+    TEST_SUCCESS(SeosCryptoApi_free(localCfg.config.library.crypto.handle));
     TEST_SUCCESS(closeSocket(&socket));
 
     Debug_LOG_INFO("");

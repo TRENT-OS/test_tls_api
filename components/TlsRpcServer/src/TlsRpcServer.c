@@ -77,7 +77,7 @@ static seos_nw_client_struct socketCfg =
 };
 
 static SeosTlsApiH hTls;
-static SeosCryptoApi cryptoContext;
+static SeosCryptoApiH hCrypto;
 static seos_socket_handle_t socket;
 
 // Private static functions ----------------------------------------------------
@@ -153,11 +153,11 @@ TlsRpcServer_init(
     // Apparently this needs to be done in the RPC thread...?!
     Seos_NwAPP_RT(NULL);
 
-    err = SeosCryptoApi_init(&cryptoContext, &cryptoCfg);
+    err = SeosCryptoApi_init(&hCrypto, &cryptoCfg);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
     tlsCfg.config.server.dataport               = tlsServerDataport;
-    tlsCfg.config.server.library.crypto.context = &cryptoContext;
+    tlsCfg.config.server.library.crypto.handle  = hCrypto;
     // Socket will be connected later, by call to _connectSocket()
     tlsCfg.config.server.library.socket.context = &socket;
 
@@ -190,7 +190,7 @@ TlsRpcServer_free(
     err = SeosTlsApi_free(hTls);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
-    err = SeosCryptoApi_free(&cryptoContext);
+    err = SeosCryptoApi_free(hCrypto);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
     return 0;
