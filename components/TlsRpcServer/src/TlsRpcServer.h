@@ -8,13 +8,16 @@
 
 seos_err_t
 TlsRpcServer_init(
-    SeosTlsRpcServer_Handle* ctx);
+    void);
 
 seos_err_t
-TlsRpcServer_connect();
+TlsRpcServer_connect(
+    void);
 
 seos_err_t
-TlsRpcServer_close();
+TlsRpcServer_close(
+    void);
 
 seos_err_t
-TlsRpcServer_free();
+TlsRpcServer_free(
+    void);

@@ -165,7 +165,6 @@ test_SeosTlsApi_init_pos()
     static SeosTlsApi_Config cfgRpcClient =
     {
         .mode = SeosTlsApi_Mode_RPC_CLIENT,
-        .config.client.handle = NOT_NULL
     };
     static SeosTlsApi_Config cfgAllSuites =
     {
@@ -278,7 +277,6 @@ test_SeosTlsApi_init_neg()
     static SeosTlsApi_Config cfgRpcClient =
     {
         .mode = SeosTlsApi_Mode_RPC_CLIENT,
-        .config.client.handle = NOT_NULL
     };
 
     TEST_START();
@@ -289,11 +287,6 @@ test_SeosTlsApi_init_neg()
     memcpy(&badCfg, &cfgRpcClient, sizeof(SeosTlsApi_Config));
     badCfg.config.client.dataport = NULL;
     TEST_INVAL_PARAM(SeosTlsApi_init(&hTls, &badCfg));
-
-    // Test in RPC Client mode without client handle
-    memcpy(&badCfg, &cfgRpcClient, sizeof(SeosTlsApi_Config));
-    badCfg.config.client.handle = NULL;
-    TEST_INVAL_PARAM(SeosTlsApi_init(&tls, &badCfg));
 
     TEST_SUCCESS(SeosCryptoApi_init(&crypto, &cryptoCfg));
 
@@ -713,7 +706,7 @@ int run()
 
     Debug_LOG_INFO("");
 
-    TEST_SUCCESS(TlsRpcServer_init(&remoteCfg.config.client.handle));
+    TEST_SUCCESS(TlsRpcServer_init());
 
     // Test RPC client mode (and implicitly the RPC server side as well)
     TEST_SUCCESS(TlsRpcServer_connectSocket());

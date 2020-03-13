@@ -133,6 +133,15 @@ entropy(
     return 0;
 }
 
+// We need to give the TLS RPC Server the context to use for a specific client;
+// we have only one client here, so it is easy.
+SeosTlsApiH
+SeosTlsRpc_Server_getSeosTlsApi(
+    void)
+{
+    return hTls;
+}
+
 // Public functions ------------------------------------------------------------
 
 int run()
@@ -142,7 +151,7 @@ int run()
 
 seos_err_t
 TlsRpcServer_init(
-    SeosTlsRpcServer_Handle* ctx)
+    void)
 {
     seos_err_t err;
 
@@ -160,25 +169,26 @@ TlsRpcServer_init(
     err = SeosTlsApi_init(&hTls, &tlsCfg);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
-    *ctx = hTls;
-
     return 0;
 }
 
 seos_err_t
-TlsRpcServer_connectSocket()
+TlsRpcServer_connectSocket(
+    void)
 {
     return Seos_client_socket_create(NULL, &socketCfg, &socket);
 }
 
 seos_err_t
-TlsRpcServer_closeSocket()
+TlsRpcServer_closeSocket(
+    void)
 {
     return Seos_socket_close(socket);
 }
 
 seos_err_t
-TlsRpcServer_free()
+TlsRpcServer_free(
+    void)
 {
     seos_err_t err;
 
