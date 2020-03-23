@@ -7,7 +7,7 @@
 #pragma once
 
 // IP address of jenkins host so we can reach our own TLS Server we set up there
-#define TLS_HOST_IP     "192.168.82.99"
+#define TLS_HOST_IP     "10.0.0.1"
 #define TLS_HOST_PORT   8888
 // Certificate of our own TLS server
 #define TLS_HOST_CERT \

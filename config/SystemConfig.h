@@ -63,8 +63,8 @@ enum
 // Network Stack #1
 //-----------------------------------------------------------------------------
 
-#define ETH_1_ADDR                  "192.168.82.91"
-#define ETH_1_GATEWAY_ADDR          "192.168.82.1"
+#define ETH_1_ADDR                  "10.0.0.10"
+#define ETH_1_GATEWAY_ADDR          "10.0.0.1"
 #define ETH_1_SUBNET_MASK           "255.255.255.0"
 
 
@@ -72,6 +72,6 @@ enum
 // Network Stack #2
 //-----------------------------------------------------------------------------
 
-#define ETH_2_ADDR                  "192.168.82.92"
-#define ETH_2_GATEWAY_ADDR          "192.168.82.1"
+#define ETH_2_ADDR                  "10.0.0.11"
+#define ETH_2_GATEWAY_ADDR          "10.0.0.1"
 #define ETH_2_SUBNET_MASK           "255.255.255.0"
