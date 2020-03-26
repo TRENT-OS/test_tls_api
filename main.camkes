@@ -46,8 +46,8 @@ assembly {
         //----------------------------------------------------------------------
         component  NwDriver_1       nwDriver_1;
 
-        connection seL4Notification NwDriver_Chanmux_dataAvail       (from chanMux.event_nic_1_hasData,        to nwDriver_1.event_chanMux_hasData);
-        connection seL4RPCCall      nwDriver_chanmux                 (from nwDriver_1.ChanMux,                 to chanMux.ChanMux_driver);
+        connection seL4Notification NwDriver_Chanmux_dataAvail       (from chanMux.event_nic_1_hasData,        to nwDriver_1.ChanMuxSignal_dataAvailable);
+        connection seL4RPCCall      nwDriver_chanmux                 (from nwDriver_1.ChanMuxRpc,              to chanMux.ChanMux_driver);
         connection seL4SharedData   NwDriver_Chanmux_port_ctrl       (from nwDriver_1.port_chanMux_ctrl,       to chanMux.port_nic_1_ctrl);
         connection seL4SharedData   NwDriver_Chanmux_port_data_read  (from nwDriver_1.port_chanMux_data_read,  to chanMux.port_nic_1_data_read);
         connection seL4SharedData   NwDriver_Chanmux_port_data_write (from nwDriver_1.port_chanMux_data_write, to chanMux.port_nic_1_data_write);
@@ -84,8 +84,8 @@ assembly {
         //----------------------------------------------------------------------
         component  NwDriver_2       nwDriver_2;
 
-        connection seL4Notification NwDriver_Chanmux_dataAvail_2       (from chanMux.event_nic_2_hasData,        to nwDriver_2.event_chanMux_hasData);
-        connection seL4RPCCall      nwDriver_chanmux_2                 (from nwDriver_2.ChanMux,                 to chanMux.ChanMux_driver);
+        connection seL4Notification NwDriver_Chanmux_dataAvail_2       (from chanMux.event_nic_2_hasData,        to nwDriver_2.ChanMuxSignal_dataAvailable);
+        connection seL4RPCCall      nwDriver_chanmux_2                 (from nwDriver_2.ChanMuxRpc,              to chanMux.ChanMux_driver);
         connection seL4SharedData   NwDriver_Chanmux_port_ctrl_2       (from nwDriver_2.port_chanMux_ctrl,       to chanMux.port_nic_2_ctrl);
         connection seL4SharedData   NwDriver_Chanmux_port_data_read_2  (from nwDriver_2.port_chanMux_data_read,  to chanMux.port_nic_2_data_read);
         connection seL4SharedData   NwDriver_Chanmux_port_data_write_2 (from nwDriver_2.port_chanMux_data_write, to chanMux.port_nic_2_data_write);

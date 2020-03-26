@@ -45,7 +45,7 @@ int run()
                     .len       = PAGE_SIZE
                 }
             },
-            .wait              = event_chanMux_hasData_wait
+            .wait              = ChanMuxSignal_dataAvailable_wait
         },
 
         .network_stack =

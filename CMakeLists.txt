@@ -4,6 +4,7 @@ seos_set_config_file(config/SystemConfig.h)
 
 seos_use_libs(
     SEOS_LIBS
+    SEOS_CHANMUX
     SEOS_LIBS_LOGGER
     SEOS_NW_STACK
     SEOS_NETWORK_DRIVER_TAP_PROXY
@@ -83,6 +84,7 @@ DeclareCAmkESComponent(NwDriver_1
     LIBS
         seos_core_api
         seos_libs
+        chanmux_client
         seos_nw_driver_tap_proxy_lib
 )
 
@@ -115,6 +117,7 @@ DeclareCAmkESComponent(NwDriver_2
     LIBS
         seos_core_api
         seos_libs
+        chanmux_client
         seos_nw_driver_tap_proxy_lib
 )
 
@@ -128,6 +131,7 @@ DeclareCAmkESComponent(ChanMux
     LIBS
         seos_core_api
         seos_libs
+        chanmux_server
 )
 
 DeclareCAmkESComponent(UartDrv
