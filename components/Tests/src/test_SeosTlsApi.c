@@ -280,7 +280,8 @@ test_SeosTlsApi_init_neg()
     TEST_START();
 
     cfgRpcClient.config.client.dataport = tlsClientDataport;
-    TEST_SUCCESS(SeosCryptoApi_init(&goodCfg.config.library.crypto.handle, &cryptoCfg));
+    TEST_SUCCESS(SeosCryptoApi_init(&goodCfg.config.library.crypto.handle,
+                                    &cryptoCfg));
 
     // Test in RPC Client mode without dataport
     memcpy(&badCfg, &cfgRpcClient, sizeof(SeosTlsApi_Config));
@@ -690,7 +691,8 @@ int run()
 
     // Test library mode
     TEST_SUCCESS(connectSocket(&socket));
-    TEST_SUCCESS(SeosCryptoApi_init(&localCfg.config.library.crypto.handle, &cryptoCfg));
+    TEST_SUCCESS(SeosCryptoApi_init(&localCfg.config.library.crypto.handle,
+                                    &cryptoCfg));
     TEST_SUCCESS(SeosTlsApi_init(&hTls, &localCfg));
     test_SeosTlsApi_mode(hTls, &socket);
     TEST_SUCCESS(SeosTlsApi_free(hTls));
