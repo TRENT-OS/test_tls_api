@@ -31,7 +31,7 @@
 
 extern seos_err_t
 OS_NetworkAPP_RT(
-    OS_Network_context_t ctx);
+    OS_Network_Context_t ctx);
 
 static int
 entropyFunc(
@@ -56,7 +56,7 @@ sendFunc(
     size_t               len)
 {
     seos_err_t err;
-    OS_NetworkSocket_handle_t* socket = (OS_NetworkSocket_handle_t*) ctx;
+    OS_NetworkSocket_Handle_t* socket = (OS_NetworkSocket_Handle_t*) ctx;
     size_t n;
 
     n = len > MAX_NW_SIZE ? MAX_NW_SIZE : len;
@@ -76,7 +76,7 @@ recvFunc(
     size_t         len)
 {
     seos_err_t err;
-    OS_NetworkSocket_handle_t* socket = (OS_NetworkSocket_handle_t*) ctx;
+    OS_NetworkSocket_Handle_t* socket = (OS_NetworkSocket_Handle_t*) ctx;
     size_t n;
 
     n = len > MAX_NW_SIZE ? MAX_NW_SIZE : len;
@@ -102,9 +102,9 @@ entropyFunc(
 
 static seos_err_t
 connectSocket(
-    OS_NetworkSocket_handle_t* socket)
+    OS_NetworkSocket_Handle_t* socket)
 {
-    OS_NetworkClient_socket_t socketCfg =
+    OS_Network_Socket_t socketCfg =
     {
         .domain = OS_AF_INET,
         .type   = OS_SOCK_STREAM,
@@ -112,19 +112,19 @@ connectSocket(
         .port   = TLS_HOST_PORT
     };
 
-    return OS_NetworkClientSocket_create(NULL, &socketCfg, socket);
+    return OS_NetworkSocket_create(NULL, &socketCfg, socket);
 }
 
 static seos_err_t
 closeSocket(
-    OS_NetworkSocket_handle_t* socket)
+    OS_NetworkSocket_Handle_t* socket)
 {
     return OS_NetworkSocket_close(*socket);
 }
 
 static seos_err_t
 resetSocket(
-    OS_NetworkSocket_handle_t* socket)
+    OS_NetworkSocket_Handle_t* socket)
 {
     seos_err_t err;
 
@@ -554,7 +554,7 @@ static void
 test_SeosTlsApi_reset_pos(
     SeosTlsApiH           hTls,
     SeosTlsApi_Mode       mode,
-    OS_NetworkSocket_handle_t* socket)
+    OS_NetworkSocket_Handle_t* socket)
 {
     TEST_START(mode);
 
@@ -576,7 +576,7 @@ static void
 test_SeosTlsApi_reset_neg(
     SeosTlsApiH           hTls,
     SeosTlsApi_Mode       mode,
-    OS_NetworkSocket_handle_t* socket)
+    OS_NetworkSocket_Handle_t* socket)
 {
     TEST_START(mode);
 
@@ -588,7 +588,7 @@ test_SeosTlsApi_reset_neg(
 static void
 test_SeosTlsApi_mode(
     SeosTlsApiH           hTls,
-    OS_NetworkSocket_handle_t* socket)
+    OS_NetworkSocket_Handle_t* socket)
 {
     SeosTlsApi_Mode mode = SeosTlsApi_getMode(hTls);
     char desc[128];
@@ -650,7 +650,7 @@ test_SeosTlsApi_mode(
 int run()
 {
     SeosTlsApiH hTls;
-    static OS_NetworkSocket_handle_t socket;
+    static OS_NetworkSocket_Handle_t socket;
     static SeosTlsApi_Config localCfg =
     {
         .mode = SeosTlsApi_Mode_LIBRARY,

@@ -18,7 +18,7 @@
 #define MAX_NW_SIZE 2048
 
 extern seos_err_t OS_NetworkAPP_RT(
-    OS_Network_context_t ctx);
+    OS_Network_Context_t ctx);
 
 static int
 sendFunc(
@@ -68,7 +68,7 @@ static SeosCryptoApi_Config cryptoCfg =
     },
     .impl.lib.rng.entropy = entropy
 };
-static OS_NetworkClient_socket_t socketCfg =
+static OS_Network_Socket_t socketCfg =
 {
     .domain = OS_AF_INET,
     .type   = OS_SOCK_STREAM,
@@ -78,7 +78,7 @@ static OS_NetworkClient_socket_t socketCfg =
 
 static SeosTlsApiH hTls;
 static SeosCryptoApiH hCrypto;
-static OS_NetworkSocket_handle_t socket;
+static OS_NetworkSocket_Handle_t socket;
 
 // Private static functions ----------------------------------------------------
 
@@ -89,7 +89,7 @@ sendFunc(
     size_t               len)
 {
     seos_err_t err;
-    OS_NetworkSocket_handle_t* sockHandle = (OS_NetworkSocket_handle_t*) ctx;
+    OS_NetworkSocket_Handle_t* sockHandle = (OS_NetworkSocket_Handle_t*) ctx;
     size_t n;
 
     n = len > MAX_NW_SIZE ? MAX_NW_SIZE : len;
@@ -109,7 +109,7 @@ recvFunc(
     size_t         len)
 {
     seos_err_t err;
-    OS_NetworkSocket_handle_t* sockHandle = (OS_NetworkSocket_handle_t*) ctx;
+    OS_NetworkSocket_Handle_t* sockHandle = (OS_NetworkSocket_Handle_t*) ctx;
     size_t n;
 
     n = len > MAX_NW_SIZE ? MAX_NW_SIZE : len;
@@ -171,7 +171,7 @@ seos_err_t
 TlsRpcServer_connectSocket(
     void)
 {
-    return OS_NetworkClientSocket_create(NULL, &socketCfg, &socket);
+    return OS_NetworkSocket_create(NULL, &socketCfg, &socket);
 }
 
 seos_err_t
