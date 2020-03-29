@@ -8,7 +8,7 @@
 #include "SeosTlsApi.h"
 
 #include "LibDebug/Debug.h"
-#include "seos_nw_api.h"
+#include "OS_Network.h"
 
 #include "TlsRpcServer.h"
 
@@ -17,8 +17,8 @@
 
 #define MAX_NW_SIZE 2048
 
-extern seos_err_t Seos_NwAPP_RT(
-    Seos_nw_context ctx);
+extern seos_err_t OS_NetworkAPP_RT(
+    OS_Network_context_t ctx);
 
 static int
 sendFunc(
@@ -68,17 +68,17 @@ static SeosCryptoApi_Config cryptoCfg =
     },
     .impl.lib.rng.entropy = entropy
 };
-static seos_nw_client_struct socketCfg =
+static OS_NetworkClient_socket_t socketCfg =
 {
-    .domain = SEOS_AF_INET,
-    .type   = SEOS_SOCK_STREAM,
+    .domain = OS_AF_INET,
+    .type   = OS_SOCK_STREAM,
     .name   = TLS_HOST_IP,
     .port   = TLS_HOST_PORT
 };
 
 static SeosTlsApiH hTls;
 static SeosCryptoApiH hCrypto;
-static seos_socket_handle_t socket;
+static OS_NetworkSocket_handle_t socket;
 
 // Private static functions ----------------------------------------------------
 
@@ -89,11 +89,11 @@ sendFunc(
     size_t               len)
 {
     seos_err_t err;
-    seos_socket_handle_t* sockHandle = (seos_socket_handle_t*) ctx;
+    OS_NetworkSocket_handle_t* sockHandle = (OS_NetworkSocket_handle_t*) ctx;
     size_t n;
 
     n = len > MAX_NW_SIZE ? MAX_NW_SIZE : len;
-    if ((err = Seos_socket_write(*sockHandle, buf, &n)) != SEOS_SUCCESS)
+    if ((err = OS_NetworkSocket_write(*sockHandle, buf, &n)) != SEOS_SUCCESS)
     {
         Debug_LOG_ERROR("Error during socket write...error:%d", err);
         return -1;
@@ -109,11 +109,11 @@ recvFunc(
     size_t         len)
 {
     seos_err_t err;
-    seos_socket_handle_t* sockHandle = (seos_socket_handle_t*) ctx;
+    OS_NetworkSocket_handle_t* sockHandle = (OS_NetworkSocket_handle_t*) ctx;
     size_t n;
 
     n = len > MAX_NW_SIZE ? MAX_NW_SIZE : len;
-    if ((err = Seos_socket_read(*sockHandle, buf, &n)) != SEOS_SUCCESS)
+    if ((err = OS_NetworkSocket_read(*sockHandle, buf, &n)) != SEOS_SUCCESS)
     {
         Debug_LOG_ERROR("Error during socket read...error:%d", err);
         return -1;
@@ -151,7 +151,7 @@ TlsRpcServer_init(
     seos_err_t err;
 
     // Apparently this needs to be done in the RPC thread...?!
-    Seos_NwAPP_RT(NULL);
+    OS_NetworkAPP_RT(NULL);
 
     err = SeosCryptoApi_init(&hCrypto, &cryptoCfg);
     Debug_ASSERT(SEOS_SUCCESS == err);
@@ -171,14 +171,14 @@ seos_err_t
 TlsRpcServer_connectSocket(
     void)
 {
-    return Seos_client_socket_create(NULL, &socketCfg, &socket);
+    return OS_NetworkClientSocket_create(NULL, &socketCfg, &socket);
 }
 
 seos_err_t
 TlsRpcServer_closeSocket(
     void)
 {
-    return Seos_socket_close(socket);
+    return OS_NetworkSocket_close(socket);
 }
 
 seos_err_t

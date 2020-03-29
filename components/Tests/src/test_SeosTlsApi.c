@@ -16,7 +16,7 @@
 #include "SeosTlsApi.h"
 #include "TlsRpcServer.h"
 
-#include "seos_nw_api.h"
+#include "OS_Network.h"
 
 #include <camkes.h>
 #include <string.h>
@@ -30,8 +30,8 @@
 #define NOT_NULL ((void*) 1)
 
 extern seos_err_t
-Seos_NwAPP_RT(
-    Seos_nw_context ctx);
+OS_NetworkAPP_RT(
+    OS_Network_context_t ctx);
 
 static int
 entropyFunc(
@@ -56,11 +56,11 @@ sendFunc(
     size_t               len)
 {
     seos_err_t err;
-    seos_socket_handle_t* socket = (seos_socket_handle_t*) ctx;
+    OS_NetworkSocket_handle_t* socket = (OS_NetworkSocket_handle_t*) ctx;
     size_t n;
 
     n = len > MAX_NW_SIZE ? MAX_NW_SIZE : len;
-    if ((err = Seos_socket_write(*socket, buf, &n)) != SEOS_SUCCESS)
+    if ((err = OS_NetworkSocket_write(*socket, buf, &n)) != SEOS_SUCCESS)
     {
         Debug_LOG_ERROR("Error during socket write...error:%d", err);
         return -1;
@@ -76,11 +76,11 @@ recvFunc(
     size_t         len)
 {
     seos_err_t err;
-    seos_socket_handle_t* socket = (seos_socket_handle_t*) ctx;
+    OS_NetworkSocket_handle_t* socket = (OS_NetworkSocket_handle_t*) ctx;
     size_t n;
 
     n = len > MAX_NW_SIZE ? MAX_NW_SIZE : len;
-    if ((err = Seos_socket_read(*socket, buf, &n)) != SEOS_SUCCESS)
+    if ((err = OS_NetworkSocket_read(*socket, buf, &n)) != SEOS_SUCCESS)
     {
         Debug_LOG_ERROR("Error during socket read...error:%d", err);
         return -1;
@@ -102,29 +102,29 @@ entropyFunc(
 
 static seos_err_t
 connectSocket(
-    seos_socket_handle_t* socket)
+    OS_NetworkSocket_handle_t* socket)
 {
-    seos_nw_client_struct socketCfg =
+    OS_NetworkClient_socket_t socketCfg =
     {
-        .domain = SEOS_AF_INET,
-        .type   = SEOS_SOCK_STREAM,
+        .domain = OS_AF_INET,
+        .type   = OS_SOCK_STREAM,
         .name   = TLS_HOST_IP,
         .port   = TLS_HOST_PORT
     };
 
-    return Seos_client_socket_create(NULL, &socketCfg, socket);
+    return OS_NetworkClientSocket_create(NULL, &socketCfg, socket);
 }
 
 static seos_err_t
 closeSocket(
-    seos_socket_handle_t* socket)
+    OS_NetworkSocket_handle_t* socket)
 {
-    return Seos_socket_close(*socket);
+    return OS_NetworkSocket_close(*socket);
 }
 
 static seos_err_t
 resetSocket(
-    seos_socket_handle_t* socket)
+    OS_NetworkSocket_handle_t* socket)
 {
     seos_err_t err;
 
@@ -554,7 +554,7 @@ static void
 test_SeosTlsApi_reset_pos(
     SeosTlsApiH           hTls,
     SeosTlsApi_Mode       mode,
-    seos_socket_handle_t* socket)
+    OS_NetworkSocket_handle_t* socket)
 {
     TEST_START(mode);
 
@@ -576,7 +576,7 @@ static void
 test_SeosTlsApi_reset_neg(
     SeosTlsApiH           hTls,
     SeosTlsApi_Mode       mode,
-    seos_socket_handle_t* socket)
+    OS_NetworkSocket_handle_t* socket)
 {
     TEST_START(mode);
 
@@ -588,7 +588,7 @@ test_SeosTlsApi_reset_neg(
 static void
 test_SeosTlsApi_mode(
     SeosTlsApiH           hTls,
-    seos_socket_handle_t* socket)
+    OS_NetworkSocket_handle_t* socket)
 {
     SeosTlsApi_Mode mode = SeosTlsApi_getMode(hTls);
     char desc[128];
@@ -650,7 +650,7 @@ test_SeosTlsApi_mode(
 int run()
 {
     SeosTlsApiH hTls;
-    static seos_socket_handle_t socket;
+    static OS_NetworkSocket_handle_t socket;
     static SeosTlsApi_Config localCfg =
     {
         .mode = SeosTlsApi_Mode_LIBRARY,
@@ -687,7 +687,7 @@ int run()
 
     Debug_LOG_INFO("");
 
-    Seos_NwAPP_RT(NULL);
+    OS_NetworkAPP_RT(NULL);
 
     // Test library mode
     TEST_SUCCESS(connectSocket(&socket));
