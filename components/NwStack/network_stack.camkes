@@ -5,8 +5,8 @@
  *
  */
 
-import <seos_if_nic.camkes>;
-import <seos_if_socket.camkes>;
+import <if_OS_nic.camkes>;
+import <if_OS_socket.camkes>;
 
 import "../TimerClient/TimerClientInf.camkes";
 
@@ -31,14 +31,14 @@ component NwStack_1 {
 
     //-------------------------------------------------
     // interface Ethernet NIC driver
-    uses        seos_if_nic             nic_driver;
+    uses        if_OS_nic               nic_driver;
     dataport    Buf                     port_nic_from; // NIC -> stack
     dataport    Buf                     port_nic_to;   // stack -> NIC
     consumes    ServiceReady            event_nic_init_done;
 
     //-------------------------------------------------
     // interface Application
-    provides    seos_if_socket          network_stack_rpc;
+    provides    if_OS_socket            network_stack_rpc;
     dataport    Buf                     port_app_io;
     emits       ServiceReady            event_network_init_done;
 
@@ -67,14 +67,14 @@ component NwStack_2 {
 
     //-------------------------------------------------
     // interface Ethernet NIC driver
-    uses        seos_if_nic             nic_driver;
+    uses        if_OS_nic               nic_driver;
     dataport    Buf                     port_nic_from; // NIC -> stack
     dataport    Buf                     port_nic_to;   // stack -> NIC
     consumes    ServiceReady            event_nic_init_done;
 
     //-------------------------------------------------
     // interface Application
-    provides   seos_if_socket          network_stack_rpc;
+    provides   if_OS_socket            network_stack_rpc;
     dataport   Buf                     port_app_io;
     emits      ServiceReady            event_network_init_done;
 
