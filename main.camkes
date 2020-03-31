@@ -8,7 +8,7 @@ import "components/Timer/Timer.camkes";
 import "components/TimerClient/TimerClient.camkes";
 import "components/TlsRpcServer/TlsRpcServer.camkes";
 
-import "components/Tests/test_SeosTlsApi.camkes";
+import "components/Tests/test_OS_Tls.camkes";
 
 assembly {
     composition {
@@ -73,7 +73,7 @@ assembly {
         //----------------------------------------------------------------------
         // Network Stack App #1
         //----------------------------------------------------------------------
-        component  test_SeosTlsApi         unitTest;
+        component  test_OS_Tls      unitTest;
 
         connection seL4Notification NwAppInitDone        (from nwStack_1.event_network_init_done,  to unitTest.event_network_stack_init_done);
         connection seL4RPCCall      NwApp_nwStack        (from unitTest.network_stack_rpc,         to nwStack_1.network_stack_rpc);

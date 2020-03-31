@@ -10,7 +10,7 @@ import <seos_if_tlsApi.camkes>;
 
 import "../TlsRpcServer/TlsRpcServer.camkes";
 
-component test_SeosTlsApi {
+component test_OS_Tls {
     control;
 
     // Networking

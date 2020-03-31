@@ -2,9 +2,9 @@
  * @addtogroup TlsApi_Tests
  * @{
  *
- * @file test_SeosTlsApi.c
+ * @file test_OS_Tls.c
  *
- * @brief Unit tests for the SEOS TLS API
+ * @brief Unit tests for the OS TLS API
  *
  * Copyright (C) 2019, Hensoldt Cyber GmbH
  */
@@ -158,7 +158,7 @@ resetSocket(
 // Test functions executed once ------------------------------------------------
 
 static void
-test_SeosTlsApi_init_pos()
+test_OS_Tls_init_pos()
 {
     SeosTlsApiH hTls;
     SeosCryptoApiH hCrypto;
@@ -241,7 +241,7 @@ test_SeosTlsApi_init_pos()
 }
 
 static void
-test_SeosTlsApi_init_neg()
+test_OS_Tls_init_neg()
 {
     SeosTlsApiH hTls;
     static SeosTlsLib_Policy badPolicy, goodPolicy =
@@ -380,7 +380,7 @@ test_SeosTlsApi_init_neg()
 }
 
 static void
-test_SeosTlsApi_free_pos()
+test_OS_Tls_free_pos()
 {
 
     SeosTlsApiH hTls;
@@ -416,7 +416,7 @@ test_SeosTlsApi_free_pos()
 }
 
 static void
-test_SeosTlsApi_free_neg()
+test_OS_Tls_free_neg()
 {
     TEST_START();
 
@@ -429,7 +429,7 @@ test_SeosTlsApi_free_neg()
 // Test functions executed for different API modes -----------------------------
 
 static void
-test_SeosTlsApi_handshake_pos(
+test_OS_Tls_handshake_pos(
     SeosTlsApiH     hTls,
     SeosTlsApi_Mode mode)
 {
@@ -442,7 +442,7 @@ test_SeosTlsApi_handshake_pos(
 }
 
 static void
-test_SeosTlsApi_handshake_neg(
+test_OS_Tls_handshake_neg(
     SeosTlsApiH     hTls,
     SeosTlsApi_Mode mode)
 {
@@ -458,7 +458,7 @@ test_SeosTlsApi_handshake_neg(
 }
 
 static void
-test_SeosTlsApi_write_neg(
+test_OS_Tls_write_neg(
     SeosTlsApiH     hTls,
     SeosTlsApi_Mode mode)
 {
@@ -481,7 +481,7 @@ test_SeosTlsApi_write_neg(
 }
 
 static void
-test_SeosTlsApi_write_pos(
+test_OS_Tls_write_pos(
     SeosTlsApiH     hTls,
     SeosTlsApi_Mode mode)
 {
@@ -500,7 +500,7 @@ test_SeosTlsApi_write_pos(
 }
 
 static void
-test_SeosTlsApi_read_neg(
+test_OS_Tls_read_neg(
     SeosTlsApiH     hTls,
     SeosTlsApi_Mode mode)
 {
@@ -526,7 +526,7 @@ test_SeosTlsApi_read_neg(
 }
 
 static void
-test_SeosTlsApi_read_pos(
+test_OS_Tls_read_pos(
     SeosTlsApiH     hTls,
     SeosTlsApi_Mode mode)
 {
@@ -551,7 +551,7 @@ test_SeosTlsApi_read_pos(
 }
 
 static void
-test_SeosTlsApi_reset_pos(
+test_OS_Tls_reset_pos(
     SeosTlsApiH           hTls,
     SeosTlsApi_Mode       mode,
     OS_NetworkSocket_Handle_t* socket)
@@ -573,7 +573,7 @@ test_SeosTlsApi_reset_pos(
 }
 
 static void
-test_SeosTlsApi_reset_neg(
+test_OS_Tls_reset_neg(
     SeosTlsApiH           hTls,
     SeosTlsApi_Mode       mode,
     OS_NetworkSocket_Handle_t* socket)
@@ -586,7 +586,7 @@ test_SeosTlsApi_reset_neg(
 }
 
 static void
-test_SeosTlsApi_mode(
+test_OS_Tls_mode(
     SeosTlsApiH           hTls,
     OS_NetworkSocket_Handle_t* socket)
 {
@@ -626,14 +626,14 @@ test_SeosTlsApi_mode(
      *       to re-use established sockets and sessions.
      */
 
-    test_SeosTlsApi_handshake_pos(hTls, mode);
-    test_SeosTlsApi_handshake_neg(hTls, mode);
+    test_OS_Tls_handshake_pos(hTls, mode);
+    test_OS_Tls_handshake_neg(hTls, mode);
 
-    test_SeosTlsApi_write_neg(hTls, mode);
-    test_SeosTlsApi_write_pos(hTls, mode);
+    test_OS_Tls_write_neg(hTls, mode);
+    test_OS_Tls_write_pos(hTls, mode);
 
-    test_SeosTlsApi_read_neg(hTls, mode);
-    test_SeosTlsApi_read_pos(hTls, mode);
+    test_OS_Tls_read_neg(hTls, mode);
+    test_OS_Tls_read_pos(hTls, mode);
 
     /*
      * Here the TLS session and socket should be closed by the server. We will
@@ -641,8 +641,8 @@ test_SeosTlsApi_mode(
      * again.
      */
 
-    test_SeosTlsApi_reset_neg(hTls, mode, socket);
-    test_SeosTlsApi_reset_pos(hTls, mode, socket);
+    test_OS_Tls_reset_neg(hTls, mode, socket);
+    test_OS_Tls_reset_pos(hTls, mode, socket);
 }
 
 // Public functions ------------------------------------------------------------
@@ -679,11 +679,11 @@ int run()
     Debug_LOG_INFO("Testing TLS API:");
 
     // Test init and free independent of API mode
-    test_SeosTlsApi_init_pos();
-    test_SeosTlsApi_init_neg();
+    test_OS_Tls_init_pos();
+    test_OS_Tls_init_neg();
 
-    test_SeosTlsApi_free_pos();
-    test_SeosTlsApi_free_neg();
+    test_OS_Tls_free_pos();
+    test_OS_Tls_free_neg();
 
     Debug_LOG_INFO("");
 
@@ -694,7 +694,7 @@ int run()
     TEST_SUCCESS(SeosCryptoApi_init(&localCfg.config.library.crypto.handle,
                                     &cryptoCfg));
     TEST_SUCCESS(SeosTlsApi_init(&hTls, &localCfg));
-    test_SeosTlsApi_mode(hTls, &socket);
+    test_OS_Tls_mode(hTls, &socket);
     TEST_SUCCESS(SeosTlsApi_free(hTls));
     TEST_SUCCESS(SeosCryptoApi_free(localCfg.config.library.crypto.handle));
     TEST_SUCCESS(closeSocket(&socket));
@@ -706,7 +706,7 @@ int run()
     // Test RPC client mode (and implicitly the RPC server side as well)
     TEST_SUCCESS(TlsRpcServer_connectSocket());
     TEST_SUCCESS(SeosTlsApi_init(&hTls, &remoteCfg));
-    test_SeosTlsApi_mode(hTls, NULL);
+    test_OS_Tls_mode(hTls, NULL);
     TEST_SUCCESS(SeosTlsApi_free(hTls));
     TEST_SUCCESS(TlsRpcServer_closeSocket());
     TEST_SUCCESS(TlsRpcServer_free());
