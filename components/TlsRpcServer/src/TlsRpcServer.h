@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "SeosTlsApi.h"
+#include "OS_Tls.h"
 
 seos_err_t
 TlsRpcServer_init(

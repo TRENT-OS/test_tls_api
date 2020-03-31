@@ -4,8 +4,8 @@
 
 #include "TestConfig.h"
 
-#include "SeosCryptoApi.h"
-#include "SeosTlsApi.h"
+#include "OS_Crypto.h"
+#include "OS_Tls.h"
 
 #include "LibDebug/Debug.h"
 #include "OS_Network.h"
@@ -38,30 +38,30 @@ entropy(
     unsigned char* buf,
     size_t         len);
 
-static SeosTlsApi_Config tlsCfg =
+static OS_Tls_Config_t tlsCfg =
 {
-    .mode = SeosTlsApi_Mode_RPC_SERVER,
+    .mode = OS_Tls_MODE_RPC_SERVER,
     .config.server.library = {
         .socket = {
             .recv   = recvFunc,
             .send   = sendFunc,
         },
-        .flags = SeosTlsLib_Flag_DEBUG,
+        .flags = OS_TlsLib_FLAG_DEBUG,
         .crypto = {
             .policy = NULL,
             // This is the "DigiCert SHA2 Secure Server CA" cert for verifying
             // the cert given by www.example.com!
             .caCert = TLS_HOST_CERT,
             .cipherSuites = {
-                SeosTlsLib_CipherSuite_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+                OS_TlsLib_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256
             },
             .cipherSuitesLen = 1
         }
     }
 };
-static SeosCryptoApi_Config cryptoCfg =
+static OS_Crypto_Config_t cryptoCfg =
 {
-    .mode = SeosCryptoApi_Mode_LIBRARY,
+    .mode = OS_Crypto_MODE_LIBRARY,
     .mem = {
         .malloc = malloc,
         .free = free,
@@ -76,8 +76,8 @@ static OS_Network_Socket_t socketCfg =
     .port   = TLS_HOST_PORT
 };
 
-static SeosTlsApiH hTls;
-static SeosCryptoApiH hCrypto;
+static OS_Tls_Handle_t hTls;
+static OS_Crypto_Handle_t hCrypto;
 static OS_NetworkSocket_Handle_t socket;
 
 // Private static functions ----------------------------------------------------
@@ -137,8 +137,8 @@ entropy(
 
 // We need to give the TLS RPC Server the context to use for a specific client;
 // we have only one client here, so it is easy.
-SeosTlsApiH
-SeosTlsRpc_Server_getSeosTlsApi(
+OS_Tls_Handle_t
+OS_TlsRpcServer_getTls(
     void)
 {
     return hTls;
@@ -153,7 +153,7 @@ TlsRpcServer_init(
     // Apparently this needs to be done in the RPC thread...?!
     OS_NetworkAPP_RT(NULL);
 
-    err = SeosCryptoApi_init(&hCrypto, &cryptoCfg);
+    err = OS_Crypto_init(&hCrypto, &cryptoCfg);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
     tlsCfg.config.server.dataport               = tlsServerDataport;
@@ -161,7 +161,7 @@ TlsRpcServer_init(
     // Socket will be connected later, by call to _connectSocket()
     tlsCfg.config.server.library.socket.context = &socket;
 
-    err = SeosTlsApi_init(&hTls, &tlsCfg);
+    err = OS_Tls_init(&hTls, &tlsCfg);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
     return 0;
@@ -187,10 +187,10 @@ TlsRpcServer_free(
 {
     seos_err_t err;
 
-    err = SeosTlsApi_free(hTls);
+    err = OS_Tls_free(hTls);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
-    err = SeosCryptoApi_free(hCrypto);
+    err = OS_Crypto_free(hCrypto);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
     return 0;

@@ -6,7 +6,7 @@
  */
 
 import <if_OS_socket.camkes>;
-import <seos_if_tlsApi.camkes>;
+import <if_OS_Tls.camkes>;
 
 procedure TlsRpcServerInf {
     include "SeosError.h";
@@ -25,6 +25,6 @@ component TlsRpcServer {
 
     // TLS
     provides    TlsRpcServerInf             TlsRpcServer;
-    provides    seos_if_tlsApi              SeosTlsRpc_Server;
+    provides    if_OS_Tls                   OS_TlsRpcServer;
     dataport    Buf                         tlsServerDataport;
 }
