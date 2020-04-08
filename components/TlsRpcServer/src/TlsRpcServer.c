@@ -61,12 +61,12 @@ static OS_Tls_Config_t tlsCfg =
 };
 static OS_Crypto_Config_t cryptoCfg =
 {
-    .mode = OS_Crypto_MODE_LIBRARY,
+    .mode = OS_Crypto_MODE_LIBRARY_ONLY,
     .mem = {
         .malloc = malloc,
         .free = free,
     },
-    .impl.lib.rng.entropy = entropy
+    .library.rng.entropy = entropy
 };
 static OS_Network_Socket_t socketCfg =
 {

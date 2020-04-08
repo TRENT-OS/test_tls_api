@@ -40,10 +40,10 @@ entropyFunc(
 
 static OS_Crypto_Config_t cryptoCfg =
 {
-    .mode = OS_Crypto_MODE_LIBRARY,
+    .mode = OS_Crypto_MODE_LIBRARY_ONLY,
     .mem.malloc = malloc,
     .mem.free = free,
-    .impl.lib.rng.entropy = entropyFunc,
+    .library.rng.entropy = entropyFunc,
 };
 
 // Private functions -----------------------------------------------------------
