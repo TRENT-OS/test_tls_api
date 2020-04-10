@@ -23,7 +23,6 @@ DeclareCAmkESComponent(test_OS_Tls
         components/TlsRpcServer/src
     SOURCES
         components/Tests/src/test_OS_Tls.c
-        ${SEOS_LIBS_DIR}/seos_nwstack/network-client-lib/seos_nw_api_interface.c
     C_FLAGS
         -Wall -Werror
         -DCLIENT_CONFIG=1
@@ -31,6 +30,7 @@ DeclareCAmkESComponent(test_OS_Tls
         seos_core_api
         seos_libs
         seos_crypto
+        seos_network_api
         seos_tls_with_rpc_client
 )
 
@@ -40,7 +40,6 @@ DeclareCAmkESComponent(TlsRpcServer
         components/TlsRpcServer/src
     SOURCES
         components/TlsRpcServer/src/TlsRpcServer.c
-        ${SEOS_LIBS_DIR}/seos_nwstack/network-client-lib/seos_nw_api_interface.c
     C_FLAGS
         -Wall -Werror
         # We need to ensure that when compiling this file we have set all the
@@ -54,6 +53,7 @@ DeclareCAmkESComponent(TlsRpcServer
         seos_core_api
         seos_libs
         seos_crypto
+        seos_network_api
         seos_tls_with_rpc_server
 )
 
