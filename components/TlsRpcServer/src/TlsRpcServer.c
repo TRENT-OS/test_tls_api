@@ -40,20 +40,20 @@ entropy(
 
 static OS_Tls_Config_t tlsCfg =
 {
-    .mode = OS_Tls_MODE_RPC_SERVER,
+    .mode = OS_Tls_MODE_SERVER,
     .config.server.library = {
         .socket = {
             .recv   = recvFunc,
             .send   = sendFunc,
         },
-        .flags = OS_TlsLib_FLAG_DEBUG,
+        .flags = OS_Tls_FLAG_DEBUG,
         .crypto = {
             .policy = NULL,
             // This is the "DigiCert SHA2 Secure Server CA" cert for verifying
             // the cert given by www.example.com!
             .caCert = TLS_HOST_CERT,
             .cipherSuites = {
-                OS_TlsLib_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+                OS_Tls_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256
             },
             .cipherSuitesLen = 1
         }
@@ -138,7 +138,7 @@ entropy(
 // We need to give the TLS RPC Server the context to use for a specific client;
 // we have only one client here, so it is easy.
 OS_Tls_Handle_t
-OS_TlsRpcServer_getTls(
+TlsLibServer_getTls(
     void)
 {
     return hTls;

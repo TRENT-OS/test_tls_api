@@ -25,6 +25,6 @@ component TlsRpcServer {
 
     // TLS
     provides    TlsRpcServerInf             TlsRpcServer;
-    provides    if_OS_Tls                   OS_TlsRpcServer;
+    provides    if_OS_Tls                   TlsLibServer;
     dataport    Buf                         tlsServerDataport;
 }

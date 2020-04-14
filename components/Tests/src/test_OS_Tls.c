@@ -163,7 +163,7 @@ test_OS_Tls_init_pos()
     OS_Crypto_Handle_t hCrypto;
     static OS_Tls_Config_t cfgRpcClient =
     {
-        .mode = OS_Tls_MODE_RPC_CLIENT,
+        .mode = OS_Tls_MODE_CLIENT,
     };
     static OS_Tls_Config_t cfgAllSuites =
     {
@@ -176,8 +176,8 @@ test_OS_Tls_init_pos()
             .crypto = {
                 .caCert = TLS_HOST_CERT,
                 .cipherSuites = {
-                    OS_TlsLib_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-                    OS_TlsLib_CIPHERSUITE_DHE_RSA_WITH_AES_128_GCM_SHA256
+                    OS_Tls_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                    OS_Tls_CIPHERSUITE_DHE_RSA_WITH_AES_128_GCM_SHA256
                 },
                 .cipherSuitesLen = 2
             }
@@ -194,17 +194,17 @@ test_OS_Tls_init_pos()
             .crypto = {
                 .caCert = TLS_HOST_CERT,
                 .cipherSuites = {
-                    OS_TlsLib_CIPHERSUITE_DHE_RSA_WITH_AES_128_GCM_SHA256
+                    OS_Tls_CIPHERSUITE_DHE_RSA_WITH_AES_128_GCM_SHA256
                 },
                 .cipherSuitesLen = 1
             }
         },
     };
-    static OS_TlsLib_Policy_t policy =
+    static OS_Tls_Policy_t policy =
     {
-        .sessionDigests = {OS_TlsLib_DIGEST_SHA256},
+        .sessionDigests = {OS_Tls_DIGEST_SHA256},
         .sessionDigestsLen = 1,
-        .signatureDigests = {OS_TlsLib_DIGEST_SHA256},
+        .signatureDigests = {OS_Tls_DIGEST_SHA256},
         .signatureDigestsLen = 1,
         .rsaMinBits = OS_CryptoKey_SIZE_RSA_MIN * 8,
         .dhMinBits = OS_CryptoKey_SIZE_DH_MAX * 8
@@ -243,11 +243,11 @@ static void
 test_OS_Tls_init_neg()
 {
     OS_Tls_Handle_t hTls;
-    static OS_TlsLib_Policy_t badPolicy, goodPolicy =
+    static OS_Tls_Policy_t badPolicy, goodPolicy =
     {
-        .sessionDigests = {OS_TlsLib_DIGEST_SHA256},
+        .sessionDigests = {OS_Tls_DIGEST_SHA256},
         .sessionDigestsLen = 1,
-        .signatureDigests = {OS_TlsLib_DIGEST_SHA256},
+        .signatureDigests = {OS_Tls_DIGEST_SHA256},
         .signatureDigestsLen = 1,
         .rsaMinBits = OS_CryptoKey_SIZE_RSA_MIN * 8,
         .dhMinBits = OS_CryptoKey_SIZE_DH_MIN * 8
@@ -264,8 +264,8 @@ test_OS_Tls_init_neg()
                 .policy = NULL,
                 .caCert = TLS_HOST_CERT,
                 .cipherSuites = {
-                    OS_TlsLib_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-                    OS_TlsLib_CIPHERSUITE_DHE_RSA_WITH_AES_128_GCM_SHA256
+                    OS_Tls_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                    OS_Tls_CIPHERSUITE_DHE_RSA_WITH_AES_128_GCM_SHA256
                 },
                 .cipherSuitesLen = 2
             }
@@ -273,7 +273,7 @@ test_OS_Tls_init_neg()
     };
     static OS_Tls_Config_t cfgRpcClient =
     {
-        .mode = OS_Tls_MODE_RPC_CLIENT,
+        .mode = OS_Tls_MODE_CLIENT,
     };
 
     TEST_START();
@@ -310,44 +310,44 @@ test_OS_Tls_init_neg()
     badCfg.config.library.crypto.policy = &badPolicy;
 
     // Invalid session digest algorithm
-    memcpy(&badPolicy, &goodPolicy, sizeof(OS_TlsLib_Policy_t));
+    memcpy(&badPolicy, &goodPolicy, sizeof(OS_Tls_Policy_t));
     badPolicy.sessionDigests[1] = 666;
     badPolicy.sessionDigestsLen = 2;
     TEST_NOT_SUPP(OS_Tls_init(&hTls, &badCfg));
 
     // Too many session digests
-    memcpy(&badPolicy, &goodPolicy, sizeof(OS_TlsLib_Policy_t));
-    badPolicy.sessionDigestsLen = OS_TlsLib_MAX_DIGESTS + 1;
+    memcpy(&badPolicy, &goodPolicy, sizeof(OS_Tls_Policy_t));
+    badPolicy.sessionDigestsLen = OS_Tls_MAX_DIGESTS + 1;
     TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
     // Invalid signature digest algorithm
-    memcpy(&badPolicy, &goodPolicy, sizeof(OS_TlsLib_Policy_t));
+    memcpy(&badPolicy, &goodPolicy, sizeof(OS_Tls_Policy_t));
     badPolicy.signatureDigests[1] = 666;
     badPolicy.signatureDigestsLen = 2;
     TEST_NOT_SUPP(OS_Tls_init(&hTls, &badCfg));
 
     // Too many signature digests
-    memcpy(&badPolicy, &goodPolicy, sizeof(OS_TlsLib_Policy_t));
-    badPolicy.signatureDigestsLen = OS_TlsLib_MAX_DIGESTS + 1;
+    memcpy(&badPolicy, &goodPolicy, sizeof(OS_Tls_Policy_t));
+    badPolicy.signatureDigestsLen = OS_Tls_MAX_DIGESTS + 1;
     TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
     // Min size for DH too big
-    memcpy(&badPolicy, &goodPolicy, sizeof(OS_TlsLib_Policy_t));
+    memcpy(&badPolicy, &goodPolicy, sizeof(OS_Tls_Policy_t));
     badPolicy.dhMinBits = (OS_CryptoKey_SIZE_DH_MAX * 8) + 1;
     TEST_NOT_SUPP(OS_Tls_init(&hTls, &badCfg));
 
     // Min size for DH too small
-    memcpy(&badPolicy, &goodPolicy, sizeof(OS_TlsLib_Policy_t));
+    memcpy(&badPolicy, &goodPolicy, sizeof(OS_Tls_Policy_t));
     badPolicy.dhMinBits = (OS_CryptoKey_SIZE_DH_MIN * 8) - 1;
     TEST_NOT_SUPP(OS_Tls_init(&hTls, &badCfg));
 
     // Min size for RSA too big
-    memcpy(&badPolicy, &goodPolicy, sizeof(OS_TlsLib_Policy_t));
+    memcpy(&badPolicy, &goodPolicy, sizeof(OS_Tls_Policy_t));
     badPolicy.rsaMinBits = (OS_CryptoKey_SIZE_RSA_MAX * 8) + 1;
     TEST_NOT_SUPP(OS_Tls_init(&hTls, &badCfg));
 
     // Min size for RSA too small
-    memcpy(&badPolicy, &goodPolicy, sizeof(OS_TlsLib_Policy_t));
+    memcpy(&badPolicy, &goodPolicy, sizeof(OS_Tls_Policy_t));
     badPolicy.rsaMinBits = (OS_CryptoKey_SIZE_RSA_MIN * 8) - 1;
     TEST_NOT_SUPP(OS_Tls_init(&hTls, &badCfg));
 
@@ -364,7 +364,7 @@ test_OS_Tls_init_neg()
 
     // Too many cipher suites
     memcpy(&badCfg, &goodCfg, sizeof(OS_Tls_Config_t));
-    badCfg.config.library.crypto.cipherSuitesLen = OS_TlsLib_MAX_CIPHERSUITES + 1;
+    badCfg.config.library.crypto.cipherSuitesLen = OS_Tls_MAX_CIPHERSUITES + 1;
     TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
     // No ciphersuites at all
@@ -393,7 +393,7 @@ test_OS_Tls_free_pos()
             .crypto = {
                 .caCert = TLS_HOST_CERT,
                 .cipherSuites = {
-                    OS_TlsLib_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                    OS_Tls_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
                 },
                 .cipherSuitesLen = 1
             }
@@ -596,8 +596,8 @@ test_OS_Tls_mode(
     case OS_Tls_MODE_LIBRARY:
         strcpy(desc, "OS_Tls_MODE_LIBRARY");
         break;
-    case OS_Tls_MODE_RPC_CLIENT:
-        strcpy(desc, "OS_Tls_MODE_RPC_CLIENT");
+    case OS_Tls_MODE_CLIENT:
+        strcpy(desc, "OS_Tls_MODE_CLIENT");
         break;
     default:
         TEST_TRUE(1 == 0);
@@ -658,11 +658,11 @@ int run()
                 .recv = recvFunc,
                 .send = sendFunc,
             },
-            .flags = OS_TlsLib_FLAG_DEBUG,
+            .flags = OS_Tls_FLAG_DEBUG,
             .crypto = {
                 .caCert = TLS_HOST_CERT,
                 .cipherSuites = {
-                    OS_TlsLib_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+                    OS_Tls_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256
                 },
                 .cipherSuitesLen = 1
             },
@@ -670,7 +670,7 @@ int run()
     };
     OS_Tls_Config_t remoteCfg =
     {
-        .mode = OS_Tls_MODE_RPC_CLIENT,
+        .mode = OS_Tls_MODE_CLIENT,
         .config.client.dataport = tlsClientDataport,
     };
 

@@ -20,6 +20,6 @@ component test_OS_Tls {
 
     // TLS
     uses        TlsRpcServerInf             TlsRpcServer;
-    uses        if_OS_Tls                   OS_TlsRpcServer;
+    uses        if_OS_Tls                   TlsLibServer;
     dataport    Buf                         tlsClientDataport;
 }
