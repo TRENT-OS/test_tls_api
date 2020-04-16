@@ -217,7 +217,7 @@ test_OS_Tls_init_pos()
     cfgOneSuite.config.library.crypto.handle = hCrypto;
 
     // Test RPC CLIENT mode
-    cfgRpcClient.config.client.dataport = tlsClientDataport;
+    cfgRpcClient.config.client.dataport = TlsLibDataport;
     TEST_SUCCESS(OS_Tls_init(&hTls, &cfgRpcClient));
     TEST_SUCCESS(OS_Tls_free(hTls));
 
@@ -278,7 +278,7 @@ test_OS_Tls_init_neg()
 
     TEST_START();
 
-    cfgRpcClient.config.client.dataport = tlsClientDataport;
+    cfgRpcClient.config.client.dataport = TlsLibDataport;
     TEST_SUCCESS(OS_Crypto_init(&goodCfg.config.library.crypto.handle, &cryptoCfg));
 
     // Test in RPC Client mode without dataport
@@ -671,7 +671,7 @@ int run()
     OS_Tls_Config_t remoteCfg =
     {
         .mode = OS_Tls_MODE_CLIENT,
-        .config.client.dataport = tlsClientDataport,
+        .config.client.dataport = TlsLibDataport,
     };
 
     Debug_LOG_INFO("Testing TLS API:");

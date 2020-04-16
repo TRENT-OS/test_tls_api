@@ -120,9 +120,9 @@ assembly {
         //----------------------------------------------------------------------
         // Connecting TEST_TLS to tlsRpcServer
         //----------------------------------------------------------------------
-        connection seL4RPCCall      testTls_tlsRpcServer        (from unitTest.TlsRpcServer,         to tlsRpcServer.TlsRpcServer);
-        connection seL4RPCCall      testTls_TlsApi              (from unitTest.TlsLibServer,         to tlsRpcServer.TlsLibServer);
-        connection seL4SharedData   tlsDataport                 (from unitTest.tlsClientDataport,    to tlsRpcServer.tlsServerDataport);
+        connection seL4RPCCall      testTls_tlsRpcServer        (from unitTest.TlsRpcServer,    to tlsRpcServer.TlsRpcServer);
+        connection seL4RPCCall      testTls_TlsApi              (from unitTest.TlsLibServer,    to tlsRpcServer.TlsLibServer);
+        connection seL4SharedData   tlsDataport                 (from unitTest.TlsLibDataport,  to tlsRpcServer.TlsLibDataport);
     }
 
     configuration {

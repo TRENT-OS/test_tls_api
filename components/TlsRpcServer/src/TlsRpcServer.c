@@ -156,7 +156,7 @@ TlsRpcServer_init(
     err = OS_Crypto_init(&hCrypto, &cryptoCfg);
     Debug_ASSERT(SEOS_SUCCESS == err);
 
-    tlsCfg.config.server.dataport               = tlsServerDataport;
+    tlsCfg.config.server.dataport               = TlsLibDataport;
     tlsCfg.config.server.library.crypto.handle  = hCrypto;
     // Socket will be connected later, by call to _connectSocket()
     tlsCfg.config.server.library.socket.context = &socket;

@@ -18,8 +18,10 @@ component test_OS_Tls {
     dataport    Buf                         NwAppDataPort;
     consumes    ServiceReady                event_network_stack_init_done;
 
-    // TLS
+    // TLS RPC
     uses        TlsRpcServerInf             TlsRpcServer;
+
+    // TLS API
     uses        if_OS_Tls                   TlsLibServer;
-    dataport    Buf                         tlsClientDataport;
+    dataport    Buf                         TlsLibDataport;
 }

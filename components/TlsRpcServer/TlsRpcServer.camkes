@@ -23,8 +23,10 @@ component TlsRpcServer {
     dataport    Buf                         NwAppDataPort;
     consumes    ServiceReady                event_network_stack_init_done;
 
-    // TLS
+    // TLS RRC
     provides    TlsRpcServerInf             TlsRpcServer;
+
+    // TLS API
     provides    if_OS_Tls                   TlsLibServer;
-    dataport    Buf                         tlsServerDataport;
+    dataport    Buf                         TlsLibDataport;
 }
