@@ -6,7 +6,7 @@
 
 #include "LibDebug/Debug.h"
 #include "SeosError.h"
-#include "seos_api_chanmux_nic_drv.h"
+#include "chanmux_nic_drv_api.h"
 #include <camkes.h>
 #include <limits.h>
 
@@ -17,7 +17,7 @@ int run()
 
     // can't make this "static const" or even "static" because the data ports
     // are allocated at runtime
-    seos_camkes_chanmx_nic_drv_config_t config =
+    chanmux_nic_drv_config_t config =
     {
         .notify_init_complete  = event_init_done_emit,
 
@@ -70,17 +70,16 @@ int run()
         }
     };
 
-    seos_err_t ret = seos_chanmux_nic_driver_run(&config);
+    seos_err_t ret = chanmux_nic_driver_run(&config);
     if (ret != SEOS_SUCCESS)
     {
-        Debug_LOG_FATAL("[NIC '%s'] seos_chanmux_nic_driver_run() failed, error %d",
+        Debug_LOG_FATAL("[NIC '%s'] chanmux_nic_driver_run() failed, error %d",
                         get_instance_name(), ret);
         return -1;
     }
 
-    // actually, seos_chanmux_nic_driver_run() is not supposed to return with
-    // SEOS_SUCCESS. We have to assume this is a graceful shutdown for some
-    // reason
+    // actually, this is not supposed to return with SEOS_SUCCESS. We have to
+    // assume this is a graceful shutdown for some reason
     Debug_LOG_WARNING("[NIC '%s'] graceful termination", get_instance_name());
 
     return 0;
@@ -99,7 +98,7 @@ seos_err_t
 nic_driver_tx_data(
     size_t* pLen)
 {
-    return seos_chanmux_nic_driver_rpc_tx_data(pLen);
+    return chanmux_nic_driver_rpc_tx_data(pLen);
 }
 
 
@@ -107,5 +106,5 @@ nic_driver_tx_data(
 seos_err_t
 nic_driver_get_mac(void)
 {
-    return seos_chanmux_nic_driver_rpc_get_mac();
+    return chanmux_nic_driver_rpc_get_mac();
 }
