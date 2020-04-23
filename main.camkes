@@ -65,7 +65,6 @@ assembly {
         connection seL4NotificationNative NwStackdataAvail3 (from timerClient.e_timeout_nwstacktick_1, to nwStack_1.event_tick_or_data);
 
         connection seL4NotificationNative NwStackdataAvail1                (from nwDriver_1.event_nwstack_hasData, to nwStack_1.event_tick_or_data);
-        connection seL4Notification       NwDriver_NwStack_initdone        (from nwDriver_1.event_init_done,       to nwStack_1.event_nic_init_done);
         connection seL4RPCCall            nwStack_NwDriver                 (from nwStack_1.nic_driver,             to nwDriver_1.nic_driver);
         connection seL4SharedData         NwDriver_NwStack_ReadConnection  (from nwDriver_1.port_nwStack_to,       to nwStack_1.port_nic_from);
         connection seL4SharedData         NwDriver_NwStack_WriteConnection (from nwDriver_1.port_nwStack_from,     to nwStack_1.port_nic_to);
@@ -103,7 +102,6 @@ assembly {
         connection seL4NotificationNative NwStackdataAvail3_2 (from timerClient.e_timeout_nwstacktick_2,  to nwStack_2.event_tick_or_data);
 
         connection seL4NotificationNative NwDriver_NwStack_dataAvail_2       (from nwDriver_2.event_nwstack_hasData, to nwStack_2.event_tick_or_data);
-        connection seL4Notification       NwDriver_NwStack_initdone_2        (from nwDriver_2.event_init_done,       to nwStack_2.event_nic_init_done);
         connection seL4RPCCall            nwStack_NwDriver_2                 (from nwStack_2.nic_driver,             to nwDriver_2.nic_driver);
         connection seL4SharedData         NwDriver_NwStack_ReadConnection_2  (from nwDriver_2.port_nwStack_to,       to nwStack_2.port_nic_from);
         connection seL4SharedData         NwDriver_NwStack_WriteConnection_2 (from nwDriver_2.port_nwStack_from,     to nwStack_2.port_nic_to);

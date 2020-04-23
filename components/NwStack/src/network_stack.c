@@ -49,8 +49,6 @@ int run()
 
         .drv_nic =
         {
-            .wait_init_done     = event_nic_init_done_wait,
-
             .from = // NIC -> stack
             {
                 .buffer         = port_nic_from,

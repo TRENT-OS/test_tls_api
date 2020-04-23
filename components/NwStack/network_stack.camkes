@@ -34,7 +34,6 @@ component NwStack_1 {
     uses        if_OS_nic               nic_driver;
     dataport    Buf                     port_nic_from; // NIC -> stack
     dataport    Buf                     port_nic_to;   // stack -> NIC
-    consumes    ServiceReady            event_nic_init_done;
 
     //-------------------------------------------------
     // interface Application
@@ -70,7 +69,6 @@ component NwStack_2 {
     uses        if_OS_nic               nic_driver;
     dataport    Buf                     port_nic_from; // NIC -> stack
     dataport    Buf                     port_nic_to;   // stack -> NIC
-    consumes    ServiceReady            event_nic_init_done;
 
     //-------------------------------------------------
     // interface Application

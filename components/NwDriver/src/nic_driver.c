@@ -10,17 +10,19 @@
 #include <camkes.h>
 #include <limits.h>
 
+static chanmux_nic_drv_config_t config;
+
+
 //------------------------------------------------------------------------------
-int run()
+void
+post_init(void)
 {
-    Debug_LOG_INFO("[NIC '%s'] starting driver", get_instance_name());
+    Debug_LOG_INFO("[NIC '%s'] %s()", get_instance_name(), __func__);
 
     // can't make this "static const" or even "static" because the data ports
     // are allocated at runtime
-    chanmux_nic_drv_config_t config =
+    chanmux_nic_drv_config_t my_config =
     {
-        .notify_init_complete  = event_init_done_emit,
-
         .chanmux =
         {
             .ctrl =
@@ -70,7 +72,25 @@ int run()
         }
     };
 
-    seos_err_t ret = chanmux_nic_driver_run(&config);
+    config = my_config;
+
+    seos_err_t ret = chanmux_nic_driver_init(&config);
+    if (ret != SEOS_SUCCESS)
+    {
+        Debug_LOG_FATAL("[NIC '%s'] chanmux_nic_driver_init() failed, error %d",
+                        get_instance_name(), ret);
+    }
+}
+
+
+
+//------------------------------------------------------------------------------
+int
+run(void)
+{
+    Debug_LOG_INFO("[NIC '%s'] %s()", get_instance_name(), __func__);
+
+    seos_err_t ret = chanmux_nic_driver_run();
     if (ret != SEOS_SUCCESS)
     {
         Debug_LOG_FATAL("[NIC '%s'] chanmux_nic_driver_run() failed, error %d",
