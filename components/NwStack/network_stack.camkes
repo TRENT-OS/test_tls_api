@@ -76,6 +76,6 @@ component NwStack_2 {
     dataport   Buf                     port_app_io;
     emits      ServiceReady            event_network_init_done;
 
-    has         mutex                   allocatorMutex;
-    has         mutex                   nwstackMutex;
+    has         mutex                  allocatorMutex;
+    has         mutex                  nwstackMutex;
 }
