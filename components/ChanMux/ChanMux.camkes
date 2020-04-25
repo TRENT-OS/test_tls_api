@@ -17,7 +17,7 @@ component ChanMux {
     dataport       Buf                      port_nic_1_ctrl;
     dataport       Buf                      port_nic_1_data_read;
     dataport       Buf                      port_nic_1_data_write;
-    emits          NwDriver_DataAvailable   event_nic_1_hasData;
+    emits          EventDataAvailable       event_nic_1_hasData;
 
 
     //-------------------------------------------------
@@ -25,7 +25,7 @@ component ChanMux {
     dataport       Buf                      port_nic_2_ctrl;
     dataport       Buf                      port_nic_2_data_read;
     dataport       Buf                      port_nic_2_data_write;
-    emits          NwDriver_DataAvailable   event_nic_2_hasData;
+    emits          EventDataAvailable       event_nic_2_hasData;
 
     //-------------------------------------------------
     // interface UART

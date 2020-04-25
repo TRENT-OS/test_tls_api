@@ -13,6 +13,6 @@ component TimerClient {
     uses       timer_inf        Timer;
     provides   timer_client_inf TimerClient;
 
-    emits  NwStack_DataAvailable    e_timeout_nwstacktick_1;
-    emits  NwStack_DataAvailable    e_timeout_nwstacktick_2;
+    emits  EventDataAvailable   e_timeout_nwstacktick_1;
+    emits  EventDataAvailable   e_timeout_nwstacktick_2;
 }

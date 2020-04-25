@@ -13,8 +13,8 @@ import "../TimerClient/TimerClientInf.camkes";
 component NwStack_1 {
     control;
 
-    consumes    NwStack_DataAvailable   event_tick_or_data;
-    emits       NwStack_DataAvailable   event_internal;
+    consumes    EventDataAvailable      event_tick_or_data;
+    emits       EventDataAvailable      event_internal;
 
     emits       NwStack_WrEv            e_write;
     consumes    NwStack_WrEv            c_write;
@@ -48,8 +48,8 @@ component NwStack_1 {
 component NwStack_2 {
     control;
 
-    consumes   NwStack_DataAvailable    event_tick_or_data;
-    emits      NwStack_DataAvailable    event_internal;
+    consumes   EventDataAvailable       event_tick_or_data;
+    emits      EventDataAvailable       event_internal;
 
     emits      NwStack_WrEv             e_write;
     consumes   NwStack_WrEv             c_write;

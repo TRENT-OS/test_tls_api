@@ -2,13 +2,17 @@ import <std_connector.camkes>;
 
 import "components/ChanMux/ChanMux.camkes";
 import "components/NwStack/network_stack.camkes";
-import "components/NwDriver/nic_driver.camkes";
 import "components/UART/Uart.camkes";
 import "components/Timer/Timer.camkes";
 import "components/TimerClient/TimerClient.camkes";
 import "components/TlsRpcServer/TlsRpcServer.camkes";
 
 import "components/Tests/test_OS_Tls.camkes";
+
+#include "NIC_ChanMux/NIC_ChanMux.camkes"
+DECLARE_COMPONENT_NIC_ChanMux(NwDriver_1)
+DECLARE_COMPONENT_NIC_ChanMux(NwDriver_2)
+
 
 assembly {
     composition {
@@ -46,11 +50,11 @@ assembly {
         //----------------------------------------------------------------------
         component  NwDriver_1       nwDriver_1;
 
-        connection seL4Notification NwDriver_Chanmux_dataAvail       (from chanMux.event_nic_1_hasData,        to nwDriver_1.ChanMuxSignal_dataAvailable);
+        connection seL4Notification NwDriver_Chanmux_dataAvail       (from chanMux.event_nic_1_hasData,        to nwDriver_1.chanMux_event_hasData);
         connection seL4RPCCall      nwDriver_chanmux                 (from nwDriver_1.ChanMuxRpc,              to chanMux.ChanMux_driver);
-        connection seL4SharedData   NwDriver_Chanmux_port_ctrl       (from nwDriver_1.port_chanMux_ctrl,       to chanMux.port_nic_1_ctrl);
-        connection seL4SharedData   NwDriver_Chanmux_port_data_read  (from nwDriver_1.port_chanMux_data_read,  to chanMux.port_nic_1_data_read);
-        connection seL4SharedData   NwDriver_Chanmux_port_data_write (from nwDriver_1.port_chanMux_data_write, to chanMux.port_nic_1_data_write);
+        connection seL4SharedData   NwDriver_Chanmux_port_ctrl       (from nwDriver_1.chanMux_port_ctrl,       to chanMux.port_nic_1_ctrl);
+        connection seL4SharedData   NwDriver_Chanmux_port_data_read  (from nwDriver_1.chanMux_port_data_read,  to chanMux.port_nic_1_data_read);
+        connection seL4SharedData   NwDriver_Chanmux_port_data_write (from nwDriver_1.chanMux_port_data_write, to chanMux.port_nic_1_data_write);
 
         //----------------------------------------------------------------------
         // Network Stack #1
@@ -64,10 +68,10 @@ assembly {
 
         connection seL4NotificationNative NwStackdataAvail3 (from timerClient.e_timeout_nwstacktick_1, to nwStack_1.event_tick_or_data);
 
-        connection seL4NotificationNative NwStackdataAvail1                (from nwDriver_1.event_nwstack_hasData, to nwStack_1.event_tick_or_data);
-        connection seL4RPCCall            nwStack_NwDriver                 (from nwStack_1.nic_driver,             to nwDriver_1.nic_driver);
-        connection seL4SharedData         NwDriver_NwStack_ReadConnection  (from nwDriver_1.port_nwStack_to,       to nwStack_1.port_nic_from);
-        connection seL4SharedData         NwDriver_NwStack_WriteConnection (from nwDriver_1.port_nwStack_from,     to nwStack_1.port_nic_to);
+        connection seL4NotificationNative NwStackdataAvail1                (from nwDriver_1.nic_event_hasData,     to nwStack_1.event_tick_or_data);
+        connection seL4RPCCall            nwStack_NwDriver                 (from nwStack_1.nic_driver,             to nwDriver_1.nic_rpc);
+        connection seL4SharedData         NwDriver_NwStack_ReadConnection  (from nwDriver_1.nic_port_to,           to nwStack_1.port_nic_from);
+        connection seL4SharedData         NwDriver_NwStack_WriteConnection (from nwDriver_1.nic_port_from,         to nwStack_1.port_nic_to);
 
         //----------------------------------------------------------------------
         // Network Stack App #1
@@ -83,11 +87,11 @@ assembly {
         //----------------------------------------------------------------------
         component  NwDriver_2       nwDriver_2;
 
-        connection seL4Notification NwDriver_Chanmux_dataAvail_2       (from chanMux.event_nic_2_hasData,        to nwDriver_2.ChanMuxSignal_dataAvailable);
+        connection seL4Notification NwDriver_Chanmux_dataAvail_2       (from chanMux.event_nic_2_hasData,        to nwDriver_2.chanMux_event_hasData);
         connection seL4RPCCall      nwDriver_chanmux_2                 (from nwDriver_2.ChanMuxRpc,              to chanMux.ChanMux_driver);
-        connection seL4SharedData   NwDriver_Chanmux_port_ctrl_2       (from nwDriver_2.port_chanMux_ctrl,       to chanMux.port_nic_2_ctrl);
-        connection seL4SharedData   NwDriver_Chanmux_port_data_read_2  (from nwDriver_2.port_chanMux_data_read,  to chanMux.port_nic_2_data_read);
-        connection seL4SharedData   NwDriver_Chanmux_port_data_write_2 (from nwDriver_2.port_chanMux_data_write, to chanMux.port_nic_2_data_write);
+        connection seL4SharedData   NwDriver_Chanmux_port_ctrl_2       (from nwDriver_2.chanMux_port_ctrl,       to chanMux.port_nic_2_ctrl);
+        connection seL4SharedData   NwDriver_Chanmux_port_data_read_2  (from nwDriver_2.chanMux_port_data_read,  to chanMux.port_nic_2_data_read);
+        connection seL4SharedData   NwDriver_Chanmux_port_data_write_2 (from nwDriver_2.chanMux_port_data_write, to chanMux.port_nic_2_data_write);
 
         //----------------------------------------------------------------------
         // Network Stack #2
@@ -101,10 +105,10 @@ assembly {
 
         connection seL4NotificationNative NwStackdataAvail3_2 (from timerClient.e_timeout_nwstacktick_2,  to nwStack_2.event_tick_or_data);
 
-        connection seL4NotificationNative NwDriver_NwStack_dataAvail_2       (from nwDriver_2.event_nwstack_hasData, to nwStack_2.event_tick_or_data);
-        connection seL4RPCCall            nwStack_NwDriver_2                 (from nwStack_2.nic_driver,             to nwDriver_2.nic_driver);
-        connection seL4SharedData         NwDriver_NwStack_ReadConnection_2  (from nwDriver_2.port_nwStack_to,       to nwStack_2.port_nic_from);
-        connection seL4SharedData         NwDriver_NwStack_WriteConnection_2 (from nwDriver_2.port_nwStack_from,     to nwStack_2.port_nic_to);
+        connection seL4NotificationNative NwDriver_NwStack_dataAvail_2       (from nwDriver_2.nic_event_hasData,     to nwStack_2.event_tick_or_data);
+        connection seL4RPCCall            nwStack_NwDriver_2                 (from nwStack_2.nic_driver,             to nwDriver_2.nic_rpc);
+        connection seL4SharedData         NwDriver_NwStack_ReadConnection_2  (from nwDriver_2.nic_port_to,           to nwStack_2.port_nic_from);
+        connection seL4SharedData         NwDriver_NwStack_WriteConnection_2 (from nwDriver_2.nic_port_from,         to nwStack_2.port_nic_to);
 
         //----------------------------------------------------------------------
         // Network Stack App #2
