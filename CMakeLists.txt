@@ -11,7 +11,6 @@ seos_use_libs(
     SEOS_CRYPTO
     SEOS_TLS_WITH_RPC_CLIENT
     SEOS_TLS_WITH_RPC_SERVER
-    SEOS_TLS_IMPL_MBEDTLS
 )
 
 project(tests_tls_api C)
