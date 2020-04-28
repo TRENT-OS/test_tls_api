@@ -42,11 +42,6 @@ DeclareCAmkESComponent(TlsRpcServer
         components/TlsRpcServer/src/TlsRpcServer.c
     C_FLAGS
         -Wall -Werror
-        # We need to ensure that when compiling this file we have set all the
-        # mbedTLS defines set when compiling the TLS library. The reason for this
-        # is that it pulls in mbedTLS structs on its own and these need to match
-        # those in the lib.
-        -DMBEDTLS_CONFIG_FILE="${SEOS_LIBS_DIR}/seos_tls/configs/MbedTLS_Config.h"
         # For NW stack
         -DCLIENT_CONFIG=1
     LIBS
