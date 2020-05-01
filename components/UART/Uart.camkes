@@ -5,6 +5,8 @@
  */
 
 import "UartInf.camkes";
+import <seos_if_chanMux.camkes>;
+
 
 component UartDev {
     hardware;
