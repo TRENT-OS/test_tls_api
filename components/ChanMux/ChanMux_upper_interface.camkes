@@ -1,0 +1,24 @@
+/*
+ *  ChanMUX upper interfaces
+ *
+ *  Copyright (C) 2020, Hensoldt Cyber GmbH
+ *
+ *
+ *  The file components/ChanMux/ChanMux.camkes from the generic ChanMux CAmkES
+ *  component will include this
+ *
+ */
+
+//-------------------------------------------------
+// upper interface Ethernet NIC driver #1
+dataport       Buf                 nic_1_port_ctrl;
+dataport       Buf                 nic_1_port_data_read;
+dataport       Buf                 nic_1_port_data_write;
+emits          EventDataAvailable  nic_1_event_hasData;
+
+//-------------------------------------------------
+// upper interface Ethernet NIC driver #2
+dataport       Buf                 nic_2_port_ctrl;
+dataport       Buf                 nic_2_port_data_read;
+dataport       Buf                 nic_2_port_data_write;
+emits          EventDataAvailable  nic_2_event_hasData;

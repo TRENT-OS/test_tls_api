@@ -1,6 +1,5 @@
 import <std_connector.camkes>;
 
-import "components/ChanMux/ChanMux.camkes";
 import "components/NwStack/network_stack.camkes";
 import "components/UART/Uart.camkes";
 import "components/Timer/Timer.camkes";
@@ -9,18 +8,19 @@ import "components/TlsRpcServer/TlsRpcServer.camkes";
 
 import "components/Tests/test_OS_Tls.camkes";
 
+#include "config/SystemConfig.h"
+
 #include "NIC_ChanMux/NIC_ChanMux.camkes"
 DECLARE_COMPONENT_NIC_ChanMux(NwDriver_1)
 DECLARE_COMPONENT_NIC_ChanMux(NwDriver_2)
 
+#define CHANMUX_COMPONENT_NAME  ChanMux
+#define CHANMUX_UPPER_INTERFACES "components/ChanMux/ChanMux_upper_interface.camkes"
+#include "ChanMux/ChanMux.camkes"
+
 
 assembly {
     composition {
-        //----------------------------------------------------------------------
-        // MUX
-        //----------------------------------------------------------------------
-        component ChanMux           chanMux;
-
         //----------------------------------------------------------------------
         // UART
         //----------------------------------------------------------------------
@@ -28,9 +28,14 @@ assembly {
         component  UartDrv          uartDrv;
 
         connection seL4HardwareMMIO uart_memio          (from uartDrv.uartRegBase,    to uartDev.uartRegBase);
-        connection seL4RPCCall      uart_chanmux        (from uartDrv.Output,         to chanMux.ChanMuxOut);
-        connection seL4RPCCall      chanmux_uart        (from chanMux.Output,         to uartDrv.UartDrv);
-        connection seL4SharedData   uart_dataConnection (from chanMux.outputDataPort, to uartDrv.inputDataPort);
+
+        //----------------------------------------------------------------------
+        // MUX
+        //----------------------------------------------------------------------
+        DECLARE_AND_CONNECT_INSTANCE_CHANMUX(
+            ChanMux, chanMux,
+            uartDrv.UartDrv, uartDrv.inputDataPort,
+            uartDrv.Output)
 
         //----------------------------------------------------------------------
         // Timer
@@ -50,11 +55,11 @@ assembly {
         //----------------------------------------------------------------------
         component  NwDriver_1       nwDriver_1;
 
-        connection seL4Notification NwDriver_Chanmux_dataAvail       (from chanMux.event_nic_1_hasData,        to nwDriver_1.chanMux_event_hasData);
-        connection seL4RPCCall      nwDriver_chanmux                 (from nwDriver_1.ChanMuxRpc,              to chanMux.ChanMux_driver);
-        connection seL4SharedData   NwDriver_Chanmux_port_ctrl       (from nwDriver_1.chanMux_port_ctrl,       to chanMux.port_nic_1_ctrl);
-        connection seL4SharedData   NwDriver_Chanmux_port_data_read  (from nwDriver_1.chanMux_port_data_read,  to chanMux.port_nic_1_data_read);
-        connection seL4SharedData   NwDriver_Chanmux_port_data_write (from nwDriver_1.chanMux_port_data_write, to chanMux.port_nic_1_data_write);
+        connection seL4Notification NwDriver_Chanmux_dataAvail       (from chanMux.nic_1_event_hasData,        to nwDriver_1.chanMux_event_hasData);
+        connection seL4RPCCall      nwDriver_chanmux                 (from nwDriver_1.chanMux_rpc,             to chanMux.chanMux_rpc);
+        connection seL4SharedData   NwDriver_Chanmux_port_ctrl       (from nwDriver_1.chanMux_port_ctrl,       to chanMux.nic_1_port_ctrl);
+        connection seL4SharedData   NwDriver_Chanmux_port_data_read  (from nwDriver_1.chanMux_port_data_read,  to chanMux.nic_1_port_data_read);
+        connection seL4SharedData   NwDriver_Chanmux_port_data_write (from nwDriver_1.chanMux_port_data_write, to chanMux.nic_1_port_data_write);
 
         //----------------------------------------------------------------------
         // Network Stack #1
@@ -87,11 +92,11 @@ assembly {
         //----------------------------------------------------------------------
         component  NwDriver_2       nwDriver_2;
 
-        connection seL4Notification NwDriver_Chanmux_dataAvail_2       (from chanMux.event_nic_2_hasData,        to nwDriver_2.chanMux_event_hasData);
-        connection seL4RPCCall      nwDriver_chanmux_2                 (from nwDriver_2.ChanMuxRpc,              to chanMux.ChanMux_driver);
-        connection seL4SharedData   NwDriver_Chanmux_port_ctrl_2       (from nwDriver_2.chanMux_port_ctrl,       to chanMux.port_nic_2_ctrl);
-        connection seL4SharedData   NwDriver_Chanmux_port_data_read_2  (from nwDriver_2.chanMux_port_data_read,  to chanMux.port_nic_2_data_read);
-        connection seL4SharedData   NwDriver_Chanmux_port_data_write_2 (from nwDriver_2.chanMux_port_data_write, to chanMux.port_nic_2_data_write);
+        connection seL4Notification NwDriver_Chanmux_dataAvail_2       (from chanMux.nic_2_event_hasData,        to nwDriver_2.chanMux_event_hasData);
+        connection seL4RPCCall      nwDriver_chanmux_2                 (from nwDriver_2.chanMux_rpc,             to chanMux.chanMux_rpc);
+        connection seL4SharedData   NwDriver_Chanmux_port_ctrl_2       (from nwDriver_2.chanMux_port_ctrl,       to chanMux.nic_2_port_ctrl);
+        connection seL4SharedData   NwDriver_Chanmux_port_data_read_2  (from nwDriver_2.chanMux_port_data_read,  to chanMux.nic_2_port_data_read);
+        connection seL4SharedData   NwDriver_Chanmux_port_data_write_2 (from nwDriver_2.chanMux_port_data_write, to chanMux.nic_2_port_data_write);
 
         //----------------------------------------------------------------------
         // Network Stack #2
@@ -141,7 +146,7 @@ assembly {
 
         // assign endpoint badges for n:1 RPC interface of ChanMUX. The generic
         // naming scheme is <component>.<interface>_attributes = <badge ID>
-        nwDriver_1.ChanMuxRpc_attributes = 1;
-        nwDriver_2.ChanMuxRpc_attributes = 2;
+        nwDriver_1.chanMux_rpc_attributes = CHANMUX_ID_NIC_1;
+        nwDriver_2.chanMux_rpc_attributes = CHANMUX_ID_NIC_2;
     }
 }

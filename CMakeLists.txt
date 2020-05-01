@@ -100,16 +100,10 @@ DeclareCAmkESComponent_NIC_ChanMux(
     CHANMUX_CHANNEL_NIC_2_DATA
 )
 
-DeclareCAmkESComponent(ChanMux
-    SOURCES
-        components/ChanMux/src/ChanMux.c
-    C_FLAGS
-        -Wall -Werror
-    LIBS
-        system_config
-        seos_core_api
-        seos_libs
-        chanmux_server
+DeclareCAmkESComponent_ChanMux(
+    ChanMux
+    components/ChanMux/ChanMux_config.c
+    system_config
 )
 
 DeclareCAmkESComponent(UartDrv
