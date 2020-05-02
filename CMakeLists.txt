@@ -13,11 +13,16 @@ seos_use_libs(
     SEOS_TLS_WITH_RPC_SERVER
 )
 
+
+project(system_config C)
+add_library(${PROJECT_NAME} INTERFACE)
+target_include_directories(${PROJECT_NAME} INTERFACE config)
+
+
 project(tests_tls_api C)
 
 DeclareCAmkESComponent(test_OS_Tls
     INCLUDES
-        config
         components/TlsRpcServer/src
     SOURCES
         components/Tests/src/test_OS_Tls.c
@@ -25,6 +30,7 @@ DeclareCAmkESComponent(test_OS_Tls
         -Wall -Werror
         -DCLIENT_CONFIG=1
     LIBS
+        system_config
         seos_core_api
         seos_libs
         seos_crypto
@@ -34,7 +40,6 @@ DeclareCAmkESComponent(test_OS_Tls
 
 DeclareCAmkESComponent(TlsRpcServer
     INCLUDES
-        config
         components/TlsRpcServer/src
     SOURCES
         components/TlsRpcServer/src/TlsRpcServer.c
@@ -43,6 +48,7 @@ DeclareCAmkESComponent(TlsRpcServer
         # For NW stack
         -DCLIENT_CONFIG=1
     LIBS
+        system_config
         seos_core_api
         seos_libs
         seos_crypto
@@ -51,8 +57,6 @@ DeclareCAmkESComponent(TlsRpcServer
 )
 
 DeclareCAmkESComponent(NwStack_1
-    INCLUDES
-        config
     SOURCES
         components/NwStack/src/network_stack.c
     C_FLAGS
@@ -62,6 +66,7 @@ DeclareCAmkESComponent(NwStack_1
         -DCFG_ETH_GATEWAY_ADDR=ETH_1_GATEWAY_ADDR
         -DCFG_ETH_SUBNET_MASK=ETH_1_SUBNET_MASK
     LIBS
+        system_config
         seos_core_api
         seos_libs
         seos_nw_lib
@@ -74,8 +79,6 @@ DeclareCAmkESComponent_NIC_ChanMux(
 )
 
 DeclareCAmkESComponent(NwStack_2
-    INCLUDES
-        config
     SOURCES
         components/NwStack/src/network_stack.c
     C_FLAGS
@@ -85,6 +88,7 @@ DeclareCAmkESComponent(NwStack_2
         -DCFG_ETH_GATEWAY_ADDR=ETH_2_GATEWAY_ADDR
         -DCFG_ETH_SUBNET_MASK=ETH_2_SUBNET_MASK
     LIBS
+        system_config
         seos_core_api
         seos_libs
         seos_nw_lib
@@ -97,13 +101,12 @@ DeclareCAmkESComponent_NIC_ChanMux(
 )
 
 DeclareCAmkESComponent(ChanMux
-    INCLUDES
-        config
     SOURCES
         components/ChanMux/src/ChanMux.c
     C_FLAGS
         -Wall -Werror
     LIBS
+        system_config
         seos_core_api
         seos_libs
         chanmux_server
