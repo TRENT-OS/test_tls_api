@@ -41,8 +41,6 @@ entropyFunc(
 static OS_Crypto_Config_t cryptoCfg =
 {
     .mode = OS_Crypto_MODE_LIBRARY_ONLY,
-    .mem.malloc = malloc,
-    .mem.free = free,
     .library.rng.entropy = entropyFunc,
 };
 
