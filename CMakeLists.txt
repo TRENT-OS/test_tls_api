@@ -106,14 +106,8 @@ DeclareCAmkESComponent_ChanMux(
     system_config
 )
 
-DeclareCAmkESComponent(UartDrv
-    SOURCES
-        components/UART/src/UartDrv.c
-        components/UART/src/qemu_uart.c
-    C_FLAGS
-        -Wall -Werror
-    LIBS
-        seos_libs
+DeclareCAmkESComponent_UART(
+    UART
 )
 
 DeclareCAmkESComponent(TimerClient
