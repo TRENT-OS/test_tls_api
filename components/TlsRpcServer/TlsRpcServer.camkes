@@ -9,12 +9,12 @@ import <if_OS_socket.camkes>;
 import <if_OS_Tls.camkes>;
 
 procedure TlsRpcServerInf {
-    include "SeosError.h";
+    include "OS_Error.h";
 
-    seos_err_t  init            ();
-    seos_err_t  connectSocket   ();
-    seos_err_t  closeSocket     ();
-    seos_err_t  free            ();
+    OS_Error_t  init            ();
+    OS_Error_t  connectSocket   ();
+    OS_Error_t  closeSocket     ();
+    OS_Error_t  free            ();
 };
 
 component TlsRpcServer {

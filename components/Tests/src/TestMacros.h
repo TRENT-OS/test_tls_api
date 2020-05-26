@@ -46,7 +46,7 @@ static char testName[MAX_MSG_LEN] = "<undefined>";
 
 /**
  * With the help of these TEST_xxx we obtain practical shorthands for checking
- * a function result agains seos_err_t error codes.
+ * a function result agains OS_Error_t error codes.
  *
  * Furthermore (and more importantly), we can define and use our own assertions,
  * so that we can add the name of the test to a failing assertion. This is useful

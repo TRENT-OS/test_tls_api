@@ -17,7 +17,7 @@
 
 #define MAX_NW_SIZE 2048
 
-extern seos_err_t OS_NetworkAPP_RT(
+extern OS_Error_t OS_NetworkAPP_RT(
     OS_Network_Context_t ctx);
 
 static int
@@ -84,7 +84,7 @@ sendFunc(
     const unsigned char* buf,
     size_t               len)
 {
-    seos_err_t err;
+    OS_Error_t err;
     OS_NetworkSocket_Handle_t* sockHandle = (OS_NetworkSocket_Handle_t*) ctx;
     size_t n;
 
@@ -104,7 +104,7 @@ recvFunc(
     unsigned char* buf,
     size_t         len)
 {
-    seos_err_t err;
+    OS_Error_t err;
     OS_NetworkSocket_Handle_t* sockHandle = (OS_NetworkSocket_Handle_t*) ctx;
     size_t n;
 
@@ -140,11 +140,11 @@ TlsLibServer_getTls(
     return hTls;
 }
 
-seos_err_t
+OS_Error_t
 TlsRpcServer_init(
     void)
 {
-    seos_err_t err;
+    OS_Error_t err;
 
     // Apparently this needs to be done in the RPC thread...?!
     OS_NetworkAPP_RT(NULL);
@@ -163,25 +163,25 @@ TlsRpcServer_init(
     return 0;
 }
 
-seos_err_t
+OS_Error_t
 TlsRpcServer_connectSocket(
     void)
 {
     return OS_NetworkSocket_create(NULL, &socketCfg, &socket);
 }
 
-seos_err_t
+OS_Error_t
 TlsRpcServer_closeSocket(
     void)
 {
     return OS_NetworkSocket_close(socket);
 }
 
-seos_err_t
+OS_Error_t
 TlsRpcServer_free(
     void)
 {
-    seos_err_t err;
+    OS_Error_t err;
 
     err = OS_Tls_free(hTls);
     Debug_ASSERT(SEOS_SUCCESS == err);

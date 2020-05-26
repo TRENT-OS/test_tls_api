@@ -28,7 +28,7 @@
 // In case we need a not-NULL address to test something
 #define NOT_NULL ((void*) 1)
 
-extern seos_err_t
+extern OS_Error_t
 OS_NetworkAPP_RT(
     OS_Network_Context_t ctx);
 
@@ -52,7 +52,7 @@ sendFunc(
     const unsigned char* buf,
     size_t               len)
 {
-    seos_err_t err;
+    OS_Error_t err;
     OS_NetworkSocket_Handle_t* socket = (OS_NetworkSocket_Handle_t*) ctx;
     size_t n;
 
@@ -72,7 +72,7 @@ recvFunc(
     unsigned char* buf,
     size_t         len)
 {
-    seos_err_t err;
+    OS_Error_t err;
     OS_NetworkSocket_Handle_t* socket = (OS_NetworkSocket_Handle_t*) ctx;
     size_t n;
 
@@ -97,7 +97,7 @@ entropyFunc(
     return 0;
 }
 
-static seos_err_t
+static OS_Error_t
 connectSocket(
     OS_NetworkSocket_Handle_t* socket)
 {
@@ -112,18 +112,18 @@ connectSocket(
     return OS_NetworkSocket_create(NULL, &socketCfg, socket);
 }
 
-static seos_err_t
+static OS_Error_t
 closeSocket(
     OS_NetworkSocket_Handle_t* socket)
 {
     return OS_NetworkSocket_close(*socket);
 }
 
-static seos_err_t
+static OS_Error_t
 resetSocket(
     OS_NetworkSocket_Handle_t* socket)
 {
-    seos_err_t err;
+    OS_Error_t err;
 
     // Reset either the local socket or the one on the RPC server
     if (NULL != socket)

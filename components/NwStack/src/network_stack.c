@@ -8,7 +8,7 @@
 #include "SystemConfig.h"
 
 #include "LibDebug/Debug.h"
-#include "SeosError.h"
+#include "OS_Error.h"
 #include "seos_api_network_stack.h"
 #include <camkes.h>
 
@@ -80,7 +80,7 @@ int run()
         }
     };
 
-    seos_err_t ret = seos_network_stack_run(&camkes_config, &config);
+    OS_Error_t ret = seos_network_stack_run(&camkes_config, &config);
     if (ret != SEOS_SUCCESS)
     {
         Debug_LOG_FATAL("[NwStack '%s'] seos_network_stack_run() failed, error %d",
