@@ -89,7 +89,7 @@ sendFunc(
     size_t n;
 
     n = len > MAX_NW_SIZE ? MAX_NW_SIZE : len;
-    if ((err = OS_NetworkSocket_write(*sockHandle, buf, &n)) != SEOS_SUCCESS)
+    if ((err = OS_NetworkSocket_write(*sockHandle, buf, &n)) != OS_SUCCESS)
     {
         Debug_LOG_ERROR("Error during socket write...error:%d", err);
         return -1;
@@ -109,7 +109,7 @@ recvFunc(
     size_t n;
 
     n = len > MAX_NW_SIZE ? MAX_NW_SIZE : len;
-    if ((err = OS_NetworkSocket_read(*sockHandle, buf, &n)) != SEOS_SUCCESS)
+    if ((err = OS_NetworkSocket_read(*sockHandle, buf, &n)) != OS_SUCCESS)
     {
         Debug_LOG_ERROR("Error during socket read...error:%d", err);
         return -1;
@@ -150,7 +150,7 @@ TlsRpcServer_init(
     OS_NetworkAPP_RT(NULL);
 
     err = OS_Crypto_init(&hCrypto, &cryptoCfg);
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    Debug_ASSERT(OS_SUCCESS == err);
 
     tlsCfg.config.server.dataport               = TlsLibDataport;
     tlsCfg.config.server.library.crypto.handle  = hCrypto;
@@ -158,7 +158,7 @@ TlsRpcServer_init(
     tlsCfg.config.server.library.socket.context = &socket;
 
     err = OS_Tls_init(&hTls, &tlsCfg);
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    Debug_ASSERT(OS_SUCCESS == err);
 
     return 0;
 }
@@ -184,10 +184,10 @@ TlsRpcServer_free(
     OS_Error_t err;
 
     err = OS_Tls_free(hTls);
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    Debug_ASSERT(OS_SUCCESS == err);
 
     err = OS_Crypto_free(hCrypto);
-    Debug_ASSERT(SEOS_SUCCESS == err);
+    Debug_ASSERT(OS_SUCCESS == err);
 
     return 0;
 }

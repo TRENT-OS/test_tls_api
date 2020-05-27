@@ -57,7 +57,7 @@ sendFunc(
     size_t n;
 
     n = len > MAX_NW_SIZE ? MAX_NW_SIZE : len;
-    if ((err = OS_NetworkSocket_write(*socket, buf, &n)) != SEOS_SUCCESS)
+    if ((err = OS_NetworkSocket_write(*socket, buf, &n)) != OS_SUCCESS)
     {
         Debug_LOG_ERROR("Error during socket write...error:%d", err);
         return -1;
@@ -77,7 +77,7 @@ recvFunc(
     size_t n;
 
     n = len > MAX_NW_SIZE ? MAX_NW_SIZE : len;
-    if ((err = OS_NetworkSocket_read(*socket, buf, &n)) != SEOS_SUCCESS)
+    if ((err = OS_NetworkSocket_read(*socket, buf, &n)) != OS_SUCCESS)
     {
         Debug_LOG_ERROR("Error during socket read...error:%d", err);
         return -1;
@@ -128,28 +128,28 @@ resetSocket(
     // Reset either the local socket or the one on the RPC server
     if (NULL != socket)
     {
-        if ((err = closeSocket(socket)) != SEOS_SUCCESS)
+        if ((err = closeSocket(socket)) != OS_SUCCESS)
         {
             return err;
         }
-        if ((err = connectSocket(socket)) != SEOS_SUCCESS)
+        if ((err = connectSocket(socket)) != OS_SUCCESS)
         {
             return err;
         }
     }
     else
     {
-        if ((err = TlsRpcServer_closeSocket()) != SEOS_SUCCESS)
+        if ((err = TlsRpcServer_closeSocket()) != OS_SUCCESS)
         {
             return err;
         }
-        if ((err = TlsRpcServer_connectSocket()) != SEOS_SUCCESS)
+        if ((err = TlsRpcServer_connectSocket()) != OS_SUCCESS)
         {
             return err;
         }
     }
 
-    return SEOS_SUCCESS;
+    return OS_SUCCESS;
 }
 
 // Test functions executed once ------------------------------------------------

@@ -81,7 +81,7 @@ int run()
     };
 
     OS_Error_t ret = seos_network_stack_run(&camkes_config, &config);
-    if (ret != SEOS_SUCCESS)
+    if (ret != OS_SUCCESS)
     {
         Debug_LOG_FATAL("[NwStack '%s'] seos_network_stack_run() failed, error %d",
                         get_instance_name(), ret);
@@ -89,7 +89,7 @@ int run()
     }
 
     // actually, seos_network_stack_run() is not supposed to return with
-    // SEOS_SUCCESS. We have to assume this is a graceful shutdown for some
+    // OS_SUCCESS. We have to assume this is a graceful shutdown for some
     // reason
     Debug_LOG_WARNING("[NwStack '%s'] graceful termination",
                         get_instance_name());

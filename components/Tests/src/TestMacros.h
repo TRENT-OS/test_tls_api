@@ -66,29 +66,29 @@ static char testName[MAX_MSG_LEN] = "<undefined>";
 }
 // These shorthands can be used to simply check function return codes
 #define TEST_INSUFF_SPACE(fn) \
-    ASSERT_ERR(fn, SEOS_ERROR_INSUFFICIENT_SPACE)
+    ASSERT_ERR(fn, OS_ERROR_INSUFFICIENT_SPACE)
 #define TEST_TOO_SMALL(fn) \
-    ASSERT_ERR(fn, SEOS_ERROR_BUFFER_TOO_SMALL)
+    ASSERT_ERR(fn, OS_ERROR_BUFFER_TOO_SMALL)
 #define TEST_ABORTED(fn) \
-    ASSERT_ERR(fn, SEOS_ERROR_ABORTED)
+    ASSERT_ERR(fn, OS_ERROR_ABORTED)
 #define TEST_OP_DENIED(fn) \
-    ASSERT_ERR(fn, SEOS_ERROR_OPERATION_DENIED)
+    ASSERT_ERR(fn, OS_ERROR_OPERATION_DENIED)
 #define TEST_ACC_DENIED(fn) \
-    ASSERT_ERR(fn, SEOS_ERROR_ACCESS_DENIED)
+    ASSERT_ERR(fn, OS_ERROR_ACCESS_DENIED)
 #define TEST_NOT_FOUND(fn) \
-    ASSERT_ERR(fn, SEOS_ERROR_NOT_FOUND)
+    ASSERT_ERR(fn, OS_ERROR_NOT_FOUND)
 #define TEST_INVAL_HANDLE(fn) \
-    ASSERT_ERR(fn, SEOS_ERROR_INVALID_HANDLE)
+    ASSERT_ERR(fn, OS_ERROR_INVALID_HANDLE)
 #define TEST_INVAL_NAME(fn) \
-    ASSERT_ERR(fn, SEOS_ERROR_INVALID_NAME)
+    ASSERT_ERR(fn, OS_ERROR_INVALID_NAME)
 #define TEST_INVAL_PARAM(fn) \
-    ASSERT_ERR(fn, SEOS_ERROR_INVALID_PARAMETER)
+    ASSERT_ERR(fn, OS_ERROR_INVALID_PARAMETER)
 #define TEST_NOT_SUPP(fn) \
-    ASSERT_ERR(fn, SEOS_ERROR_NOT_SUPPORTED)
+    ASSERT_ERR(fn, OS_ERROR_NOT_SUPPORTED)
 #define TEST_GENERIC(fn) \
-    ASSERT_ERR(fn, SEOS_ERROR_GENERIC)
+    ASSERT_ERR(fn, OS_ERROR_GENERIC)
 #define TEST_SUCCESS(fn) \
-    ASSERT_ERR(fn, SEOS_SUCCESS)
+    ASSERT_ERR(fn, OS_SUCCESS)
 // Check boolean expression and not an error code
 // Checking return value of snprintf to stop GCC from throwing error about 
 // format truncation.
