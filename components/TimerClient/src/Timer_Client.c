@@ -1,5 +1,5 @@
 /*
- *  SEOS Network Stack CAmkES App for timer client
+ *  OS Network Stack CAmkES App for timer client
  *
  *  Copyright (C) 2019, Hensoldt Cyber GmbH
  *

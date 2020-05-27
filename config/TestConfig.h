@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2019, Hensoldt Cyber GmbH
  *
- * SEOS TLS test configuration
+ * OS TLS test configuration
  *
  */
 #pragma once

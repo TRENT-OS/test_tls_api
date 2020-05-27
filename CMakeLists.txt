@@ -3,14 +3,14 @@ cmake_minimum_required(VERSION 3.7.2)
 seos_set_config_file(config/SystemConfig.h)
 
 seos_use_libs(
-    SEOS_LIBS
-    SEOS_CHANMUX
-    SEOS_LIBS_LOGGER
-    SEOS_NW_STACK
-    SEOS_NETWORK_DRIVER_TAP_PROXY
-    SEOS_CRYPTO
-    SEOS_TLS_WITH_RPC_CLIENT
-    SEOS_TLS_WITH_RPC_SERVER
+    OS_LIBS
+    OS_CHANMUX
+    OS_LIBS_LOGGER
+    OS_NW_STACK
+    OS_NETWORK_DRIVER_TAP_PROXY
+    OS_CRYPTO
+    OS_TLS_WITH_RPC_CLIENT
+    OS_TLS_WITH_RPC_SERVER
 )
 
 
@@ -61,7 +61,7 @@ DeclareCAmkESComponent(NwStack_1
         components/NwStack/src/network_stack.c
     C_FLAGS
         -Wall -Werror
-        -DSEOS_NWSTACK_AS_CLIENT
+        -DOS_NWSTACK_AS_CLIENT
         -DCFG_ETH_ADDR=ETH_1_ADDR
         -DCFG_ETH_GATEWAY_ADDR=ETH_1_GATEWAY_ADDR
         -DCFG_ETH_SUBNET_MASK=ETH_1_SUBNET_MASK
@@ -83,7 +83,7 @@ DeclareCAmkESComponent(NwStack_2
         components/NwStack/src/network_stack.c
     C_FLAGS
         -Wall -Werror
-        -DSEOS_NWSTACK_AS_CLIENT
+        -DOS_NWSTACK_AS_CLIENT
         -DCFG_ETH_ADDR=ETH_2_ADDR
         -DCFG_ETH_GATEWAY_ADDR=ETH_2_GATEWAY_ADDR
         -DCFG_ETH_SUBNET_MASK=ETH_2_SUBNET_MASK

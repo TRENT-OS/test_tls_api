@@ -2,4 +2,4 @@
 
 ## Overview
 
-Provide tests for the SEOS tls API
+Provide tests for the OS tls API

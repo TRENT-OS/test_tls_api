@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2019, Hensoldt Cyber GmbH
  *
- * SEOS libraries configurations
+ * OS libraries configurations
  *
  */
 #pragma once
