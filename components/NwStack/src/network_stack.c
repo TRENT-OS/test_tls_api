@@ -9,11 +9,11 @@
 
 #include "LibDebug/Debug.h"
 #include "OS_Error.h"
-#include "seos_api_network_stack.h"
+#include "OS_NetworkStackConf.h"
 #include <camkes.h>
 
 
-static const seos_network_stack_config_t config =
+static const os_network_stack_config_t config =
 {
     .dev_addr      = CFG_ETH_ADDR,
     .gateway_addr  = CFG_ETH_GATEWAY_ADDR,
@@ -28,7 +28,7 @@ int run()
 
     // can't make this "static const" or even "static" because the data ports
     // are allocated at runtime
-    seos_camkes_network_stack_config_t camkes_config =
+    os_camkes_network_stack_config_t camkes_config =
     {
         .notify_init_done        = event_network_init_done_emit,
         .wait_loop_event         = event_tick_or_data_wait,
@@ -80,15 +80,15 @@ int run()
         }
     };
 
-    OS_Error_t ret = seos_network_stack_run(&camkes_config, &config);
+    OS_Error_t ret = OS_NetworkStack_run(&camkes_config, &config);
     if (ret != OS_SUCCESS)
     {
-        Debug_LOG_FATAL("[NwStack '%s'] seos_network_stack_run() failed, error %d",
+        Debug_LOG_FATAL("[NwStack '%s'] OS_NetworkStack_run() failed, error %d",
                         get_instance_name(), ret);
         return -1;
     }
 
-    // actually, seos_network_stack_run() is not supposed to return with
+    // actually, OS_NetworkStack_run() is not supposed to return with
     // OS_SUCCESS. We have to assume this is a graceful shutdown for some
     // reason
     Debug_LOG_WARNING("[NwStack '%s'] graceful termination",
