@@ -6,8 +6,6 @@ os_use_libs(
     OS_LIBS
     OS_CHANMUX
     OS_LIBS_LOGGER
-    OS_NW_STACK
-    OS_NETWORK_DRIVER_TAP_PROXY
     OS_CRYPTO
     OS_TLS_WITH_RPC_CLIENT
     OS_TLS_WITH_RPC_SERVER
@@ -34,7 +32,7 @@ DeclareCAmkESComponent(test_OS_Tls
         seos_core_api
         seos_libs
         seos_crypto
-        seos_network_api
+        os_network_api
         seos_tls_with_rpc_client
 )
 
@@ -52,7 +50,7 @@ DeclareCAmkESComponent(TlsRpcServer
         seos_core_api
         seos_libs
         seos_crypto
-        seos_network_api
+        os_network_api
         seos_tls_with_rpc_server
 )
 
@@ -69,7 +67,7 @@ DeclareCAmkESComponent(NwStack_1
         system_config
         seos_core_api
         seos_libs
-        seos_nw_lib
+        os_network_lib
 )
 
 DeclareCAmkESComponent_NIC_ChanMux(
@@ -91,7 +89,7 @@ DeclareCAmkESComponent(NwStack_2
         system_config
         seos_core_api
         seos_libs
-        seos_nw_lib
+        os_network_lib
 )
 
 DeclareCAmkESComponent_NIC_ChanMux(
