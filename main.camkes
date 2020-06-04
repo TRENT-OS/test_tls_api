@@ -133,7 +133,10 @@ assembly {
     }
 
     configuration {
-        CONFIGURE_INSTANCE_UART(uartDrv, 0xE0000000, 59)
+        CONFIGURE_INSTANCE_UART(
+            uartDrv,
+            CFG_CHANMUX_DEFAULT_UART_PHYS_ADDR,
+            CFG_CHANMUX_DEFAULT_UART_INTR)
 
         timerBase.reg_paddr = 0xF8001000;   // paddr of mmio registers
         timerBase.reg_size = 0x1000;        // size of mmio registers
