@@ -41,7 +41,8 @@ entropy(
 static OS_Tls_Config_t tlsCfg =
 {
     .mode = OS_Tls_MODE_SERVER,
-    .config.server.library = {
+    .dataport = OS_DATAPORT_ASSIGN(TlsLibDataport),
+    .library = {
         .socket = {
             .recv   = recvFunc,
             .send   = sendFunc,
@@ -152,10 +153,9 @@ TlsRpcServer_init(
     err = OS_Crypto_init(&hCrypto, &cryptoCfg);
     Debug_ASSERT(OS_SUCCESS == err);
 
-    tlsCfg.config.server.dataport               = TlsLibDataport;
-    tlsCfg.config.server.library.crypto.handle  = hCrypto;
+    tlsCfg.library.crypto.handle  = hCrypto;
     // Socket will be connected later, by call to _connectSocket()
-    tlsCfg.config.server.library.socket.context = &socket;
+    tlsCfg.library.socket.context = &socket;
 
     err = OS_Tls_init(&hTls, &tlsCfg);
     Debug_ASSERT(OS_SUCCESS == err);

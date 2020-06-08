@@ -28,20 +28,43 @@
 // In case we need a not-NULL address to test something
 #define NOT_NULL ((void*) 1)
 
-extern OS_Error_t
-OS_NetworkAPP_RT(
-    OS_Network_Context_t ctx);
+// External API
+extern OS_Error_t OS_NetworkAPP_RT(OS_Network_Context_t ctx);
 
-static int
-entropyFunc(
-    void*          ctx,
-    unsigned char* buf,
-    size_t         len);
+// Forward declaration
+static int entropyFunc(void* ctx, unsigned char* buf, size_t len);
+static int sendFunc(void* ctx, const unsigned char* buf, size_t len);
+static int recvFunc(void* ctx, unsigned char* buf, size_t len);
 
 static OS_Crypto_Config_t cryptoCfg =
 {
     .mode = OS_Crypto_MODE_LIBRARY_ONLY,
-    .library.rng.entropy = entropyFunc,
+    .library.rng.entropy = entropyFunc
+};
+static OS_NetworkSocket_Handle_t socket;
+static OS_Tls_Config_t localCfg =
+{
+    .mode = OS_Tls_MODE_LIBRARY,
+    .library = {
+        .socket = {
+            .context = &socket,
+            .recv = recvFunc,
+            .send = sendFunc,
+        },
+        .flags = OS_Tls_FLAG_DEBUG,
+        .crypto = {
+            .caCert = TLS_HOST_CERT,
+            .cipherSuites = {
+                OS_Tls_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+            },
+            .cipherSuitesLen = 1
+        },
+    }
+};
+static OS_Tls_Config_t remoteCfg =
+{
+    .mode = OS_Tls_MODE_CLIENT,
+    .dataport = OS_DATAPORT_ASSIGN(TlsLibDataport),
 };
 
 // Private functions -----------------------------------------------------------
@@ -162,11 +185,12 @@ test_OS_Tls_init_pos()
     static OS_Tls_Config_t cfgRpcClient =
     {
         .mode = OS_Tls_MODE_CLIENT,
+        .dataport = OS_DATAPORT_ASSIGN(TlsLibDataport)
     };
     static OS_Tls_Config_t cfgAllSuites =
     {
         .mode = OS_Tls_MODE_LIBRARY,
-        .config.library = {
+        .library = {
             .socket = {
                 .recv = recvFunc,
                 .send = sendFunc,
@@ -184,7 +208,7 @@ test_OS_Tls_init_pos()
     static OS_Tls_Config_t cfgOneSuite =
     {
         .mode = OS_Tls_MODE_LIBRARY,
-        .config.library = {
+        .library = {
             .socket = {
                 .recv = recvFunc,
                 .send = sendFunc,
@@ -211,11 +235,10 @@ test_OS_Tls_init_pos()
     TEST_START();
 
     TEST_SUCCESS(OS_Crypto_init(&hCrypto, &cryptoCfg));
-    cfgAllSuites.config.library.crypto.handle = hCrypto;
-    cfgOneSuite.config.library.crypto.handle = hCrypto;
+    cfgAllSuites.library.crypto.handle = hCrypto;
+    cfgOneSuite.library.crypto.handle = hCrypto;
 
     // Test RPC CLIENT mode
-    cfgRpcClient.config.client.dataport = TlsLibDataport;
     TEST_SUCCESS(OS_Tls_init(&hTls, &cfgRpcClient));
     TEST_SUCCESS(OS_Tls_free(hTls));
 
@@ -228,7 +251,7 @@ test_OS_Tls_init_pos()
     TEST_SUCCESS(OS_Tls_free(hTls));
 
     // Test with all ciphersuites and policy options
-    cfgAllSuites.config.library.crypto.policy = &policy;
+    cfgAllSuites.library.crypto.policy = &policy;
     TEST_SUCCESS(OS_Tls_init(&hTls, &cfgAllSuites));
     TEST_SUCCESS(OS_Tls_free(hTls));
 
@@ -253,7 +276,7 @@ test_OS_Tls_init_neg()
     static OS_Tls_Config_t badCfg, goodCfg =
     {
         .mode = OS_Tls_MODE_LIBRARY,
-        .config.library = {
+        .library = {
             .socket = {
                 .recv = recvFunc,
                 .send = sendFunc,
@@ -272,16 +295,16 @@ test_OS_Tls_init_neg()
     static OS_Tls_Config_t cfgRpcClient =
     {
         .mode = OS_Tls_MODE_CLIENT,
+        .dataport = OS_DATAPORT_ASSIGN(TlsLibDataport)
     };
 
     TEST_START();
 
-    cfgRpcClient.config.client.dataport = TlsLibDataport;
-    TEST_SUCCESS(OS_Crypto_init(&goodCfg.config.library.crypto.handle, &cryptoCfg));
+    TEST_SUCCESS(OS_Crypto_init(&goodCfg.library.crypto.handle, &cryptoCfg));
 
     // Test in RPC Client mode without dataport
     memcpy(&badCfg, &cfgRpcClient, sizeof(OS_Tls_Config_t));
-    badCfg.config.client.dataport = NULL;
+    badCfg.dataport.io = NULL;
     TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
     // Provide bad mode
@@ -291,21 +314,21 @@ test_OS_Tls_init_neg()
 
     // No RECV callback
     memcpy(&badCfg, &goodCfg, sizeof(OS_Tls_Config_t));
-    badCfg.config.library.socket.recv = NULL;
+    badCfg.library.socket.recv = NULL;
     TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
     // No SEND callback
     memcpy(&badCfg, &goodCfg, sizeof(OS_Tls_Config_t));
-    badCfg.config.library.socket.send = NULL;
+    badCfg.library.socket.send = NULL;
     TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
     // No crypto context
     memcpy(&badCfg, &goodCfg, sizeof(OS_Tls_Config_t));
-    badCfg.config.library.crypto.handle = NULL;
+    badCfg.library.crypto.handle = NULL;
     TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
     memcpy(&badCfg, &goodCfg, sizeof(OS_Tls_Config_t));
-    badCfg.config.library.crypto.policy = &badPolicy;
+    badCfg.library.crypto.policy = &badPolicy;
 
     // Invalid session digest algorithm
     memcpy(&badPolicy, &goodPolicy, sizeof(OS_Tls_Policy_t));
@@ -352,25 +375,25 @@ test_OS_Tls_init_neg()
     // Cert is not properly PEM encoded
     memcpy(&badCfg, &goodCfg, sizeof(OS_Tls_Config_t));
     // Invalidate the "-----BEGIN" part of the PEM encoded cert
-    memset(badCfg.config.library.crypto.caCert, 0, 10);
+    memset(badCfg.library.crypto.caCert, 0, 10);
     TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
     // Invalid cipher suite
     memcpy(&badCfg, &goodCfg, sizeof(OS_Tls_Config_t));
-    badCfg.config.library.crypto.cipherSuites[0] = 666;
+    badCfg.library.crypto.cipherSuites[0] = 666;
     TEST_NOT_SUPP(OS_Tls_init(&hTls, &badCfg));
 
     // Too many cipher suites
     memcpy(&badCfg, &goodCfg, sizeof(OS_Tls_Config_t));
-    badCfg.config.library.crypto.cipherSuitesLen = OS_Tls_MAX_CIPHERSUITES + 1;
+    badCfg.library.crypto.cipherSuitesLen = OS_Tls_MAX_CIPHERSUITES + 1;
     TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
     // No ciphersuites at all
     memcpy(&badCfg, &goodCfg, sizeof(OS_Tls_Config_t));
-    badCfg.config.library.crypto.cipherSuitesLen = 0;
+    badCfg.library.crypto.cipherSuitesLen = 0;
     TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
-    TEST_SUCCESS(OS_Crypto_free(goodCfg.config.library.crypto.handle));
+    TEST_SUCCESS(OS_Crypto_free(goodCfg.library.crypto.handle));
 
     TEST_FINISH();
 }
@@ -383,7 +406,7 @@ test_OS_Tls_free_pos()
     static OS_Tls_Config_t cfg =
     {
         .mode = OS_Tls_MODE_LIBRARY,
-        .config.library = {
+        .library = {
             .socket = {
                 .recv = recvFunc,
                 .send = sendFunc,
@@ -400,13 +423,13 @@ test_OS_Tls_free_pos()
 
     TEST_START();
 
-    TEST_SUCCESS(OS_Crypto_init(&cfg.config.library.crypto.handle, &cryptoCfg));
+    TEST_SUCCESS(OS_Crypto_init(&cfg.library.crypto.handle, &cryptoCfg));
 
     // Simply init it and free again
     TEST_SUCCESS(OS_Tls_init(&hTls, &cfg));
     TEST_SUCCESS(OS_Tls_free(hTls));
 
-    TEST_SUCCESS(OS_Crypto_free(cfg.config.library.crypto.handle));
+    TEST_SUCCESS(OS_Crypto_free(cfg.library.crypto.handle));
 
     TEST_FINISH();
 }
@@ -646,31 +669,6 @@ test_OS_Tls_mode(
 int run()
 {
     OS_Tls_Handle_t hTls;
-    static OS_NetworkSocket_Handle_t socket;
-    static OS_Tls_Config_t localCfg =
-    {
-        .mode = OS_Tls_MODE_LIBRARY,
-        .config.library = {
-            .socket = {
-                .context = &socket,
-                .recv = recvFunc,
-                .send = sendFunc,
-            },
-            .flags = OS_Tls_FLAG_DEBUG,
-            .crypto = {
-                .caCert = TLS_HOST_CERT,
-                .cipherSuites = {
-                    OS_Tls_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-                },
-                .cipherSuitesLen = 1
-            },
-        }
-    };
-    OS_Tls_Config_t remoteCfg =
-    {
-        .mode = OS_Tls_MODE_CLIENT,
-        .config.client.dataport = TlsLibDataport,
-    };
 
     Debug_LOG_INFO("Testing TLS API:");
 
@@ -687,11 +685,11 @@ int run()
 
     // Test library mode
     TEST_SUCCESS(connectSocket(&socket));
-    TEST_SUCCESS(OS_Crypto_init(&localCfg.config.library.crypto.handle, &cryptoCfg));
+    TEST_SUCCESS(OS_Crypto_init(&localCfg.library.crypto.handle, &cryptoCfg));
     TEST_SUCCESS(OS_Tls_init(&hTls, &localCfg));
     test_OS_Tls_mode(hTls, &socket);
     TEST_SUCCESS(OS_Tls_free(hTls));
-    TEST_SUCCESS(OS_Crypto_free(localCfg.config.library.crypto.handle));
+    TEST_SUCCESS(OS_Crypto_free(localCfg.library.crypto.handle));
     TEST_SUCCESS(closeSocket(&socket));
 
     Debug_LOG_INFO("");
