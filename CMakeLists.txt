@@ -29,11 +29,11 @@ DeclareCAmkESComponent(test_OS_Tls
         -DCLIENT_CONFIG=1
     LIBS
         system_config
-        seos_core_api
-        seos_libs
-        seos_crypto
+        os_core_api
+        os_libs
+        os_crypto
         os_network_api
-        seos_tls_with_rpc_client
+        os_tls_with_rpc_client
 )
 
 DeclareCAmkESComponent(TlsRpcServer
@@ -47,11 +47,11 @@ DeclareCAmkESComponent(TlsRpcServer
         -DCLIENT_CONFIG=1
     LIBS
         system_config
-        seos_core_api
-        seos_libs
-        seos_crypto
+        os_core_api
+        os_libs
+        os_crypto
         os_network_api
-        seos_tls_with_rpc_server
+        os_tls_with_rpc_server
 )
 
 DeclareCAmkESComponent(NwStack_1
@@ -65,8 +65,8 @@ DeclareCAmkESComponent(NwStack_1
         -DCFG_ETH_SUBNET_MASK=ETH_1_SUBNET_MASK
     LIBS
         system_config
-        seos_core_api
-        seos_libs
+        os_core_api
+        os_libs
         os_network_lib
 )
 
@@ -87,8 +87,8 @@ DeclareCAmkESComponent(NwStack_2
         -DCFG_ETH_SUBNET_MASK=ETH_2_SUBNET_MASK
     LIBS
         system_config
-        seos_core_api
-        seos_libs
+        os_core_api
+        os_libs
         os_network_lib
 )
 
@@ -114,7 +114,7 @@ DeclareCAmkESComponent(TimerClient
     C_FLAGS
         -Wall -Werror
     LIBS
-        seos_libs
+        os_libs
 )
 
 DeclareCAmkESComponent(Timer
@@ -123,7 +123,7 @@ DeclareCAmkESComponent(Timer
     C_FLAGS
         -Wall -Werror
     LIBS
-        seos_libs
+        os_libs
 )
 
 DeclareAndCreateCamkESSystem(main.camkes)
