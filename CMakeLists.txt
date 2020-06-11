@@ -8,15 +8,6 @@ cmake_minimum_required(VERSION 3.7.2)
 
 os_set_config_file(config/SystemConfig.h)
 
-os_use_libs(
-    OS_LIBS
-    OS_CHANMUX
-    OS_LIBS_LOGGER
-    OS_CRYPTO
-    OS_TLS_WITH_RPC_CLIENT
-    OS_TLS_WITH_RPC_SERVER
-)
-
 
 #-------------------------------------------------------------------------------
 project(system_config C)
