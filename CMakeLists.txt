@@ -18,20 +18,24 @@ os_use_libs(
 )
 
 
+#-------------------------------------------------------------------------------
 project(system_config C)
 add_library(${PROJECT_NAME} INTERFACE)
 target_include_directories(${PROJECT_NAME} INTERFACE config)
 
 
+#-------------------------------------------------------------------------------
 project(tests_tls_api C)
 
-DeclareCAmkESComponent(test_OS_Tls
+DeclareCAmkESComponent(
+    test_OS_Tls
     INCLUDES
         components/TlsRpcServer/src
     SOURCES
         components/Tests/src/test_OS_Tls.c
     C_FLAGS
-        -Wall -Werror
+        -Wall
+        -Werror
         -DCLIENT_CONFIG=1
     LIBS
         system_config
@@ -42,13 +46,15 @@ DeclareCAmkESComponent(test_OS_Tls
         os_tls_with_rpc_client
 )
 
-DeclareCAmkESComponent(TlsRpcServer
+DeclareCAmkESComponent(
+    TlsRpcServer
     INCLUDES
         components/TlsRpcServer/src
     SOURCES
         components/TlsRpcServer/src/TlsRpcServer.c
     C_FLAGS
-        -Wall -Werror
+        -Wall
+        -Werror
         # For NW stack
         -DCLIENT_CONFIG=1
     LIBS
@@ -60,11 +66,13 @@ DeclareCAmkESComponent(TlsRpcServer
         os_tls_with_rpc_server
 )
 
-DeclareCAmkESComponent(NwStack_1
+DeclareCAmkESComponent(
+    NwStack_1
     SOURCES
         components/NwStack/src/network_stack.c
     C_FLAGS
-        -Wall -Werror
+        -Wall
+        -Werror
         -DOS_NWSTACK_AS_CLIENT
         -DCFG_ETH_ADDR=ETH_1_ADDR
         -DCFG_ETH_GATEWAY_ADDR=ETH_1_GATEWAY_ADDR
@@ -82,11 +90,13 @@ DeclareCAmkESComponent_NIC_ChanMux(
     CHANMUX_CHANNEL_NIC_1_DATA
 )
 
-DeclareCAmkESComponent(NwStack_2
+DeclareCAmkESComponent(
+    NwStack_2
     SOURCES
         components/NwStack/src/network_stack.c
     C_FLAGS
-        -Wall -Werror
+        -Wall
+        -Werror
         -DOS_NWSTACK_AS_CLIENT
         -DCFG_ETH_ADDR=ETH_2_ADDR
         -DCFG_ETH_GATEWAY_ADDR=ETH_2_GATEWAY_ADDR
@@ -114,23 +124,28 @@ DeclareCAmkESComponent_UART(
     UART
 )
 
-DeclareCAmkESComponent(TimerClient
+DeclareCAmkESComponent(
+    TimerClient
     SOURCES
         components/TimerClient/src/Timer_Client.c
     C_FLAGS
-        -Wall -Werror
+        -Wall
+        -Werror
     LIBS
         os_libs
 )
 
-DeclareCAmkESComponent(Timer
+DeclareCAmkESComponent(
+    Timer
     SOURCES
         components/Timer/src/timer.c
     C_FLAGS
-        -Wall -Werror
+        -Wall
+        -Werror
     LIBS
         os_libs
 )
+
 
 DeclareAndCreateCamkESSystem(main.camkes)
 GenerateSimulateScript()
