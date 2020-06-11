@@ -36,7 +36,6 @@ DeclareCAmkESComponent(
     C_FLAGS
         -Wall
         -Werror
-        -DCLIENT_CONFIG=1
     LIBS
         system_config
         os_core_api
@@ -55,8 +54,6 @@ DeclareCAmkESComponent(
     C_FLAGS
         -Wall
         -Werror
-        # For NW stack
-        -DCLIENT_CONFIG=1
     LIBS
         system_config
         os_core_api
