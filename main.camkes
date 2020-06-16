@@ -36,10 +36,7 @@ assembly {
         //----------------------------------------------------------------------
         // MUX
         //----------------------------------------------------------------------
-        DECLARE_AND_CONNECT_INSTANCE_CHANMUX(
-            ChanMux, chanMux,
-            uartDrv.UartDrv, uartDrv.inputDataPort,
-            uartDrv.Output)
+        DECLARE_AND_CONNECT_INSTANCE_CHANMUX_TO_UART(ChanMux, chanMux, uartDrv)
 
         //----------------------------------------------------------------------
         // Timer
