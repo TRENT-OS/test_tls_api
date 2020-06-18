@@ -1,5 +1,7 @@
 import <std_connector.camkes>;
 
+import <if_OS_EntropySource.camkes>;
+
 import "components/NwStack/network_stack.camkes";
 import "components/Timer/Timer.camkes";
 import "components/TimerClient/TimerClient.camkes";
@@ -20,6 +22,8 @@ DECLARE_COMPONENT_NIC_ChanMux(NwDriver_2)
 #define CHANMUX_UPPER_INTERFACES "components/ChanMux/ChanMux_upper_interface.camkes"
 #include "ChanMux/ChanMux.camkes"
 
+#include "EntropySource/camkes/EntropySource.camkes"
+DECLARE_COMPONENT_EntropySource(EntropySource)
 
 assembly {
     composition {
@@ -87,6 +91,12 @@ assembly {
         connection seL4RPCCall      NwApp_nwStack        (from unitTest.network_stack_rpc,         to nwStack_1.network_stack_rpc);
         connection seL4SharedData   NwApp_dataConnection (from unitTest.NwAppDataPort,             to nwStack_1.port_app_io);
 
+        DECLARE_AND_CONNECT_INSTANCE_EntropySource(
+            EntropySource,
+            entropySource0,
+            unitTest.entropySource_rpc,
+            unitTest.entropySource_dp)
+
         //----------------------------------------------------------------------
         // Network Driver #2
         //----------------------------------------------------------------------
@@ -123,6 +133,12 @@ assembly {
         connection seL4Notification NwAppInitDone_2        (from nwStack_2.event_network_init_done,     to tlsRpcServer.event_network_stack_init_done);
         connection seL4RPCCall      NwApp_nwStack_2        (from tlsRpcServer.network_stack_rpc,        to nwStack_2.network_stack_rpc);
         connection seL4SharedData   NwApp_dataConnection_2 (from tlsRpcServer.NwAppDataPort,            to nwStack_2.port_app_io);
+
+        DECLARE_AND_CONNECT_INSTANCE_EntropySource(
+            EntropySource,
+            entropySource1,
+            tlsRpcServer.entropySource_rpc,
+            tlsRpcServer.entropySource_dp)
 
         //----------------------------------------------------------------------
         // Connecting TEST_TLS to tlsRpcServer

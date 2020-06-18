@@ -32,12 +32,6 @@ recvFunc(
     unsigned char* buf,
     size_t         len);
 
-static int
-entropy(
-    void*          ctx,
-    unsigned char* buf,
-    size_t         len);
-
 static OS_Tls_Config_t tlsCfg =
 {
     .mode = OS_Tls_MODE_SERVER,
@@ -63,7 +57,8 @@ static OS_Tls_Config_t tlsCfg =
 static OS_Crypto_Config_t cryptoCfg =
 {
     .mode = OS_Crypto_MODE_LIBRARY_ONLY,
-    .library.rng.entropy = entropy
+    .library.entropy = OS_CRYPTO_ASSIGN_EntropySource(entropySource_rpc_read,
+                                                      entropySource_dp),
 };
 static OS_Network_Socket_t socketCfg =
 {
@@ -117,17 +112,6 @@ recvFunc(
     }
 
     return n;
-}
-
-static int
-entropy(
-    void*          ctx,
-    unsigned char* buf,
-    size_t         len)
-{
-    // This would be the platform specific function to obtain entropy
-    memset(buf, 0, len);
-    return 0;
 }
 
 // Public functions ------------------------------------------------------------

@@ -32,14 +32,14 @@
 extern OS_Error_t OS_NetworkAPP_RT(OS_Network_Context_t ctx);
 
 // Forward declaration
-static int entropyFunc(void* ctx, unsigned char* buf, size_t len);
 static int sendFunc(void* ctx, const unsigned char* buf, size_t len);
 static int recvFunc(void* ctx, unsigned char* buf, size_t len);
 
 static OS_Crypto_Config_t cryptoCfg =
 {
     .mode = OS_Crypto_MODE_LIBRARY_ONLY,
-    .library.rng.entropy = entropyFunc
+    .library.entropy = OS_CRYPTO_ASSIGN_EntropySource(entropySource_rpc_read,
+                                                      entropySource_dp),
 };
 static OS_NetworkSocket_Handle_t socket;
 static OS_Tls_Config_t localCfg =
@@ -107,17 +107,6 @@ recvFunc(
     }
 
     return n;
-}
-
-static int
-entropyFunc(
-    void*          ctx,
-    unsigned char* buf,
-    size_t         len)
-{
-    // This would be the platform specific function to obtain entropy
-    memset(buf, 0, len);
-    return 0;
 }
 
 static OS_Error_t

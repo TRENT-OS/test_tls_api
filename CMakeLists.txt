@@ -134,6 +134,9 @@ DeclareCAmkESComponent(
         os_libs
 )
 
+DeclareCAmkESComponent_EntropySource(
+    EntropySource
+)
 
 DeclareAndCreateCamkESSystem(main.camkes)
 GenerateSimulateScript()
