@@ -49,17 +49,11 @@ int run()
 
         .drv_nic =
         {
-            .from = // NIC -> stack
-            {
-                .buffer         = port_nic_from,
-                .len            = PAGE_SIZE
-            },
+            // NIC -> Stack
+            .from = OS_DATAPORT_ASSIGN(port_nic_from),
 
-            .to = // stack -> NIC
-            {
-                .buffer         = port_nic_to,
-                .len            = PAGE_SIZE
-            },
+            // Stack -> NIC
+            .to = OS_DATAPORT_ASSIGN(port_nic_to),
 
             .rpc =
             {
@@ -72,11 +66,8 @@ int run()
         {
             .notify_init_done   = event_network_init_done_emit,
 
-            .port =
-            {
-                .buffer         = port_app_io,
-                .len            = PAGE_SIZE
-            },
+            .port = OS_DATAPORT_ASSIGN(port_app_io)
+
         }
     };
 
