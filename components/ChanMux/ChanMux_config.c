@@ -80,8 +80,8 @@ static struct {
 } nic_fifo[2];
 
 static struct {
-    ChanMux_channel_t ctrl;
-    ChanMux_channel_t data;
+    ChanMux_Channel_t ctrl;
+    ChanMux_Channel_t data;
 } nic_channel[2];
 
 
@@ -110,7 +110,7 @@ static struct {
 
 
 //------------------------------------------------------------------------------
-static const ChanMux_channel_ctx_t channelCtx[] = {
+static const ChanMux_ChannelCtx_t channelCtx[] = {
 
     CHANNELS_CTX_NIC_CTRL_DATA(
         CHANMUX_CHANNEL_NIC_1_CTRL,
@@ -135,7 +135,7 @@ static const ChanMux_channel_ctx_t channelCtx[] = {
 
 //------------------------------------------------------------------------------
 // this is used by the ChanMux component
-const ChanMux_config_t cfgChanMux =
+const ChanMux_Config_t cfgChanMux =
 {
     .resolveChannel = &resolveChannel,
     .numChannels    = ARRAY_SIZE(channelCtx),
