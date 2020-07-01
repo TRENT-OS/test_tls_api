@@ -6,6 +6,7 @@
 
 #include "SystemConfig.h"
 #include "ChanMux/ChanMux.h"
+#include "ChanMuxNic.h"
 #include <camkes.h>
 
 
@@ -85,30 +86,6 @@ static struct {
 } nic_channel[2];
 
 
-#define CHANNEL_CTX_NIC_CTRL(_id_ , _idx_, _dataport_, _event_) \
-    CHANMUX_CHANNEL_CTX( \
-        _id_, \
-        &(nic_channel[_idx_].ctrl), \
-        nic_fifo[_idx_].ctrl, /* must be the buffer and not a pointer */ \
-        CHANMUX_DATAPORT_DUPLEX_SHARED_ASSIGN(_dataport_), \
-        _event_ \
-    )
-
-
-#define CHANNEL_CTX_NIC_DATA(_id_ , _idx_, _dataport_r_, _dataport_w_, _event_) \
-    CHANMUX_CHANNEL_CTX( \
-        _id_, \
-        &(nic_channel[_idx_].data), \
-        nic_fifo[_idx_].data, /* must be the buffer and not a pointer */ \
-        CHANMUX_DATAPORT_DUPLEX_ASSIGN(_dataport_r_, _dataport_w_), \
-        _event_ \
-    )
-
-#define CHANNELS_CTX_NIC_CTRL_DATA(_id_ctrl_, _id_data_, _idx_, _dataport_ctrl, _dataport_data_r_, _dataport_data_w_, _event_) \
-    CHANNEL_CTX_NIC_CTRL(_id_ctrl_, _idx_, _dataport_ctrl, _event_), \
-    CHANNEL_CTX_NIC_DATA(_id_data_, _idx_, _dataport_data_r_, _dataport_data_w_, _event_)
-
-
 //------------------------------------------------------------------------------
 static const ChanMux_ChannelCtx_t channelCtx[] = {
 
@@ -116,22 +93,25 @@ static const ChanMux_ChannelCtx_t channelCtx[] = {
         CHANMUX_CHANNEL_NIC_1_CTRL,
         CHANMUX_CHANNEL_NIC_1_DATA,
         0,
-        nic_1_port_ctrl,
-        nic_1_port_data_read,
-        nic_1_port_data_write,
-        nic_1_event_hasData_emit),
+        nwDriver1_ctrl_portRead,
+        nwDriver1_ctrl_portWrite,
+        nwDriver1_data_portRead,
+        nwDriver1_data_portWrite,
+        nwDriver1_ctrl_DataAvailable_emit,
+        nwDriver1_data_DataAvailable_emit),
 
     CHANNELS_CTX_NIC_CTRL_DATA(
         CHANMUX_CHANNEL_NIC_2_CTRL,
         CHANMUX_CHANNEL_NIC_2_DATA,
         1,
-        nic_2_port_ctrl,
-        nic_2_port_data_read,
-        nic_2_port_data_write,
-        nic_2_event_hasData_emit)
+        nwDriver2_ctrl_portRead,
+        nwDriver2_ctrl_portWrite,
+        nwDriver2_data_portRead,
+        nwDriver2_data_portWrite,
+        nwDriver2_ctrl_DataAvailable_emit,
+        nwDriver2_data_DataAvailable_emit),
 
 };
-
 
 //------------------------------------------------------------------------------
 // this is used by the ChanMux component

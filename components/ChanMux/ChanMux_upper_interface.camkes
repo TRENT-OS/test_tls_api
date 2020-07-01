@@ -8,17 +8,14 @@
  *  component will include this
  *
  */
+#include "ChanMux/ChanMuxHelper.camkes"
 
 //-------------------------------------------------
 // upper interface Ethernet NIC driver #1
-dataport       Buf                 nic_1_port_ctrl;
-dataport       Buf                 nic_1_port_data_read;
-dataport       Buf                 nic_1_port_data_write;
-emits          EventDataAvailable  nic_1_event_hasData;
+DECLARE_CHANMUX_CHANNEL_INTERFACE(nwDriver1, ctrl)
+DECLARE_CHANMUX_CHANNEL_INTERFACE(nwDriver1, data)
 
 //-------------------------------------------------
 // upper interface Ethernet NIC driver #2
-dataport       Buf                 nic_2_port_ctrl;
-dataport       Buf                 nic_2_port_data_read;
-dataport       Buf                 nic_2_port_data_write;
-emits          EventDataAvailable  nic_2_event_hasData;
+DECLARE_CHANMUX_CHANNEL_INTERFACE(nwDriver2, ctrl)
+DECLARE_CHANMUX_CHANNEL_INTERFACE(nwDriver2, data)

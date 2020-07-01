@@ -10,7 +10,7 @@ import <if_OS_Socket.camkes>;
 
 import "../TimerClient/TimerClientInf.camkes";
 
-component NwStack_1 {
+component NwStack1 {
     control;
 
     consumes    EventDataAvailable      event_tick_or_data;
@@ -48,7 +48,7 @@ component NwStack_1 {
     has         mutex                   stackThreadSafeMutex;
 }
 
-component NwStack_2 {
+component NwStack2 {
     control;
 
     consumes   EventDataAvailable       event_tick_or_data;
