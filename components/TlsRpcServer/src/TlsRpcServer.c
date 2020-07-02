@@ -9,6 +9,7 @@
 
 #include "LibDebug/Debug.h"
 #include "OS_Network.h"
+#include "OS_NetworkStackClient.h"
 
 #include "TlsRpcServer.h"
 
@@ -114,6 +115,18 @@ recvFunc(
     return n;
 }
 
+static void
+init_network_client_api()
+{
+    static os_network_dataports_socket_t config;
+    static OS_Dataport_t dataport = OS_DATAPORT_ASSIGN(NwAppDataPort);
+
+    config.number_of_sockets = 1;
+
+    config.dataport = &dataport;
+    OS_NetworkStackClient_init(&config);
+}
+
 // Public functions ------------------------------------------------------------
 
 // We need to give the TLS RPC Server the context to use for a specific client;
@@ -133,6 +146,7 @@ TlsRpcServer_init(
 
     // Apparently this needs to be done in the RPC thread...?!
     OS_NetworkAPP_RT(NULL);
+    init_network_client_api();
 
     err = OS_Crypto_init(&hCrypto, &cryptoCfg);
     Debug_ASSERT(OS_SUCCESS == err);

@@ -16,6 +16,7 @@
 #include "OS_Crypto.h"
 #include "OS_Tls.h"
 #include "OS_Network.h"
+#include "OS_NetworkStackClient.h"
 
 #include <camkes.h>
 #include <string.h>
@@ -653,10 +654,24 @@ test_OS_Tls_mode(
     test_OS_Tls_reset_pos(hTls, mode, socket);
 }
 
+static void
+init_network_client_api()
+{
+    static os_network_dataports_socket_t config;
+    static OS_Dataport_t dataport = OS_DATAPORT_ASSIGN(NwAppDataPort);
+
+    config.number_of_sockets = 1;
+
+    config.dataport = &dataport;
+    OS_NetworkStackClient_init(&config);
+}
+
 // Public functions ------------------------------------------------------------
 
 int run()
 {
+    init_network_client_api();
+
     OS_Tls_Handle_t hTls;
 
     Debug_LOG_INFO("Testing TLS API:");
