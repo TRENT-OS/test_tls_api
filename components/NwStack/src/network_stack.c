@@ -45,6 +45,12 @@ int run()
 
             .notify_connection  = e_conn_emit,
             .wait_connection    = c_conn_wait,
+
+            .socketCB_lock      = socketControlBlockMutex_lock,
+            .socketCB_unlock    = socketControlBlockMutex_unlock,
+
+            .stackTS_lock       = stackThreadSafeMutex_lock,
+            .stackTS_unlock     = stackThreadSafeMutex_unlock,
         },
 
         .drv_nic =

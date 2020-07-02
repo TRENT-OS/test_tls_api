@@ -43,6 +43,9 @@ component NwStack_1 {
 
     has         mutex                   allocatorMutex;
     has         mutex                   nwstackMutex;
+
+    has         mutex                   socketControlBlockMutex;
+    has         mutex                   stackThreadSafeMutex;
 }
 
 component NwStack_2 {
@@ -78,4 +81,7 @@ component NwStack_2 {
 
     has         mutex                  allocatorMutex;
     has         mutex                  nwstackMutex;
+
+    has         mutex                  socketControlBlockMutex;
+    has         mutex                  stackThreadSafeMutex;
 }
