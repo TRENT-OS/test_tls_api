@@ -81,7 +81,7 @@ sendFunc(
     size_t n;
 
     n = len > MAX_NW_SIZE ? MAX_NW_SIZE : len;
-    if ((err = OS_NetworkSocket_write(*socket, buf, &n)) != OS_SUCCESS)
+    if ((err = OS_NetworkSocket_write(*socket, buf, n, &n)) != OS_SUCCESS)
     {
         Debug_LOG_ERROR("Error during socket write...error:%d", err);
         return -1;
@@ -101,7 +101,7 @@ recvFunc(
     size_t n;
 
     n = len > MAX_NW_SIZE ? MAX_NW_SIZE : len;
-    if ((err = OS_NetworkSocket_read(*socket, buf, &n)) != OS_SUCCESS)
+    if ((err = OS_NetworkSocket_read(*socket, buf, n, &n)) != OS_SUCCESS)
     {
         Debug_LOG_ERROR("Error during socket read...error:%d", err);
         return -1;
