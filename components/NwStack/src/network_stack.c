@@ -13,7 +13,7 @@
 #include <camkes.h>
 
 
-static const os_network_stack_config_t config =
+static const OS_NetworkStack_AddressConfig_t config =
 {
     .dev_addr      = CFG_ETH_ADDR,
     .gateway_addr  = CFG_ETH_GATEWAY_ADDR,
@@ -28,7 +28,7 @@ int run()
 
     // can't make this "static const" or even "static" because the data ports
     // are allocated at runtime
-    os_camkes_network_stack_config_t camkes_config =
+    OS_NetworkStack_CamkesConfig_t camkes_config =
     {
         .notify_init_done        = event_network_init_done_emit,
         .wait_loop_event         = event_tick_or_data_wait,
@@ -67,18 +67,18 @@ int run()
         }
     };
 
-    static os_network_socket_t socks = {
-                .notify_write       = e_write_emit,
-                .wait_write         = c_write_wait,
+    static OS_NetworkStack_SocketResources_t socks = {
+        .notify_write       = e_write_emit,
+        .wait_write         = c_write_wait,
 
-                .notify_read        = e_read_emit,
-                .wait_read          = c_read_wait,
+        .notify_read        = e_read_emit,
+        .wait_read          = c_read_wait,
 
-                .notify_connection  = e_conn_emit,
-                .wait_connection    = c_conn_wait,
+        .notify_connection  = e_conn_emit,
+        .wait_connection    = c_conn_wait,
 
-                .buf = OS_DATAPORT_ASSIGN(port_app_io)
-            };
+        .buf = OS_DATAPORT_ASSIGN(port_app_io)
+    };
 
     camkes_config.internal.number_of_sockets = 1;
     camkes_config.internal.sockets = &socks;
