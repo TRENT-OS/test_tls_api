@@ -45,8 +45,6 @@ static OS_Tls_Config_t tlsCfg =
         .flags = OS_Tls_FLAG_DEBUG,
         .crypto = {
             .policy = NULL,
-            // This is the "DigiCert SHA2 Secure Server CA" cert for verifying
-            // the cert given by www.example.com!
             .caCert = TLS_HOST_CERT,
             .cipherSuites = {
                 OS_Tls_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256
