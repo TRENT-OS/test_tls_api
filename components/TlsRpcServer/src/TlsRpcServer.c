@@ -36,7 +36,7 @@ recvFunc(
 static OS_Tls_Config_t tlsCfg =
 {
     .mode = OS_Tls_MODE_SERVER,
-    .dataport = OS_DATAPORT_ASSIGN(TlsLibDataport),
+    .dataport = OS_DATAPORT_ASSIGN(tls_port),
     .library = {
         .socket = {
             .recv   = recvFunc,
@@ -131,7 +131,7 @@ init_network_client_api()
 // We need to give the TLS RPC Server the context to use for a specific client;
 // we have only one client here, so it is easy.
 OS_Tls_Handle_t
-TlsLibServer_getTls(
+tls_rpc_getTls(
     void)
 {
     return hTls;

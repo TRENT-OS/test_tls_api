@@ -28,8 +28,8 @@ component TlsRpcServer {
     provides    TlsRpcServerInf             TlsRpcServer;
 
     // TLS API
-    provides    if_OS_Tls                   TlsLibServer;
-    dataport    Buf                         TlsLibDataport;
+    provides    if_OS_Tls                   tls_rpc;
+    dataport    Buf                         tls_port;
 
     // For EntropySource component
     uses        if_OS_EntropySource         entropySource_rpc;

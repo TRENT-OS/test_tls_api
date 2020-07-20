@@ -23,8 +23,8 @@ component test_OS_Tls {
     uses        TlsRpcServerInf             TlsRpcServer;
 
     // TLS API
-    uses        if_OS_Tls                   TlsLibServer;
-    dataport    Buf                         TlsLibDataport;
+    uses        if_OS_Tls                   tls_rpc;
+    dataport    Buf                         tls_port;
 
     // For EntropySource component
     uses        if_OS_EntropySource         entropySource_rpc;

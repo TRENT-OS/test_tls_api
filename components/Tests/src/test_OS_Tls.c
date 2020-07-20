@@ -66,7 +66,7 @@ static OS_Tls_Config_t localCfg =
 static OS_Tls_Config_t remoteCfg =
 {
     .mode = OS_Tls_MODE_CLIENT,
-    .dataport = OS_DATAPORT_ASSIGN(TlsLibDataport),
+    .dataport = OS_DATAPORT_ASSIGN(tls_port),
 };
 
 // Private functions -----------------------------------------------------------
@@ -176,7 +176,7 @@ test_OS_Tls_init_pos()
     static OS_Tls_Config_t cfgRpcClient =
     {
         .mode = OS_Tls_MODE_CLIENT,
-        .dataport = OS_DATAPORT_ASSIGN(TlsLibDataport)
+        .dataport = OS_DATAPORT_ASSIGN(tls_port)
     };
     static OS_Tls_Config_t cfgAllSuites =
     {
@@ -286,7 +286,7 @@ test_OS_Tls_init_neg()
     static OS_Tls_Config_t cfgRpcClient =
     {
         .mode = OS_Tls_MODE_CLIENT,
-        .dataport = OS_DATAPORT_ASSIGN(TlsLibDataport)
+        .dataport = OS_DATAPORT_ASSIGN(tls_port)
     };
 
     TEST_START();
