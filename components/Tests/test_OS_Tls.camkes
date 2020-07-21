@@ -7,7 +7,7 @@
 
 import <if_OS_Socket.camkes>;
 import <if_OS_Tls.camkes>;
-import <if_OS_EntropySource.camkes>;
+import <if_OS_Entropy.camkes>;
 
 import "../TlsRpcServer/TlsRpcServer.camkes";
 
@@ -27,6 +27,6 @@ component test_OS_Tls {
     dataport    Buf                         tls_port;
 
     // For EntropySource component
-    uses        if_OS_EntropySource         entropySource_rpc;
+    uses        if_OS_Entropy               entropySource_rpc;
     dataport    Buf                         entropySource_dp;
 }

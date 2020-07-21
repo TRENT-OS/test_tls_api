@@ -7,7 +7,7 @@
 
 import <if_OS_Socket.camkes>;
 import <if_OS_Tls.camkes>;
-import <if_OS_EntropySource.camkes>;
+import <if_OS_Entropy.camkes>;
 
 procedure TlsRpcServerInf {
     include "OS_Error.h";
@@ -32,6 +32,6 @@ component TlsRpcServer {
     dataport    Buf                         tls_port;
 
     // For EntropySource component
-    uses        if_OS_EntropySource         entropySource_rpc;
+    uses        if_OS_Entropy               entropySource_rpc;
     dataport    Buf                         entropySource_dp;
 }

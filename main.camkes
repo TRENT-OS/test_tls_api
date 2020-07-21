@@ -1,6 +1,6 @@
 import <std_connector.camkes>;
 
-import <if_OS_EntropySource.camkes>;
+import <if_OS_Entropy.camkes>;
 
 import "components/NwStack/network_stack.camkes";
 import "components/Timer/Timer.camkes";
