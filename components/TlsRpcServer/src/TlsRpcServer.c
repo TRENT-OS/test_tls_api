@@ -57,8 +57,8 @@ static OS_Crypto_Config_t cryptoCfg =
 {
     .mode = OS_Crypto_MODE_LIBRARY_ONLY,
     .library.entropy = OS_CRYPTO_ASSIGN_EntropySource(
-        entropySource_rpc,
-        entropySource_dp),
+        entropy_rpc,
+        entropy_port),
 };
 static OS_Network_Socket_t socketCfg =
 {

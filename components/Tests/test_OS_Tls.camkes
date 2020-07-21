@@ -27,6 +27,6 @@ component test_OS_Tls {
     dataport    Buf                         tls_port;
 
     // For EntropySource component
-    uses        if_OS_Entropy               entropySource_rpc;
-    dataport    Buf                         entropySource_dp;
+    uses        if_OS_Entropy               entropy_rpc;
+    dataport    Buf                         entropy_port;
 }

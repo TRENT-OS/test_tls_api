@@ -92,8 +92,8 @@ assembly {
         DECLARE_AND_CONNECT_INSTANCE_EntropySource(
             EntropySource,
             entropySource0,
-            unitTest.entropySource_rpc,
-            unitTest.entropySource_dp)
+            unitTest.entropy_rpc,
+            unitTest.entropy_port)
 
         //----------------------------------------------------------------------
         // Network Driver #2
@@ -133,8 +133,8 @@ assembly {
         DECLARE_AND_CONNECT_INSTANCE_EntropySource(
             EntropySource,
             entropySource1,
-            tlsRpcServer.entropySource_rpc,
-            tlsRpcServer.entropySource_dp)
+            tlsRpcServer.entropy_rpc,
+            tlsRpcServer.entropy_port)
 
         //----------------------------------------------------------------------
         // Connecting TEST_TLS to tlsRpcServer
