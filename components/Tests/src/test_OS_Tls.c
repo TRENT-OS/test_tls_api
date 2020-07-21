@@ -39,7 +39,7 @@ static int recvFunc(void* ctx, unsigned char* buf, size_t len);
 static OS_Crypto_Config_t cryptoCfg =
 {
     .mode = OS_Crypto_MODE_LIBRARY_ONLY,
-    .library.entropy = OS_CRYPTO_ASSIGN_EntropySource(
+    .library.entropy = OS_CRYPTO_ASSIGN_Entropy(
         entropy_rpc,
         entropy_port),
 };
