@@ -74,3 +74,11 @@
 #define ETH_2_ADDR                  "10.0.0.11"
 #define ETH_2_GATEWAY_ADDR          "10.0.0.1"
 #define ETH_2_SUBNET_MASK           "255.255.255.0"
+
+//-----------------------------------------------------------------------------
+// Network Driver
+//-----------------------------------------------------------------------------
+
+#define NIC_DRIVER_RINGBUFFER_NUMBER_ELEMENTS 16
+#define NIC_DRIVER_RINGBUFFER_SIZE                                             \
+    (NIC_DRIVER_RINGBUFFER_NUMBER_ELEMENTS * 4096)

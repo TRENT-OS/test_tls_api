@@ -49,8 +49,11 @@ int run()
         .drv_nic =
         {
             // NIC -> Stack
-            .from = OS_DATAPORT_ASSIGN(port_nic_from),
-
+            .from =
+            {
+                .io = (void**)( &(port_nic_from)),
+                .size = NIC_DRIVER_RINGBUFFER_NUMBER_ELEMENTS
+            },
             // Stack -> NIC
             .to = OS_DATAPORT_ASSIGN(port_nic_to),
 

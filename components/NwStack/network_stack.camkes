@@ -10,6 +10,8 @@ import <if_OS_Socket.camkes>;
 
 import "../TimerClient/TimerClientInf.camkes";
 
+#include "config/SystemConfig.h"
+
 component NwStack1 {
     control;
 
@@ -31,9 +33,9 @@ component NwStack1 {
 
     //-------------------------------------------------
     // interface Ethernet NIC driver
-    uses        if_OS_Nic               nic_driver;
-    dataport    Buf                     port_nic_from; // NIC -> stack
-    dataport    Buf                     port_nic_to;   // stack -> NIC
+    uses        if_OS_Nic                       nic_driver;
+    dataport    Buf(NIC_DRIVER_RINGBUFFER_SIZE) port_nic_from; // NIC -> stack
+    dataport    Buf                             port_nic_to;   // stack -> NIC
 
     //-------------------------------------------------
     // interface Application
@@ -69,9 +71,9 @@ component NwStack2 {
 
     //-------------------------------------------------
     // interface Ethernet NIC driver
-    uses        if_OS_Nic               nic_driver;
-    dataport    Buf                     port_nic_from; // NIC -> stack
-    dataport    Buf                     port_nic_to;   // stack -> NIC
+    uses        if_OS_Nic                       nic_driver;
+    dataport    Buf(NIC_DRIVER_RINGBUFFER_SIZE) port_nic_from; // NIC -> stack
+    dataport    Buf                             port_nic_to;   // stack -> NIC
 
     //-------------------------------------------------
     // interface Application
