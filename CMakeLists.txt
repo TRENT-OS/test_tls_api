@@ -6,13 +6,9 @@
 
 cmake_minimum_required(VERSION 3.7.2)
 
-os_set_config_file(config/SystemConfig.h)
-
-
-#-------------------------------------------------------------------------------
-project(system_config C)
-add_library(${PROJECT_NAME} INTERFACE)
-target_include_directories(${PROJECT_NAME} INTERFACE config)
+os_set_config_file(
+    config/SystemConfig.h
+    CONFIG_PROJECT_NAME system_config)
 
 
 #-------------------------------------------------------------------------------
