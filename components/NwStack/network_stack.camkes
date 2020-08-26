@@ -7,8 +7,7 @@
 
 import <if_OS_Nic.camkes>;
 import <if_OS_Socket.camkes>;
-
-import "../TimerClient/TimerClientInf.camkes";
+import <if_OS_Timer.camkes>;
 
 #include "config/SystemConfig.h"
 
@@ -28,8 +27,9 @@ component NwStack1 {
     consumes   NwStack_ConnEv           c_conn;
 
     //-------------------------------------------------
-    // interface Timer
-    uses        timer_client_inf        Timer;
+    // interface TimeServer
+    uses        if_OS_Timer           timeServer_rpc;
+    consumes    TimerReady            timeServer_notify;
 
     //-------------------------------------------------
     // interface Ethernet NIC driver
@@ -66,8 +66,9 @@ component NwStack2 {
     consumes   NwStack_ConnEv           c_conn;
 
     //-------------------------------------------------
-    // interface Timer
-    uses        timer_client_inf        Timer;
+    // interface TimeServer
+    uses        if_OS_Timer           timeServer_rpc;
+    consumes    TimerReady            timeServer_notify;
 
     //-------------------------------------------------
     // interface Ethernet NIC driver

@@ -3,8 +3,7 @@ import <std_connector.camkes>;
 import <if_OS_Entropy.camkes>;
 
 import "components/NwStack/network_stack.camkes";
-import "components/Timer/Timer.camkes";
-import "components/TimerClient/TimerClient.camkes";
+import "components/Ticker/Ticker.camkes";
 import "components/TlsRpcServer/TlsRpcServer.camkes";
 
 import "components/Tests/test_OS_Tls.camkes";
@@ -28,6 +27,9 @@ ChanMux_DEFINE_COMPONENT(ChanMux,
 #include "EntropySource/camkes/EntropySource.camkes"
 DECLARE_COMPONENT_EntropySource(EntropySource)
 
+#include "TimeServer/camkes/TimeServer.camkes"
+DECLARE_COMPONENT_TimeServer(TimeServer)
+
 assembly {
     composition {
         //----------------------------------------------------------------------
@@ -42,17 +44,19 @@ assembly {
         ChanMux_DECLARE_AND_CONNECT_INSTANCE_TO_UART(ChanMux, chanMux, uartDrv)
 
         //----------------------------------------------------------------------
-        // Timer
+        // Ticker
         //----------------------------------------------------------------------
-        component  Timerbase             timerBase;
-        component  Timer                 timer;
-        component  TimerClient           timerClient;
+        component  Ticker ticker;
 
-        connection seL4HardwareMMIO      timer_mem            (from timer.reg,         to timerBase.reg);
-        connection seL4HardwareInterrupt timer_irq            (from timerBase.irq,     to timer.irq);
-        connection seL4RPCCall           timerClient_timer    (from timerClient.Timer, to timer.Timer);
-        connection seL4RPCCall           nwStack_timerClient  (from nwStack1.Timer,   to timerClient.TimerClient);
-        connection seL4RPCCall           nwStack2_timerClient (from nwStack2.Timer,   to timerClient.TimerClient);
+        //----------------------------------------------------------------------
+        // TimeServer
+        //----------------------------------------------------------------------
+        DECLARE_AND_CONNECT_INSTANCE_TimeServer(
+            TimeServer,
+            timeServer,
+            ticker.timeServer_rpc,   ticker.timeServer_notify,
+            nwStack1.timeServer_rpc, nwStack1.timeServer_notify,
+            nwStack2.timeServer_rpc, nwStack2.timeServer_notify)
 
         //----------------------------------------------------------------------
         // Network Driver #1
@@ -73,7 +77,7 @@ assembly {
         connection seL4Notification       NwStackEventsRxd2 (from nwStack1.e_read,         to nwStack1.c_read);
         connection seL4Notification       NwStackEventsRxd3 (from nwStack1.e_conn,         to nwStack1.c_conn);
 
-        connection seL4NotificationNative NwStackdataAvail3 (from timerClient.e_timeout_nwstacktick_1, to nwStack1.event_tick_or_data);
+        connection seL4NotificationNative NwStack_tick1     (from ticker.e_timeout_nwstacktick1, to nwStack1.event_tick_or_data);
 
         connection seL4NotificationNative NwStackdataAvail1                (from nwDriver1.nic_event_hasData,     to nwStack1.event_tick_or_data);
         connection seL4RPCCall            nwStack_NwDriver                 (from nwStack1.nic_driver,             to nwDriver1.nic_rpc);
@@ -114,7 +118,7 @@ assembly {
         connection seL4Notification       NwStackEventsRxd2_2 (from nwStack2.e_read,         to nwStack2.c_read);
         connection seL4Notification       NwStackEventsRxd3_2 (from nwStack2.e_conn,         to nwStack2.c_conn);
 
-        connection seL4NotificationNative NwStackdataAvail3_2 (from timerClient.e_timeout_nwstacktick_2,  to nwStack2.event_tick_or_data);
+        connection seL4NotificationNative NwStack_tick2       (from ticker.e_timeout_nwstacktick2, to nwStack2.event_tick_or_data);
 
         connection seL4NotificationNative NwDriver_NwStack_dataAvail_2       (from nwDriver2.nic_event_hasData,     to nwStack2.event_tick_or_data);
         connection seL4RPCCall            nwStack_NwDriver2                 (from nwStack2.nic_driver,             to nwDriver2.nic_rpc);
@@ -150,12 +154,12 @@ assembly {
             CFG_CHANMUX_DEFAULT_UART_PHYS_ADDR,
             CFG_CHANMUX_DEFAULT_UART_INTR)
 
-        timerBase.reg_paddr = 0xF8001000;   // paddr of mmio registers
-        timerBase.reg_size = 0x1000;        // size of mmio registers
-        timerBase.irq_irq_number = 42;      // timer irq number
-
-        /* assign an initial value to semaphore */
-        timer.sem_value = 0;
+        ASSIGN_CLIENT_BADGE_TimeServer(ticker,
+            timeServer_rpc, TIMESERVER_TK_ID)
+        ASSIGN_CLIENT_BADGE_TimeServer(nwStack1,
+            timeServer_rpc, TIMESERVER_NS1_ID)
+        ASSIGN_CLIENT_BADGE_TimeServer(nwStack2,
+            timeServer_rpc, TIMESERVER_NS2_ID)
 
         // assign endpoint badges for n:1 RPC interface of ChanMUX. The generic
         // naming scheme is <component>.<interface>_attributes = <badge ID>

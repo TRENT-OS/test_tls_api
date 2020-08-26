@@ -66,6 +66,7 @@ DeclareCAmkESComponent(
         os_core_api
         os_libs
         os_network_lib
+        TimeServer_client
 )
 
 DeclareCAmkESComponent_NIC_ChanMux(
@@ -90,6 +91,7 @@ DeclareCAmkESComponent(
         os_core_api
         os_libs
         os_network_lib
+        TimeServer_client
 )
 
 DeclareCAmkESComponent_NIC_ChanMux(
@@ -109,25 +111,19 @@ DeclareCAmkESComponent_UART(
 )
 
 DeclareCAmkESComponent(
-    TimerClient
+    Ticker
     SOURCES
-        components/TimerClient/src/Timer_Client.c
+        components/Ticker/Ticker.c
     C_FLAGS
         -Wall
         -Werror
     LIBS
+        os_core_api
         os_libs
 )
 
-DeclareCAmkESComponent(
-    Timer
-    SOURCES
-        components/Timer/src/timer.c
-    C_FLAGS
-        -Wall
-        -Werror
-    LIBS
-        os_libs
+DeclareCAmkESComponent_TimeServer(
+    TimeServer
 )
 
 DeclareCAmkESComponent_EntropySource(
