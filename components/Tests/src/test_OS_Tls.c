@@ -11,7 +11,6 @@
 
 #include "TestConfig.h"
 #include "TestMacros.h"
-#include "TlsRpcServer.h"
 
 #include "OS_Crypto.h"
 #include "OS_Tls.h"
@@ -62,11 +61,6 @@ static OS_Tls_Config_t localCfg =
             .cipherSuitesLen = 1
         },
     }
-};
-static OS_Tls_Config_t remoteCfg =
-{
-    .mode = OS_Tls_MODE_CLIENT,
-    .dataport = OS_DATAPORT_ASSIGN(tls_port),
 };
 
 // Private functions -----------------------------------------------------------
@@ -139,28 +133,13 @@ resetSocket(
 {
     OS_Error_t err;
 
-    // Reset either the local socket or the one on the RPC server
-    if (NULL != socket)
+    if ((err = closeSocket(socket)) != OS_SUCCESS)
     {
-        if ((err = closeSocket(socket)) != OS_SUCCESS)
-        {
-            return err;
-        }
-        if ((err = connectSocket(socket)) != OS_SUCCESS)
-        {
-            return err;
-        }
+        return err;
     }
-    else
+    if ((err = connectSocket(socket)) != OS_SUCCESS)
     {
-        if ((err = TlsRpcServer_closeSocket()) != OS_SUCCESS)
-        {
-            return err;
-        }
-        if ((err = TlsRpcServer_connectSocket()) != OS_SUCCESS)
-        {
-            return err;
-        }
+        return err;
     }
 
     return OS_SUCCESS;
@@ -173,11 +152,6 @@ test_OS_Tls_init_pos()
 {
     OS_Tls_Handle_t hTls;
     OS_Crypto_Handle_t hCrypto;
-    static OS_Tls_Config_t cfgRpcClient =
-    {
-        .mode = OS_Tls_MODE_CLIENT,
-        .dataport = OS_DATAPORT_ASSIGN(tls_port)
-    };
     static OS_Tls_Config_t cfgAllSuites =
     {
         .mode = OS_Tls_MODE_LIBRARY,
@@ -229,10 +203,6 @@ test_OS_Tls_init_pos()
     cfgAllSuites.library.crypto.handle = hCrypto;
     cfgOneSuite.library.crypto.handle = hCrypto;
 
-    // Test RPC CLIENT mode
-    TEST_SUCCESS(OS_Tls_init(&hTls, &cfgRpcClient));
-    TEST_SUCCESS(OS_Tls_free(hTls));
-
     // Test with all ciphersuites enabled
     TEST_SUCCESS(OS_Tls_init(&hTls, &cfgAllSuites));
     TEST_SUCCESS(OS_Tls_free(hTls));
@@ -283,20 +253,10 @@ test_OS_Tls_init_neg()
             }
         },
     };
-    static OS_Tls_Config_t cfgRpcClient =
-    {
-        .mode = OS_Tls_MODE_CLIENT,
-        .dataport = OS_DATAPORT_ASSIGN(tls_port)
-    };
 
     TEST_START();
 
     TEST_SUCCESS(OS_Crypto_init(&goodCfg.library.crypto.handle, &cryptoCfg));
-
-    // Test in RPC Client mode without dataport
-    memcpy(&badCfg, &cfgRpcClient, sizeof(OS_Tls_Config_t));
-    badCfg.dataport.io = NULL;
-    TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
     // Provide bad mode
     memcpy(&badCfg, &goodCfg, sizeof(OS_Tls_Config_t));
@@ -696,18 +656,6 @@ int run()
     TEST_SUCCESS(OS_Tls_free(hTls));
     TEST_SUCCESS(OS_Crypto_free(localCfg.library.crypto.handle));
     TEST_SUCCESS(closeSocket(&socket));
-
-    Debug_LOG_INFO("");
-
-    TEST_SUCCESS(TlsRpcServer_init());
-
-    // Test RPC client mode (and implicitly the RPC server side as well)
-    TEST_SUCCESS(TlsRpcServer_connectSocket());
-    TEST_SUCCESS(OS_Tls_init(&hTls, &remoteCfg));
-    test_OS_Tls_mode(hTls, NULL);
-    TEST_SUCCESS(OS_Tls_free(hTls));
-    TEST_SUCCESS(TlsRpcServer_closeSocket());
-    TEST_SUCCESS(TlsRpcServer_free());
 
     Debug_LOG_INFO("All tests successfully completed.");
 

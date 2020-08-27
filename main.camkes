@@ -4,7 +4,6 @@ import <if_OS_Entropy.camkes>;
 
 import "components/NwStack/network_stack.camkes";
 import "components/Ticker/Ticker.camkes";
-import "components/TlsRpcServer/TlsRpcServer.camkes";
 
 import "components/Tests/test_OS_Tls.camkes";
 
@@ -15,14 +14,11 @@ DECLARE_COMPONENT_UART(UART)
 
 #include "NIC_ChanMux/NIC_ChanMux.camkes"
 DECLARE_COMPONENT_NIC_ChanMux(NwDriver1)
-DECLARE_COMPONENT_NIC_ChanMux(NwDriver2)
 
 #include "ChanMux/ChanMux.camkes"
 ChanMux_DEFINE_COMPONENT(ChanMux,
         nwDriver1, ctrl,
-        nwDriver1, data,
-        nwDriver2, ctrl,
-        nwDriver2, data)
+        nwDriver1, data)
 
 #include "EntropySource/camkes/EntropySource.camkes"
 DECLARE_COMPONENT_EntropySource(EntropySource)
@@ -55,8 +51,7 @@ assembly {
             TimeServer,
             timeServer,
             ticker.timeServer_rpc,   ticker.timeServer_notify,
-            nwStack1.timeServer_rpc, nwStack1.timeServer_notify,
-            nwStack2.timeServer_rpc, nwStack2.timeServer_notify)
+            nwStack1.timeServer_rpc, nwStack1.timeServer_notify)
 
         //----------------------------------------------------------------------
         // Network Driver #1
@@ -98,54 +93,6 @@ assembly {
             entropySource0,
             unitTest.entropy_rpc,
             unitTest.entropy_port)
-
-        //----------------------------------------------------------------------
-        // Network Driver #2
-        //----------------------------------------------------------------------
-        component  NwDriver2        nwDriver2;
-
-        ChanMux_INSTANCE_CONNECT_INTERFACE(chanMux, nwDriver2)
-        ChanMux_INSTANCE_CONNECT_CHANNEL(chanMux, nwDriver2, data)
-        ChanMux_INSTANCE_CONNECT_CHANNEL(chanMux, nwDriver2, ctrl)
-
-        //----------------------------------------------------------------------
-        // Network Stack #2
-        //----------------------------------------------------------------------
-        component  NwStack2               nwStack2;
-
-        connection seL4NotificationNative NwStackdataAvail2_2 (from nwStack2.event_internal, to nwStack2.event_tick_or_data);
-        connection seL4Notification       NwStackEventsRxd1_2 (from nwStack2.e_write,        to nwStack2.c_write);
-        connection seL4Notification       NwStackEventsRxd2_2 (from nwStack2.e_read,         to nwStack2.c_read);
-        connection seL4Notification       NwStackEventsRxd3_2 (from nwStack2.e_conn,         to nwStack2.c_conn);
-
-        connection seL4NotificationNative NwStack_tick2       (from ticker.e_timeout_nwstacktick2, to nwStack2.event_tick_or_data);
-
-        connection seL4NotificationNative NwDriver_NwStack_dataAvail_2       (from nwDriver2.nic_event_hasData,     to nwStack2.event_tick_or_data);
-        connection seL4RPCCall            nwStack_NwDriver2                 (from nwStack2.nic_driver,             to nwDriver2.nic_rpc);
-        connection seL4SharedData         NwDriver_NwStack_ReadConnection_2  (from nwDriver2.nic_port_to,           to nwStack2.port_nic_from);
-        connection seL4SharedData         NwDriver_NwStack_WriteConnection_2 (from nwDriver2.nic_port_from,         to nwStack2.port_nic_to);
-
-        //----------------------------------------------------------------------
-        // Network Stack App #2
-        //----------------------------------------------------------------------
-        component  TlsRpcServer     tlsRpcServer;
-
-        connection seL4Notification NwAppInitDone_2        (from nwStack2.event_network_init_done,     to tlsRpcServer.event_network_stack_init_done);
-        connection seL4RPCCall      NwApp_nwStack2        (from tlsRpcServer.network_stack_rpc,        to nwStack2.network_stack_rpc);
-        connection seL4SharedData   NwApp_dataConnection_2 (from tlsRpcServer.NwAppDataPort,            to nwStack2.port_app_io);
-
-        DECLARE_AND_CONNECT_INSTANCE_EntropySource(
-            EntropySource,
-            entropySource1,
-            tlsRpcServer.entropy_rpc,
-            tlsRpcServer.entropy_port)
-
-        //----------------------------------------------------------------------
-        // Connecting TEST_TLS to tlsRpcServer
-        //----------------------------------------------------------------------
-        connection seL4RPCCall      testTls_tlsRpcServer        (from unitTest.TlsRpcServer,    to tlsRpcServer.TlsRpcServer);
-        connection seL4RPCCall      testTls_TlsApi              (from unitTest.tls_rpc,         to tlsRpcServer.tls_rpc);
-        connection seL4SharedData   tlsDataport                 (from unitTest.tls_port,        to tlsRpcServer.tls_port);
     }
 
     configuration {
@@ -164,6 +111,5 @@ assembly {
         // assign endpoint badges for n:1 RPC interface of ChanMUX. The generic
         // naming scheme is <component>.<interface>_attributes = <badge ID>
         ChanMux_ASSIGN_CLIENT_BADGE(chanMux, nwDriver1, CHANMUX_ID_NIC_1)
-        ChanMux_ASSIGN_CLIENT_BADGE(chanMux, nwDriver2, CHANMUX_ID_NIC_2)
     }
 }

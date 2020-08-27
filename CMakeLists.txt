@@ -16,8 +16,6 @@ project(tests_tls_api C)
 
 DeclareCAmkESComponent(
     test_OS_Tls
-    INCLUDES
-        components/TlsRpcServer/src
     SOURCES
         components/Tests/src/test_OS_Tls.c
     C_FLAGS
@@ -29,25 +27,7 @@ DeclareCAmkESComponent(
         os_libs
         os_crypto
         os_network_api
-        os_tls_with_rpc_client
-)
-
-DeclareCAmkESComponent(
-    TlsRpcServer
-    INCLUDES
-        components/TlsRpcServer/src
-    SOURCES
-        components/TlsRpcServer/src/TlsRpcServer.c
-    C_FLAGS
-        -Wall
-        -Werror
-    LIBS
-        system_config
-        os_core_api
-        os_libs
-        os_crypto
-        os_network_api
-        os_tls_with_rpc_server
+        os_tls
 )
 
 DeclareCAmkESComponent(
@@ -73,31 +53,6 @@ DeclareCAmkESComponent_NIC_ChanMux(
     NwDriver1
     CHANMUX_CHANNEL_NIC_1_CTRL
     CHANMUX_CHANNEL_NIC_1_DATA
-)
-
-DeclareCAmkESComponent(
-    NwStack2
-    SOURCES
-        components/NwStack/src/network_stack.c
-    C_FLAGS
-        -Wall
-        -Werror
-        -DOS_NWSTACK_AS_CLIENT
-        -DCFG_ETH_ADDR=ETH_2_ADDR
-        -DCFG_ETH_GATEWAY_ADDR=ETH_2_GATEWAY_ADDR
-        -DCFG_ETH_SUBNET_MASK=ETH_2_SUBNET_MASK
-    LIBS
-        system_config
-        os_core_api
-        os_libs
-        os_network_lib
-        TimeServer_client
-)
-
-DeclareCAmkESComponent_NIC_ChanMux(
-    NwDriver2
-    CHANMUX_CHANNEL_NIC_2_CTRL
-    CHANMUX_CHANNEL_NIC_2_DATA
 )
 
 DeclareCAmkESComponent_ChanMux(
