@@ -13,7 +13,7 @@ import "components/Tests/test_OS_Tls.camkes";
 DECLARE_COMPONENT_UART(UART)
 
 #include "NIC_ChanMux/NIC_ChanMux.camkes"
-DECLARE_COMPONENT_NIC_ChanMux(NwDriver1)
+DECLARE_COMPONENT_NIC_ChanMux(NwDriver1, NIC_DRIVER_RINGBUFFER_SIZE)
 
 #include "ChanMux/ChanMux.camkes"
 ChanMux_DEFINE_COMPONENT(ChanMux,
