@@ -79,7 +79,7 @@ sendFunc(
     if ((err = OS_NetworkSocket_write(*socket, buf, n, &n)) != OS_SUCCESS)
     {
         Debug_LOG_ERROR("Error during socket write...error:%d", err);
-        return -1;
+        return err;
     }
 
     return n;
@@ -99,7 +99,7 @@ recvFunc(
     if ((err = OS_NetworkSocket_read(*socket, buf, n, &n)) != OS_SUCCESS)
     {
         Debug_LOG_ERROR("Error during socket read...error:%d", err);
-        return -1;
+        return err;
     }
 
     return n;
