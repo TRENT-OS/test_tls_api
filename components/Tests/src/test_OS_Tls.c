@@ -511,7 +511,7 @@ test_OS_Tls_read_pos(
      * echo server already as part of the write test.
      */
 
-    len = sizeof(buffer);
+    len = sizeof(answer);
     memset(buffer, 0, sizeof(buffer));
     TEST_SUCCESS(OS_Tls_read(hTls, buffer, &len));
     TEST_TRUE(len == sizeof(answer));
