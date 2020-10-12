@@ -438,14 +438,14 @@ test_OS_Tls_write_neg(
     TEST_START(mode);
 
     // No context
-    TEST_INVAL_PARAM(OS_Tls_write(NULL, request, len));
+    TEST_INVAL_PARAM(OS_Tls_write(NULL, request, &len));
 
     // No buffer
-    TEST_INVAL_PARAM(OS_Tls_write(hTls, NULL, len));
+    TEST_INVAL_PARAM(OS_Tls_write(hTls, NULL, &len));
 
     // Zero length write
     len = 0;
-    TEST_INVAL_PARAM(OS_Tls_write(hTls, request, len));
+    TEST_INVAL_PARAM(OS_Tls_write(hTls, request, &len));
 
     TEST_FINISH();
 }
@@ -464,7 +464,8 @@ test_OS_Tls_write_pos(
      * Before executing this test, a TLS sessions needs to be established
      */
 
-    TEST_SUCCESS(OS_Tls_write(hTls, request, len));
+    TEST_SUCCESS(OS_Tls_write(hTls, request, &len));
+    TEST_TRUE(len == sizeof(request));
 
     TEST_FINISH();
 }
