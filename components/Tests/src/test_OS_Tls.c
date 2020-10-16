@@ -54,7 +54,7 @@ static OS_Tls_Config_t localCfg =
         },
         .flags = OS_Tls_FLAG_DEBUG,
         .crypto = {
-            .caCert = TLS_HOST_CERT,
+            .caCerts = TLS_HOST_CERT,
             .cipherSuites = OS_Tls_CIPHERSUITE_FLAGS(
                 OS_Tls_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256)
         },
@@ -159,7 +159,7 @@ test_OS_Tls_init_pos()
                 .send = sendFunc,
             },
             .crypto = {
-                .caCert = TLS_HOST_CERT,
+                .caCerts = TLS_HOST_CERT,
                 .cipherSuites =
                 OS_Tls_CIPHERSUITE_FLAGS(
                     OS_Tls_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
@@ -176,7 +176,7 @@ test_OS_Tls_init_pos()
                 .send = sendFunc,
             },
             .crypto = {
-                .caCert = TLS_HOST_CERT,
+                .caCerts = TLS_HOST_CERT,
                 .cipherSuites = OS_Tls_CIPHERSUITE_FLAGS(
                     OS_Tls_CIPHERSUITE_DHE_RSA_WITH_AES_128_GCM_SHA256)
             }
@@ -235,7 +235,7 @@ test_OS_Tls_init_neg()
             },
             .crypto = {
                 .policy = NULL,
-                .caCert = TLS_HOST_CERT,
+                .caCerts = TLS_HOST_CERT,
                 .cipherSuites =
                 OS_Tls_CIPHERSUITE_FLAGS(
                     OS_Tls_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
@@ -304,7 +304,7 @@ test_OS_Tls_init_neg()
     // Cert is not properly PEM encoded
     memcpy(&badCfg, &goodCfg, sizeof(OS_Tls_Config_t));
     // Invalidate the "-----BEGIN" part of the PEM encoded cert
-    memset(badCfg.library.crypto.caCert, 0, 10);
+    badCfg.library.crypto.caCerts = TLS_HOST_CERT_BROKEN;
     TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
     // No ciphersuites at all
@@ -331,7 +331,7 @@ test_OS_Tls_free_pos()
                 .send = sendFunc,
             },
             .crypto = {
-                .caCert = TLS_HOST_CERT,
+                .caCerts = TLS_HOST_CERT,
                 .cipherSuites = OS_Tls_CIPHERSUITE_FLAGS(
                     OS_Tls_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256)
             }
