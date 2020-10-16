@@ -184,8 +184,8 @@ test_OS_Tls_init_pos()
     };
     static OS_Tls_Policy_t policy =
     {
-        .sessionDigests = OS_Tls_DIGEST_FLAGS(OS_Tls_DIGEST_SHA256),
-        .signatureDigests = OS_Tls_DIGEST_FLAGS(OS_Tls_DIGEST_SHA256),
+        .handshakeDigests = OS_Tls_DIGEST_FLAGS(OS_Tls_DIGEST_SHA256),
+        .certDigests = OS_Tls_DIGEST_FLAGS(OS_Tls_DIGEST_SHA256),
         .rsaMinBits = OS_CryptoKey_SIZE_RSA_MIN * 8,
         .dhMinBits = OS_CryptoKey_SIZE_DH_MAX * 8
     };
@@ -220,8 +220,8 @@ test_OS_Tls_init_neg()
     OS_Tls_Handle_t hTls;
     static OS_Tls_Policy_t badPolicy, goodPolicy =
     {
-        .sessionDigests = OS_Tls_DIGEST_FLAGS(OS_Tls_DIGEST_SHA256),
-        .signatureDigests = OS_Tls_DIGEST_FLAGS(OS_Tls_DIGEST_SHA256),
+        .handshakeDigests = OS_Tls_DIGEST_FLAGS(OS_Tls_DIGEST_SHA256),
+        .certDigests = OS_Tls_DIGEST_FLAGS(OS_Tls_DIGEST_SHA256),
         .rsaMinBits = OS_CryptoKey_SIZE_RSA_MIN * 8,
         .dhMinBits = OS_CryptoKey_SIZE_DH_MIN * 8
     };
@@ -273,12 +273,12 @@ test_OS_Tls_init_neg()
 
     // No session digest algorithm
     memcpy(&badPolicy, &goodPolicy, sizeof(OS_Tls_Policy_t));
-    badPolicy.sessionDigests = 0;
+    badPolicy.handshakeDigests = 0;
     TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
     // No signature digest algorithm
     memcpy(&badPolicy, &goodPolicy, sizeof(OS_Tls_Policy_t));
-    badPolicy.signatureDigests = 0;
+    badPolicy.certDigests = 0;
     TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
     // Min size for DH too big
