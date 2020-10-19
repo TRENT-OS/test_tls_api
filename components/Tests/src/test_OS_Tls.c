@@ -55,10 +55,8 @@ static OS_Tls_Config_t localCfg =
         .flags = OS_Tls_FLAG_DEBUG,
         .crypto = {
             .caCert = TLS_HOST_CERT,
-            .cipherSuites = {
-                OS_Tls_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-            },
-            .cipherSuitesLen = 1
+            .cipherSuites = OS_Tls_CIPHERSUITE_FLAGS(
+                OS_Tls_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256)
         },
     }
 };
@@ -162,11 +160,10 @@ test_OS_Tls_init_pos()
             },
             .crypto = {
                 .caCert = TLS_HOST_CERT,
-                .cipherSuites = {
+                .cipherSuites =
+                OS_Tls_CIPHERSUITE_FLAGS(
                     OS_Tls_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-                    OS_Tls_CIPHERSUITE_DHE_RSA_WITH_AES_128_GCM_SHA256
-                },
-                .cipherSuitesLen = 2
+                    OS_Tls_CIPHERSUITE_DHE_RSA_WITH_AES_128_GCM_SHA256)
             }
         },
     };
@@ -180,19 +177,15 @@ test_OS_Tls_init_pos()
             },
             .crypto = {
                 .caCert = TLS_HOST_CERT,
-                .cipherSuites = {
-                    OS_Tls_CIPHERSUITE_DHE_RSA_WITH_AES_128_GCM_SHA256
-                },
-                .cipherSuitesLen = 1
+                .cipherSuites = OS_Tls_CIPHERSUITE_FLAGS(
+                    OS_Tls_CIPHERSUITE_DHE_RSA_WITH_AES_128_GCM_SHA256)
             }
         },
     };
     static OS_Tls_Policy_t policy =
     {
-        .sessionDigests = {OS_Tls_DIGEST_SHA256},
-        .sessionDigestsLen = 1,
-        .signatureDigests = {OS_Tls_DIGEST_SHA256},
-        .signatureDigestsLen = 1,
+        .sessionDigests = OS_Tls_DIGEST_FLAGS(OS_Tls_DIGEST_SHA256),
+        .signatureDigests = OS_Tls_DIGEST_FLAGS(OS_Tls_DIGEST_SHA256),
         .rsaMinBits = OS_CryptoKey_SIZE_RSA_MIN * 8,
         .dhMinBits = OS_CryptoKey_SIZE_DH_MAX * 8
     };
@@ -227,10 +220,8 @@ test_OS_Tls_init_neg()
     OS_Tls_Handle_t hTls;
     static OS_Tls_Policy_t badPolicy, goodPolicy =
     {
-        .sessionDigests = {OS_Tls_DIGEST_SHA256},
-        .sessionDigestsLen = 1,
-        .signatureDigests = {OS_Tls_DIGEST_SHA256},
-        .signatureDigestsLen = 1,
+        .sessionDigests = OS_Tls_DIGEST_FLAGS(OS_Tls_DIGEST_SHA256),
+        .signatureDigests = OS_Tls_DIGEST_FLAGS(OS_Tls_DIGEST_SHA256),
         .rsaMinBits = OS_CryptoKey_SIZE_RSA_MIN * 8,
         .dhMinBits = OS_CryptoKey_SIZE_DH_MIN * 8
     };
@@ -245,11 +236,10 @@ test_OS_Tls_init_neg()
             .crypto = {
                 .policy = NULL,
                 .caCert = TLS_HOST_CERT,
-                .cipherSuites = {
+                .cipherSuites =
+                OS_Tls_CIPHERSUITE_FLAGS(
                     OS_Tls_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-                    OS_Tls_CIPHERSUITE_DHE_RSA_WITH_AES_128_GCM_SHA256
-                },
-                .cipherSuitesLen = 2
+                    OS_Tls_CIPHERSUITE_DHE_RSA_WITH_AES_128_GCM_SHA256)
             }
         },
     };
@@ -281,47 +271,35 @@ test_OS_Tls_init_neg()
     memcpy(&badCfg, &goodCfg, sizeof(OS_Tls_Config_t));
     badCfg.library.crypto.policy = &badPolicy;
 
-    // Invalid session digest algorithm
+    // No session digest algorithm
     memcpy(&badPolicy, &goodPolicy, sizeof(OS_Tls_Policy_t));
-    badPolicy.sessionDigests[1] = 666;
-    badPolicy.sessionDigestsLen = 2;
-    TEST_NOT_SUPP(OS_Tls_init(&hTls, &badCfg));
-
-    // Too many session digests
-    memcpy(&badPolicy, &goodPolicy, sizeof(OS_Tls_Policy_t));
-    badPolicy.sessionDigestsLen = OS_Tls_MAX_DIGESTS + 1;
+    badPolicy.sessionDigests = 0;
     TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
-    // Invalid signature digest algorithm
+    // No signature digest algorithm
     memcpy(&badPolicy, &goodPolicy, sizeof(OS_Tls_Policy_t));
-    badPolicy.signatureDigests[1] = 666;
-    badPolicy.signatureDigestsLen = 2;
-    TEST_NOT_SUPP(OS_Tls_init(&hTls, &badCfg));
-
-    // Too many signature digests
-    memcpy(&badPolicy, &goodPolicy, sizeof(OS_Tls_Policy_t));
-    badPolicy.signatureDigestsLen = OS_Tls_MAX_DIGESTS + 1;
+    badPolicy.signatureDigests = 0;
     TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
     // Min size for DH too big
     memcpy(&badPolicy, &goodPolicy, sizeof(OS_Tls_Policy_t));
     badPolicy.dhMinBits = (OS_CryptoKey_SIZE_DH_MAX * 8) + 1;
-    TEST_NOT_SUPP(OS_Tls_init(&hTls, &badCfg));
+    TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
     // Min size for DH too small
     memcpy(&badPolicy, &goodPolicy, sizeof(OS_Tls_Policy_t));
     badPolicy.dhMinBits = (OS_CryptoKey_SIZE_DH_MIN * 8) - 1;
-    TEST_NOT_SUPP(OS_Tls_init(&hTls, &badCfg));
+    TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
     // Min size for RSA too big
     memcpy(&badPolicy, &goodPolicy, sizeof(OS_Tls_Policy_t));
     badPolicy.rsaMinBits = (OS_CryptoKey_SIZE_RSA_MAX * 8) + 1;
-    TEST_NOT_SUPP(OS_Tls_init(&hTls, &badCfg));
+    TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
     // Min size for RSA too small
     memcpy(&badPolicy, &goodPolicy, sizeof(OS_Tls_Policy_t));
     badPolicy.rsaMinBits = (OS_CryptoKey_SIZE_RSA_MIN * 8) - 1;
-    TEST_NOT_SUPP(OS_Tls_init(&hTls, &badCfg));
+    TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
     // Cert is not properly PEM encoded
     memcpy(&badCfg, &goodCfg, sizeof(OS_Tls_Config_t));
@@ -329,19 +307,9 @@ test_OS_Tls_init_neg()
     memset(badCfg.library.crypto.caCert, 0, 10);
     TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
-    // Invalid cipher suite
-    memcpy(&badCfg, &goodCfg, sizeof(OS_Tls_Config_t));
-    badCfg.library.crypto.cipherSuites[0] = 666;
-    TEST_NOT_SUPP(OS_Tls_init(&hTls, &badCfg));
-
-    // Too many cipher suites
-    memcpy(&badCfg, &goodCfg, sizeof(OS_Tls_Config_t));
-    badCfg.library.crypto.cipherSuitesLen = OS_Tls_MAX_CIPHERSUITES + 1;
-    TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
-
     // No ciphersuites at all
     memcpy(&badCfg, &goodCfg, sizeof(OS_Tls_Config_t));
-    badCfg.library.crypto.cipherSuitesLen = 0;
+    badCfg.library.crypto.cipherSuites = 0;
     TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
     TEST_SUCCESS(OS_Crypto_free(goodCfg.library.crypto.handle));
@@ -364,10 +332,8 @@ test_OS_Tls_free_pos()
             },
             .crypto = {
                 .caCert = TLS_HOST_CERT,
-                .cipherSuites = {
-                    OS_Tls_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-                },
-                .cipherSuitesLen = 1
+                .cipherSuites = OS_Tls_CIPHERSUITE_FLAGS(
+                    OS_Tls_CIPHERSUITE_ECDHE_RSA_WITH_AES_128_GCM_SHA256)
             }
         },
     };
