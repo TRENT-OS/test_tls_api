@@ -10,12 +10,13 @@
  */
 
 #include "TestConfig.h"
-#include "TestMacros.h"
 
 #include "OS_Crypto.h"
 #include "OS_Tls.h"
 #include "OS_Network.h"
 #include "OS_NetworkStackClient.h"
+
+#include "LibMacros/Test.h"
 
 #include <camkes.h>
 #include <string.h>
