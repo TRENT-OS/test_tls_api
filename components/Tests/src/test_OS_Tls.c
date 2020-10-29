@@ -251,7 +251,7 @@ test_OS_Tls_init_neg()
     // Provide bad mode
     memcpy(&badCfg, &goodCfg, sizeof(OS_Tls_Config_t));
     badCfg.mode = 666;
-    TEST_NOT_SUPP(OS_Tls_init(&hTls, &badCfg));
+    TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
     // No RECV callback
     memcpy(&badCfg, &goodCfg, sizeof(OS_Tls_Config_t));
