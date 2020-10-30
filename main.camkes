@@ -94,9 +94,6 @@ assembly {
         TimeServer_CLIENT_ASSIGN_BADGE(
             nwStack1.timeServer_rpc, TIMESERVER_NS1_ID
         )
-        TimeServer_CLIENT_ASSIGN_BADGE(
-            nwStack2.timeServer_rpc, TIMESERVER_NS2_ID
-        )
 
         // assign endpoint badges for n:1 RPC interface of ChanMUX. The generic
         // naming scheme is <component>.<interface>_attributes = <badge ID>
