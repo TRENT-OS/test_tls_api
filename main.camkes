@@ -18,7 +18,7 @@ ChanMux_DEFINE_COMPONENT(ChanMux,
         nwDriver1, data)
 
 #include "EntropySource/camkes/EntropySource.camkes"
-DECLARE_COMPONENT_EntropySource(EntropySource)
+EntropySource_COMPONENT_DECLARE(EntropySource)
 
 #include "TimeServer/camkes/TimeServer.camkes"
 TimeServer_COMPONENT_DECLARE(TimeServer)
@@ -80,8 +80,9 @@ assembly {
         connection seL4RPCCall      NwApp_nwStack        (from unitTest.network_stack_rpc,         to nwStack1.network_stack_rpc);
         connection seL4SharedData   NwApp_dataConnection (from unitTest.NwAppDataPort,             to nwStack1.port_app_io);
 
-        DECLARE_AND_CONNECT_INSTANCE_EntropySource(
-            EntropySource,
+        component  EntropySource    entropySource0;
+
+        EntropySource_INSTANCE_CONNECT_CLIENT(
             entropySource0,
             unitTest.entropy_rpc,
             unitTest.entropy_port)
