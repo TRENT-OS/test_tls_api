@@ -10,7 +10,7 @@ import "components/Tests/test_OS_Tls.camkes";
 #include "config/SystemConfig.h"
 
 #include "NIC_ChanMux/NIC_ChanMux.camkes"
-DECLARE_COMPONENT_NIC_ChanMux(NwDriver1, NIC_DRIVER_RINGBUFFER_SIZE)
+NIC_ChanMux_COMPONENT_DECLARE(NwDriver1, NIC_DRIVER_RINGBUFFER_SIZE)
 
 #include "ChanMux/ChanMux_UART.camkes"
 ChanMux_UART_COMPONENT_DEFINE(
@@ -75,10 +75,10 @@ assembly {
 
         connection seL4NotificationNative NwStack_tick1     (from ticker.e_timeout_nwstacktick1, to nwStack1.event_tick_or_data);
 
-        connection seL4NotificationNative NwStackdataAvail1                (from nwDriver1.nic_event_hasData,     to nwStack1.event_tick_or_data);
-        connection seL4RPCCall            nwStack_NwDriver                 (from nwStack1.nic_driver,             to nwDriver1.nic_rpc);
-        connection seL4SharedData         NwDriver_NwStack_ReadConnection  (from nwDriver1.nic_port_to,           to nwStack1.port_nic_from);
-        connection seL4SharedData         NwDriver_NwStack_WriteConnection (from nwDriver1.nic_port_from,         to nwStack1.port_nic_to);
+        NIC_ChanMux_INSTANCE_CONNECT_CLIENT(
+            nwDriver1,
+            nwStack1.nic_driver,  nwStack1.port_nic_to, nwStack1.port_nic_from, nwStack1.event_tick_or_data
+        )
 
         //----------------------------------------------------------------------
         // Network Stack App #1
