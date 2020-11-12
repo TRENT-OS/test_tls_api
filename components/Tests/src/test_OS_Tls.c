@@ -468,9 +468,11 @@ test_OS_Tls_read_pos(
     OS_Tls_Handle_t hTls,
     OS_Tls_Mode_t   mode)
 {
+// This is an arbitrary number, just to do the read in a few chunks and not in one swoop
+#define CHUNK_SIZE 4
     unsigned char buffer[1024];
     const char answer[] = ECHO_STRING;
-    size_t len = sizeof(buffer);
+    size_t read, total;
 
     TEST_START(mode);
 
@@ -479,11 +481,28 @@ test_OS_Tls_read_pos(
      * echo server already as part of the write test.
      */
 
-    len = sizeof(answer);
     memset(buffer, 0, sizeof(buffer));
-    TEST_SUCCESS(OS_Tls_read(hTls, buffer, &len));
-    TEST_TRUE(len == sizeof(answer));
-    TEST_TRUE(!memcmp(buffer, answer, len));
+
+    total = 0;
+    while ((total + CHUNK_SIZE) < sizeof(buffer))
+    {
+        read = CHUNK_SIZE;
+        if (total < sizeof(answer))
+        {
+            TEST_SUCCESS(OS_Tls_read(hTls, buffer + total, &read));
+        }
+        else
+        {
+            // If we try reading beyond what is available, we should get the
+            // message that the connection is closed.
+            TEST_CONN_CLOSED(OS_Tls_read(hTls, buffer + total, &read));
+            break;
+        }
+        total += read;
+    }
+
+    TEST_TRUE(total == sizeof(answer));
+    TEST_TRUE(!memcmp(buffer, answer, total));
 
     TEST_FINISH();
 }
