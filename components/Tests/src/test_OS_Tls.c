@@ -370,7 +370,7 @@ test_OS_Tls_handshake_pos(
     OS_Tls_Handle_t hTls,
     OS_Tls_Mode_t   mode)
 {
-    TEST_START(mode);
+    TEST_START("i", mode);
 
     // Do the handshake
     TEST_SUCCESS(OS_Tls_handshake(hTls));
@@ -383,7 +383,7 @@ test_OS_Tls_handshake_neg(
     OS_Tls_Handle_t hTls,
     OS_Tls_Mode_t   mode)
 {
-    TEST_START(mode);
+    TEST_START("i", mode);
 
     // Handshake again on an already existing TLS session
     TEST_OP_DENIED(OS_Tls_handshake(hTls));
@@ -402,7 +402,7 @@ test_OS_Tls_write_neg(
     char* request = ECHO_STRING;
     size_t len = sizeof(request);
 
-    TEST_START(mode);
+    TEST_START("i", mode);
 
     // No context
     TEST_INVAL_PARAM(OS_Tls_write(NULL, request, &len));
@@ -425,7 +425,7 @@ test_OS_Tls_write_pos(
     char request[] = ECHO_STRING;
     size_t len = sizeof(request);
 
-    TEST_START(mode);
+    TEST_START("i", mode);
 
     /*
      * Before executing this test, a TLS sessions needs to be established
@@ -445,7 +445,7 @@ test_OS_Tls_read_neg(
     unsigned char buffer[1024];
     size_t len = sizeof(buffer);
 
-    TEST_START(mode);
+    TEST_START("i", mode);
 
     // No context
     TEST_INVAL_PARAM(OS_Tls_read(NULL, buffer, &len));
@@ -474,7 +474,7 @@ test_OS_Tls_read_pos(
     const char answer[] = ECHO_STRING;
     size_t read, total;
 
-    TEST_START(mode);
+    TEST_START("i", mode);
 
     /*
      * Before executing this test, we should have sent the ECHO_STRING to the
@@ -513,7 +513,7 @@ test_OS_Tls_reset_pos(
     OS_Tls_Mode_t              mode,
     OS_NetworkSocket_Handle_t* socket)
 {
-    TEST_START(mode);
+    TEST_START("i", mode);
 
     /*
      * For this test we expect the socket to be closed and the TLS session to
@@ -535,7 +535,7 @@ test_OS_Tls_reset_neg(
     OS_Tls_Mode_t              mode,
     OS_NetworkSocket_Handle_t* socket)
 {
-    TEST_START(mode);
+    TEST_START("i", mode);
 
     TEST_INVAL_PARAM(OS_Tls_reset(NULL));
 
