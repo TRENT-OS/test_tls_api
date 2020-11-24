@@ -12,10 +12,12 @@ import "components/Tests/test_OS_Tls.camkes";
 #include "NIC_ChanMux/NIC_ChanMux.camkes"
 DECLARE_COMPONENT_NIC_ChanMux(NwDriver1, NIC_DRIVER_RINGBUFFER_SIZE)
 
-#include "ChanMux/ChanMux.camkes"
-ChanMux_DEFINE_COMPONENT(ChanMux,
-        nwDriver1, ctrl,
-        nwDriver1, data)
+#include "ChanMux/ChanMux_UART.camkes"
+ChanMux_UART_COMPONENT_DEFINE(
+    ChanMux_UART,
+    nwDriver1, ctrl,
+    nwDriver1, data
+)
 
 #include "EntropySource/camkes/EntropySource.camkes"
 EntropySource_COMPONENT_DECLARE(EntropySource)
@@ -26,9 +28,15 @@ TimeServer_COMPONENT_DECLARE(TimeServer)
 assembly {
     composition {
         //----------------------------------------------------------------------
-        // ChanMux + UART
+        // ChanMux_UART + UART
         //----------------------------------------------------------------------
-        ChanMux_DECLARE_AND_CONNECT_INSTANCE_TO_UART(ChanMux, chanMux)
+        component ChanMux_UART chanMux_UART;
+        component UART_CHANMUX uart;
+
+        ChanMux_UART_INSTANCE_CONNECT(
+            chanMux_UART,
+            uart
+        )
 
         //----------------------------------------------------------------------
         // Ticker
@@ -50,9 +58,10 @@ assembly {
         //----------------------------------------------------------------------
         component  NwDriver1       nwDriver1;
 
-        ChanMux_INSTANCE_CONNECT_INTERFACE(chanMux, nwDriver1)
-        ChanMux_INSTANCE_CONNECT_CHANNEL(chanMux, nwDriver1, data)
-        ChanMux_INSTANCE_CONNECT_CHANNEL(chanMux, nwDriver1, ctrl)
+        ChanMux_INSTANCE_CONNECT_CLIENTS(
+            chanMux_UART,
+            nwDriver1, data, ctrl
+        )
 
         //----------------------------------------------------------------------
         // Network Stack #1
@@ -94,8 +103,8 @@ assembly {
             nwStack1.timeServer_rpc
         )
 
-        // assign endpoint badges for n:1 RPC interface of ChanMUX. The generic
-        // naming scheme is <component>.<interface>_attributes = <badge ID>
-        ChanMux_ASSIGN_CLIENT_BADGE(chanMux, nwDriver1, CHANMUX_ID_NIC_1)
+        ChanMux_UART_CLIENT_ASSIGN_BADGES(
+            nwDriver1.chanMux_Rpc
+        )
     }
 }
