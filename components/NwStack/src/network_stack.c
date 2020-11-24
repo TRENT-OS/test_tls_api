@@ -82,6 +82,7 @@ int run()
 
             .rpc =
             {
+                .dev_read       = nic_driver_rx_data,
                 .dev_write      = nic_driver_tx_data,
                 .get_mac        = nic_driver_get_mac_address,
             }
