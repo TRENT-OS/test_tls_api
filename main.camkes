@@ -58,7 +58,7 @@ assembly {
         //----------------------------------------------------------------------
         component  NwDriver1       nwDriver1;
 
-        ChanMux_INSTANCE_CONNECT_CLIENTS(
+        ChanMux_INSTANCE_CONNECT_CLIENT(
             chanMux_UART,
             nwDriver1, data, ctrl
         )
