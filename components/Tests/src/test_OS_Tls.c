@@ -16,7 +16,7 @@
 #include "OS_Network.h"
 #include "OS_NetworkStackClient.h"
 
-#include "LibMacros/Test.h"
+#include "lib_macros/Test.h"
 
 #include <camkes.h>
 #include <string.h>
