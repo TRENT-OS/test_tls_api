@@ -37,7 +37,6 @@ DeclareCAmkESComponent(
     C_FLAGS
         -Wall
         -Werror
-        -DOS_NWSTACK_AS_CLIENT
         -DCFG_ETH_ADDR=ETH_1_ADDR
         -DCFG_ETH_GATEWAY_ADDR=ETH_1_GATEWAY_ADDR
         -DCFG_ETH_SUBNET_MASK=ETH_1_SUBNET_MASK
