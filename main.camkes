@@ -85,7 +85,6 @@ assembly {
         //----------------------------------------------------------------------
         component  test_OS_Tls      unitTest;
 
-        connection seL4Notification NwAppInitDone        (from nwStack1.event_network_init_done,  to unitTest.event_network_stack_init_done);
         connection seL4RPCCall      NwApp_nwStack        (from unitTest.network_stack_rpc,         to nwStack1.network_stack_rpc);
         connection seL4SharedData   NwApp_dataConnection (from unitTest.NwAppDataPort,             to nwStack1.port_app_io);
 

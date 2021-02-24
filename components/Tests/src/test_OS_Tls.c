@@ -29,9 +29,6 @@
 // In case we need a not-NULL address to test something
 #define NOT_NULL ((void*) 1)
 
-// External API
-extern OS_Error_t OS_NetworkAPP_RT(OS_Network_Context_t ctx);
-
 // Forward declaration
 static int sendFunc(void* ctx, const unsigned char* buf, size_t len);
 static int recvFunc(void* ctx, unsigned char* buf, size_t len);
@@ -632,8 +629,6 @@ int run()
     test_OS_Tls_free_neg();
 
     Debug_LOG_INFO("");
-
-    OS_NetworkAPP_RT(NULL);
 
     // Test library mode
     TEST_SUCCESS(connectSocket(&socket));

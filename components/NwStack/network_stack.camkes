@@ -41,7 +41,6 @@ component NwStack1 {
     // interface Application
     provides    if_OS_Socket            network_stack_rpc;
     dataport    Buf                     port_app_io;
-    emits       ServiceReady            event_network_init_done;
 
     has         mutex                   allocatorMutex;
     has         mutex                   nwstackMutex;
@@ -80,7 +79,6 @@ component NwStack2 {
     // interface Application
     provides   if_OS_Socket            network_stack_rpc;
     dataport   Buf                     port_app_io;
-    emits      ServiceReady            event_network_init_done;
 
     has         mutex                  allocatorMutex;
     has         mutex                  nwstackMutex;
