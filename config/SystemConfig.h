@@ -37,37 +37,24 @@
 // ChanMUX
 //-----------------------------------------------------------------------------
 
-#define CHANMUX_CHANNEL_NIC_1_CTRL      4
-#define CHANMUX_CHANNEL_NIC_1_DATA      5
-
-#define CHANMUX_CHANNEL_NIC_2_CTRL      7
-#define CHANMUX_CHANNEL_NIC_2_DATA      8
+#define CHANMUX_CHANNEL_NIC_CTRL      4
+#define CHANMUX_CHANNEL_NIC_DATA      5
 
 
 //-----------------------------------------------------------------------------
 // ChanMUX clients
 //-----------------------------------------------------------------------------
 
-#define CHANMUX_ID_NIC_1        101
-#define CHANMUX_ID_NIC_2        102
+#define CHANMUX_ID_NIC        101
 
 
 //-----------------------------------------------------------------------------
 // Network Stack #1
 //-----------------------------------------------------------------------------
 
-#define ETH_1_ADDR                  "10.0.0.10"
-#define ETH_1_GATEWAY_ADDR          "10.0.0.1"
-#define ETH_1_SUBNET_MASK           "255.255.255.0"
-
-
-//-----------------------------------------------------------------------------
-// Network Stack #2
-//-----------------------------------------------------------------------------
-
-#define ETH_2_ADDR                  "10.0.0.11"
-#define ETH_2_GATEWAY_ADDR          "10.0.0.1"
-#define ETH_2_SUBNET_MASK           "255.255.255.0"
+#define ETH_ADDR                  "10.0.0.10"
+#define ETH_GATEWAY_ADDR          "10.0.0.1"
+#define ETH_SUBNET_MASK           "255.255.255.0"
 
 //-----------------------------------------------------------------------------
 // Network Driver

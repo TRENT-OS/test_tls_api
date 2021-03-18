@@ -10,13 +10,13 @@ import "components/Tests/test_OS_Tls.camkes";
 #include "config/SystemConfig.h"
 
 #include "NIC_ChanMux/NIC_ChanMux.camkes"
-NIC_ChanMux_COMPONENT_DEFINE(NwDriver1, NIC_DRIVER_RINGBUFFER_SIZE)
+NIC_ChanMux_COMPONENT_DEFINE(NwDriver, NIC_DRIVER_RINGBUFFER_SIZE)
 
 #include "ChanMux/ChanMux_UART.camkes"
 ChanMux_UART_COMPONENT_DEFINE(
     ChanMux_UART,
-    nwDriver1, ctrl,
-    nwDriver1, data
+    nwDriver, ctrl,
+    nwDriver, data
 )
 
 #include "EntropySource/camkes/EntropySource.camkes"
@@ -51,47 +51,47 @@ assembly {
         TimeServer_INSTANCE_CONNECT_CLIENTS(
             timeServer,
             ticker.timeServer_rpc,   ticker.timeServer_notify,
-            nwStack1.timeServer_rpc, nwStack1.timeServer_notify)
+            nwStack.timeServer_rpc, nwStack.timeServer_notify)
 
         //----------------------------------------------------------------------
-        // Network Driver #1
+        // Network Driver
         //----------------------------------------------------------------------
-        component  NwDriver1       nwDriver1;
+        component  NwDriver       nwDriver;
 
         ChanMux_INSTANCE_CONNECT_CLIENT(
             chanMux_UART,
-            nwDriver1, data, ctrl
+            nwDriver, data, ctrl
         )
 
         //----------------------------------------------------------------------
-        // Network Stack #1
+        // Network Stack
         //----------------------------------------------------------------------
-        component  NwStack1               nwStack1;
+        component  NwStack                nwStack;
 
-        connection seL4NotificationNative NwStackdataAvail2 (from nwStack1.event_internal, to nwStack1.event_tick_or_data);
-        connection seL4Notification       NwStackEventsRxd1 (from nwStack1.e_write,        to nwStack1.c_write);
-        connection seL4Notification       NwStackEventsRxd2 (from nwStack1.e_read,         to nwStack1.c_read);
-        connection seL4Notification       NwStackEventsRxd3 (from nwStack1.e_conn,         to nwStack1.c_conn);
+        connection seL4NotificationNative NwStackdataAvail (from nwStack.event_internal, to nwStack.event_tick_or_data);
+        connection seL4Notification       NwStackEventsRxd1 (from nwStack.e_write,        to nwStack.c_write);
+        connection seL4Notification       NwStackEventsRxd2 (from nwStack.e_read,         to nwStack.c_read);
+        connection seL4Notification       NwStackEventsRxd3 (from nwStack.e_conn,         to nwStack.c_conn);
 
-        connection seL4NotificationNative NwStack_tick1     (from ticker.e_timeout_nwstacktick1, to nwStack1.event_tick_or_data);
+        connection seL4NotificationNative NwStack_tick     (from ticker.e_timeout_nwstacktick, to nwStack.event_tick_or_data);
 
         NIC_ChanMux_INSTANCE_CONNECT_CLIENT(
-            nwDriver1,
-            nwStack1.nic_driver,  nwStack1.nic_to_port, nwStack1.nic_from_port, nwStack1.event_tick_or_data
+            nwDriver,
+            nwStack.nic_driver,  nwStack.nic_to_port, nwStack.nic_from_port, nwStack.event_tick_or_data
         )
 
         //----------------------------------------------------------------------
-        // Network Stack App #1
+        // Network Stack App
         //----------------------------------------------------------------------
         component  test_OS_Tls      unitTest;
 
-        connection seL4RPCCall      NwApp_nwStack        (from unitTest.networkStack_rpc,         to nwStack1.networkStack_rpc);
-        connection seL4SharedData   NwApp_dataConnection (from unitTest.networkStack_port,             to nwStack1.appIo_port);
+        connection seL4RPCCall      NwApp_nwStack        (from unitTest.networkStack_rpc,  to nwStack.networkStack_rpc);
+        connection seL4SharedData   NwApp_dataConnection (from unitTest.networkStack_port, to nwStack.appIo_port);
 
-        component  EntropySource    entropySource0;
+        component  EntropySource    entropySource;
 
         EntropySource_INSTANCE_CONNECT_CLIENT(
-            entropySource0,
+            entropySource,
             unitTest.entropy_rpc,
             unitTest.entropy_port)
     }
@@ -99,11 +99,11 @@ assembly {
     configuration {
         TimeServer_CLIENT_ASSIGN_BADGES(
             ticker.timeServer_rpc,
-            nwStack1.timeServer_rpc
+            nwStack.timeServer_rpc
         )
 
         ChanMux_UART_CLIENT_ASSIGN_BADGES(
-            nwDriver1.chanMux_Rpc
+            nwDriver.chanMux_Rpc
         )
     }
 }

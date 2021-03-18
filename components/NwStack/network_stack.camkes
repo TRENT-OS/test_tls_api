@@ -11,7 +11,7 @@ import <if_OS_Timer.camkes>;
 
 #include "config/SystemConfig.h"
 
-component NwStack1 {
+component NwStack {
     control;
 
     consumes    EventDataAvailable      event_tick_or_data;
@@ -47,42 +47,4 @@ component NwStack1 {
 
     has         mutex                   socketControlBlockMutex;
     has         mutex                   stackThreadSafeMutex;
-}
-
-component NwStack2 {
-    control;
-
-    consumes   EventDataAvailable       event_tick_or_data;
-    emits      EventDataAvailable       event_internal;
-
-    emits      NwStack_WrEv             e_write;
-    consumes   NwStack_WrEv             c_write;
-
-    emits      NwStack_RdEv             e_read;
-    consumes   NwStack_RdEv             c_read;
-
-    emits      NwStack_ConnEv           e_conn;
-    consumes   NwStack_ConnEv           c_conn;
-
-    //-------------------------------------------------
-    // interface TimeServer
-    uses        if_OS_Timer           timeServer_rpc;
-    consumes    TimerReady            timeServer_notify;
-
-    //-------------------------------------------------
-    // interface Ethernet NIC driver
-    uses        if_OS_Nic                       nic_driver;
-    dataport    Buf(NIC_DRIVER_RINGBUFFER_SIZE) nic_from_port; // NIC -> stack
-    dataport    Buf                             nic_to_port;   // stack -> NIC
-
-    //-------------------------------------------------
-    // interface Application
-    provides   if_OS_Socket            networkStack_rpc;
-    dataport   Buf                     appIo_port;
-
-    has         mutex                  allocatorMutex;
-    has         mutex                  nwstackMutex;
-
-    has         mutex                  socketControlBlockMutex;
-    has         mutex                  stackThreadSafeMutex;
 }

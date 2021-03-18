@@ -31,15 +31,15 @@ DeclareCAmkESComponent(
 )
 
 DeclareCAmkESComponent(
-    NwStack1
+    NwStack
     SOURCES
         components/NwStack/src/network_stack.c
     C_FLAGS
         -Wall
         -Werror
-        -DCFG_ETH_ADDR=ETH_1_ADDR
-        -DCFG_ETH_GATEWAY_ADDR=ETH_1_GATEWAY_ADDR
-        -DCFG_ETH_SUBNET_MASK=ETH_1_SUBNET_MASK
+        -DCFG_ETH_ADDR=ETH_ADDR
+        -DCFG_ETH_GATEWAY_ADDR=ETH_GATEWAY_ADDR
+        -DCFG_ETH_SUBNET_MASK=ETH_SUBNET_MASK
     LIBS
         system_config
         os_core_api
@@ -49,9 +49,9 @@ DeclareCAmkESComponent(
 )
 
 NIC_ChanMux_DeclareCAmkESComponent(
-    NwDriver1
-    CHANMUX_CHANNEL_NIC_1_CTRL
-    CHANMUX_CHANNEL_NIC_1_DATA
+    NwDriver
+    CHANMUX_CHANNEL_NIC_CTRL
+    CHANMUX_CHANNEL_NIC_DATA
 )
 
 ChanMux_UART_DeclareCAmkESComponents(

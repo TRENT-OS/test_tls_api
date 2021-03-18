@@ -26,7 +26,6 @@ int run(void)
         timeServer_notify_wait();
 
         // send a tick to the network stacks
-        e_timeout_nwstacktick1_emit();
-        e_timeout_nwstacktick2_emit();
+        e_timeout_nwstacktick_emit();
     }
 }

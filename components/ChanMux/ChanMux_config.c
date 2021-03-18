@@ -33,15 +33,15 @@ resolveChannel(
     switch (sender_id)
     {
     //----------------------------------
-    case CHANMUX_ID_NIC_1:
+    case CHANMUX_ID_NIC:
         switch (chanNum_local)
         {
         //----------------------------------
-        case CHANMUX_CHANNEL_NIC_1_CTRL: // ToDo: use local channel number
-            return CHANMUX_CHANNEL_NIC_1_CTRL;
+        case CHANMUX_CHANNEL_NIC_CTRL: // ToDo: use local channel number
+            return CHANMUX_CHANNEL_NIC_CTRL;
         //----------------------------------
-        case CHANMUX_CHANNEL_NIC_1_DATA: // ToDo: use local channel number
-            return CHANMUX_CHANNEL_NIC_1_DATA;
+        case CHANMUX_CHANNEL_NIC_DATA: // ToDo: use local channel number
+            return CHANMUX_CHANNEL_NIC_DATA;
         //----------------------------------
         default:
             break;
@@ -75,15 +75,15 @@ static struct {
 static const ChanMux_ChannelCtx_t channelCtx[] = {
 
     CHANNELS_CTX_NIC_CTRL_DATA(
-        CHANMUX_CHANNEL_NIC_1_CTRL,
-        CHANMUX_CHANNEL_NIC_1_DATA,
+        CHANMUX_CHANNEL_NIC_CTRL,
+        CHANMUX_CHANNEL_NIC_DATA,
         0,
-        nwDriver1_ctrl_portRead,
-        nwDriver1_ctrl_portWrite,
-        nwDriver1_data_portRead,
-        nwDriver1_data_portWrite,
-        nwDriver1_ctrl_eventHasData_emit,
-        nwDriver1_data_eventHasData_emit),
+        nwDriver_ctrl_portRead,
+        nwDriver_ctrl_portWrite,
+        nwDriver_data_portRead,
+        nwDriver_data_portWrite,
+        nwDriver_ctrl_eventHasData_emit,
+        nwDriver_data_eventHasData_emit),
 
 };
 
