@@ -1,7 +1,7 @@
 #
-# Test TLS API
+# Test TLS API System
 #
-# Copyright (C) 2019-2020, Hensoldt Cyber GmbH
+# Copyright (C) 2019-2021, HENSOLDT Cyber GmbH
 #
 
 cmake_minimum_required(VERSION 3.7.2)

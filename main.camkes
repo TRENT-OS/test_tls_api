@@ -1,4 +1,9 @@
-import <std_connector.camkes>;
+/*
+ * Test TLS API System
+ *
+ * Copyright (C) 2020-2021, HENSOLDT Cyber GmbH
+ *
+ */
 
 import <if_OS_Entropy.camkes>;
 
