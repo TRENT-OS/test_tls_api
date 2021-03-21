@@ -8,16 +8,6 @@
 #include "config/SystemConfig.h"
 import <std_connector.camkes>;
 
-#include "NIC_ChanMux/NIC_ChanMux.camkes"
-NIC_ChanMux_COMPONENT_DEFINE(NwDriver, NIC_DRIVER_RINGBUFFER_SIZE)
-
-#include "ChanMux/ChanMux_UART.camkes"
-ChanMux_UART_COMPONENT_DEFINE(
-    ChanMux_UART,
-    nwDriver, ctrl,
-    nwDriver, data
-)
-
 import <if_OS_Entropy.camkes>;
 #include "EntropySource/camkes/EntropySource.camkes"
 EntropySource_COMPONENT_DEFINE(EntropySource)
@@ -35,16 +25,10 @@ NwStack_COMPONENT_DEFINE(
 import "components/Ticker/Ticker.camkes";
 import "components/Tests/test_OS_Tls.camkes";
 
+#include "plat_nic.camkes"
 
 assembly {
     composition {
-        //----------------------------------------------------------------------
-        // ChanMux_UART + UART
-        //----------------------------------------------------------------------
-        component ChanMux_UART chanMux_UART;
-        component UART_CHANMUX uart;
-        ChanMux_UART_INSTANCE_CONNECT(chanMux_UART, uart)
-
         //----------------------------------------------------------------------
         // Ticker
         //----------------------------------------------------------------------
@@ -58,18 +42,15 @@ assembly {
         TimeServer_INSTANCE_CONNECT_CLIENTS(
             timeServer,
             ticker.timeServer_rpc,  ticker.timeServer_notify,
+            // platform specific components, macro will add a comma(s) if any
+            TLS_API_TEST_NIC_CONNECTION_TIMESERVER(nwDriver)
             nwStack.timeServer_rpc, nwStack.timeServer_notify
         )
 
         //----------------------------------------------------------------------
         // Network Driver
         //----------------------------------------------------------------------
-        component NwDriver nwDriver;
-
-        ChanMux_INSTANCE_CONNECT_CLIENT(
-            chanMux_UART,
-            nwDriver, data, ctrl
-        )
+        TLS_API_TEST_NIC_INSTANCE(nwDriver)
 
         //----------------------------------------------------------------------
         // Network Stack
@@ -108,11 +89,11 @@ assembly {
     configuration {
         TimeServer_CLIENT_ASSIGN_BADGES(
             ticker.timeServer_rpc,
+            // platform specific components, macro will add a comma(s) if any
+            TLS_API_TEST_NIC_TIMESERVER_CLIENTS(nwDriver)
             nwStack.timeServer_rpc
         )
 
-        ChanMux_UART_CLIENT_ASSIGN_BADGES(
-            nwDriver.chanMux_Rpc
-        )
+        TLS_API_TEST_NIC_CONFIG(nwDriver)
     }
 }

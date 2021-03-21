@@ -1,0 +1,38 @@
+/*
+ * zynq7000 QEMU configuration
+ *
+ * Copyright (C) 2021, HENSOLDT Cyber GmbH
+ */
+
+#pragma once
+
+#include "ChanMux/ChanMux_UART.camkes"
+ChanMux_UART_COMPONENT_DEFINE(
+    ChanMux_UART,
+    nwDriver, ctrl,
+    nwDriver, data
+)
+
+
+#include "NIC_ChanMux/NIC_ChanMux.camkes"
+NIC_ChanMux_COMPONENT_DEFINE(
+    NwDriver,
+    NIC_DRIVER_RINGBUFFER_SIZE)
+
+
+#define TLS_API_TEST_NIC_INSTANCE(_nic_) \
+    component ChanMux_UART chanMux_UART; \
+    component UART_CHANMUX uart; \
+    ChanMux_UART_INSTANCE_CONNECT(chanMux_UART, uart) \
+    component NwDriver _nic_; \
+    ChanMux_INSTANCE_CONNECT_CLIENT(chanMux_UART, nwDriver, data, ctrl)
+
+
+#define TLS_API_TEST_NIC_CONNECTION_TIMESERVER(_nic_) /* none */
+
+
+#define TLS_API_TEST_NIC_TIMESERVER_CLIENTS(_nic_) /* none */
+
+
+#define TLS_API_TEST_NIC_CONFIG(_nic_) \
+    ChanMux_UART_CLIENT_ASSIGN_BADGES(_nic_.chanMux_Rpc)
