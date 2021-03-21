@@ -51,17 +51,19 @@ void post_init(void)
 {
     Debug_LOG_INFO("[NwStack '%s'] starting", get_instance_name());
 
-    static OS_NetworkStack_SocketResources_t socks = {
-        .notify_write       = e_write_emit,
-        .wait_write         = c_write_wait,
+    static OS_NetworkStack_SocketResources_t socks[1] = {
+        {
+            .notify_write       = e_write_1_emit,
+            .wait_write         = c_write_1_wait,
 
-        .notify_read        = e_read_emit,
-        .wait_read          = c_read_wait,
+            .notify_read        = e_read_1_emit,
+            .wait_read          = c_read_1_wait,
 
-        .notify_connection  = e_conn_emit,
-        .wait_connection    = c_conn_wait,
+            .notify_connection  = e_conn_1_emit,
+            .wait_connection    = c_conn_1_wait,
 
-        .buf = OS_DATAPORT_ASSIGN(appIo_port)
+            .buf = OS_DATAPORT_ASSIGN(port_socket_1)
+        }
     };
 
     static const OS_NetworkStack_CamkesConfig_t camkes_config =
@@ -72,16 +74,14 @@ void post_init(void)
         {
             .notify_loop        = event_internal_emit,
 
-            .number_of_sockets  = 1,
-
             .socketCB_lock      = socketControlBlockMutex_lock,
             .socketCB_unlock    = socketControlBlockMutex_unlock,
 
             .stackTS_lock       = stackThreadSafeMutex_lock,
             .stackTS_unlock     = stackThreadSafeMutex_unlock,
 
-            .number_of_sockets  = 1,
-            .sockets = &socks
+            .number_of_sockets  = ARRAY_SIZE(socks),
+            .sockets            = socks
         },
 
         .drv_nic =
@@ -97,9 +97,9 @@ void post_init(void)
 
             .rpc =
             {
-                .dev_read       = nic_driver_rx_data,
-                .dev_write      = nic_driver_tx_data,
-                .get_mac        = nic_driver_get_mac_address,
+                .dev_read       = nic_rpc_rx_data,
+                .dev_write      = nic_rpc_tx_data,
+                .get_mac        = nic_rpc_get_mac_address,
             }
         },
     };

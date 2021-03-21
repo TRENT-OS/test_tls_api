@@ -25,7 +25,13 @@ EntropySource_COMPONENT_DEFINE(EntropySource)
 #include "TimeServer/camkes/TimeServer.camkes"
 TimeServer_COMPONENT_DEFINE(TimeServer)
 
-import "components/NwStack/network_stack.camkes";
+#include "os_network_stack/network_stack.camkes"
+NwStack_COMPONENT_DEFINE(
+    NwStack,
+    NIC_DRIVER_RINGBUFFER_SIZE,
+    1,
+    NwStack_NO_ADDITIONAL_INTERFACES)
+
 import "components/Ticker/Ticker.camkes";
 import "components/Tests/test_OS_Tls.camkes";
 
@@ -70,29 +76,14 @@ assembly {
         //----------------------------------------------------------------------
         component NwStack nwStack;
 
-        connection seL4NotificationNative conn_event_nwStack_dataAvail(
-            from nwStack.event_internal,
-            to   nwStack.event_tick_or_data);
-
-        connection seL4Notification conn_event_nwStack_EventsRxd1(
-            from nwStack.e_write,
-            to   nwStack.c_write);
-
-        connection seL4Notification conn_event_nwStack_EventsRxd2(
-            from nwStack.e_read,
-            to   nwStack.c_read);
-
-        connection seL4Notification conn_event_nwStack_EventsRxd3(
-            from nwStack.e_conn,
-            to   nwStack.c_conn);
-
-        connection seL4NotificationNative conn_event_ticker_nwStack_tick(
-            from ticker.e_timeout_nwstacktick,
-            to   nwStack.event_tick_or_data);
+        NwStack_INSTANCE_CONNECT(
+            nwStack,
+            ticker.e_timeout_nwstacktick
+        )
 
         NIC_ChanMux_INSTANCE_CONNECT_CLIENT(
             nwDriver,
-            nwStack.nic_driver,
+            nwStack.nic_rpc,
             nwStack.nic_to_port,
             nwStack.nic_from_port,
             nwStack.event_tick_or_data
@@ -103,13 +94,11 @@ assembly {
         //----------------------------------------------------------------------
         component test_OS_Tls unitTest;
 
-        connection seL4RPCCall conn_rpc_unitTest_nwStack(
-            from unitTest.networkStack_rpc,
-            to   nwStack.networkStack_rpc);
-
-        connection seL4SharedData conn_port_unitTest_nwStack(
-            from unitTest.networkStack_port,
-            to   nwStack.appIo_port);
+        NwStack_INSTANCE_CONNECT_SOCKET(
+            nwStack,
+            1,
+            unitTest.networkStack_rpc,
+            unitTest.networkStack_port)
 
         //----------------------------------------------------------------------
         // Entropy Source
