@@ -62,7 +62,7 @@ void post_init(void)
             .notify_connection  = e_conn_1_emit,
             .wait_connection    = c_conn_1_wait,
 
-            .buf = OS_DATAPORT_ASSIGN(port_socket_1)
+            .buf = OS_DATAPORT_ASSIGN(socket_1_port)
         }
     };
 

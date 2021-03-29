@@ -78,15 +78,8 @@ assembly {
 
         NwStack_INSTANCE_CONNECT(
             nwStack,
-            ticker.e_timeout_nwstacktick
-        )
-
-        NIC_ChanMux_INSTANCE_CONNECT_CLIENT(
-            nwDriver,
-            nwStack.nic_rpc,
-            nwStack.nic_to_port,
-            nwStack.nic_from_port,
-            nwStack.event_tick_or_data
+            ticker.e_timeout_nwstacktick,
+            nwDriver
         )
 
         //----------------------------------------------------------------------
