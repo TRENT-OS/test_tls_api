@@ -34,13 +34,13 @@ component NwStack1 {
     //-------------------------------------------------
     // interface Ethernet NIC driver
     uses        if_OS_Nic                       nic_driver;
-    dataport    Buf(NIC_DRIVER_RINGBUFFER_SIZE) port_nic_from; // NIC -> stack
-    dataport    Buf                             port_nic_to;   // stack -> NIC
+    dataport    Buf(NIC_DRIVER_RINGBUFFER_SIZE) nic_from_port; // NIC -> stack
+    dataport    Buf                             nic_to_port;   // stack -> NIC
 
     //-------------------------------------------------
     // interface Application
-    provides    if_OS_Socket            network_stack_rpc;
-    dataport    Buf                     port_app_io;
+    provides    if_OS_Socket            networkStack_rpc;
+    dataport    Buf                     appIo_port;
 
     has         mutex                   allocatorMutex;
     has         mutex                   nwstackMutex;
@@ -72,13 +72,13 @@ component NwStack2 {
     //-------------------------------------------------
     // interface Ethernet NIC driver
     uses        if_OS_Nic                       nic_driver;
-    dataport    Buf(NIC_DRIVER_RINGBUFFER_SIZE) port_nic_from; // NIC -> stack
-    dataport    Buf                             port_nic_to;   // stack -> NIC
+    dataport    Buf(NIC_DRIVER_RINGBUFFER_SIZE) nic_from_port; // NIC -> stack
+    dataport    Buf                             nic_to_port;   // stack -> NIC
 
     //-------------------------------------------------
     // interface Application
-    provides   if_OS_Socket            network_stack_rpc;
-    dataport   Buf                     port_app_io;
+    provides   if_OS_Socket            networkStack_rpc;
+    dataport   Buf                     appIo_port;
 
     has         mutex                  allocatorMutex;
     has         mutex                  nwstackMutex;

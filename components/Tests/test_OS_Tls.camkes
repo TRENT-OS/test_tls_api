@@ -12,8 +12,8 @@ component test_OS_Tls {
     control;
 
     // Networking
-    uses        if_OS_Socket                network_stack_rpc;
-    dataport    Buf                         NwAppDataPort;
+    uses        if_OS_Socket                networkStack_rpc;
+    dataport    Buf                         networkStack_port;
 
     // For EntropySource component
     uses        if_OS_Entropy               entropy_rpc;

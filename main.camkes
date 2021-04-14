@@ -77,7 +77,7 @@ assembly {
 
         NIC_ChanMux_INSTANCE_CONNECT_CLIENT(
             nwDriver1,
-            nwStack1.nic_driver,  nwStack1.port_nic_to, nwStack1.port_nic_from, nwStack1.event_tick_or_data
+            nwStack1.nic_driver,  nwStack1.nic_to_port, nwStack1.nic_from_port, nwStack1.event_tick_or_data
         )
 
         //----------------------------------------------------------------------
@@ -85,8 +85,8 @@ assembly {
         //----------------------------------------------------------------------
         component  test_OS_Tls      unitTest;
 
-        connection seL4RPCCall      NwApp_nwStack        (from unitTest.network_stack_rpc,         to nwStack1.network_stack_rpc);
-        connection seL4SharedData   NwApp_dataConnection (from unitTest.NwAppDataPort,             to nwStack1.port_app_io);
+        connection seL4RPCCall      NwApp_nwStack        (from unitTest.networkStack_rpc,         to nwStack1.networkStack_rpc);
+        connection seL4SharedData   NwApp_dataConnection (from unitTest.networkStack_port,             to nwStack1.appIo_port);
 
         component  EntropySource    entropySource0;
 
