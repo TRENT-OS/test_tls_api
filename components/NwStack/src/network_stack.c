@@ -9,6 +9,7 @@
 
 #include "lib_debug/Debug.h"
 #include "OS_Error.h"
+#include "OS_Dataport.h"
 #include "OS_NetworkStack.h"
 #include "TimeServer.h"
 #include <camkes.h>
@@ -47,7 +48,7 @@ Timer_getTimeMs(void)
 }
 
 //------------------------------------------------------------------------------
-void post_init()
+void post_init(void)
 {
     Debug_LOG_INFO("[NwStack '%s'] starting", get_instance_name());
 
@@ -111,10 +112,13 @@ void post_init()
                         get_instance_name(), ret);
         return;
     }
+
     initSuccessfullyCompleted = true;
 }
+
+
 //------------------------------------------------------------------------------
-int run()
+int run(void)
 {
     if (!initSuccessfullyCompleted)
     {
@@ -135,7 +139,7 @@ int run()
     // OS_SUCCESS. We have to assume this is a graceful shutdown for some
     // reason
     Debug_LOG_WARNING("[NwStack '%s'] graceful termination",
-                        get_instance_name());
+                      get_instance_name());
 
     return 0;
 }
