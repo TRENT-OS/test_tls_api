@@ -68,11 +68,11 @@ assembly {
         //----------------------------------------------------------------------
         component test_OS_Tls unitTest;
 
-        NwStack_INSTANCE_CONNECT_SOCKET(
+        NwStack_INSTANCE_CONNECT_CLIENT(
             nwStack,
-            1,
-            unitTest.networkStack_rpc,
-            unitTest.networkStack_port)
+            unitTest,
+            networkStack_rpc,
+            networkStack_port)
 
         //----------------------------------------------------------------------
         // Entropy Source
