@@ -1,19 +1,18 @@
 /*
- *  OS TLS Test Interface
+ * OS TLS Test Interface
  *
- *  Copyright (C) 2019, Hensoldt Cyber GmbH
+ * Copyright (C) 2019-21, HENSOLDT Cyber GmbH
  *
  */
 
-import <if_OS_Socket.camkes>;
+#include <if_OS_Socket.camkes>
 import <if_OS_Entropy.camkes>;
 
 component test_OS_Tls {
     control;
 
     // Networking
-    uses        if_OS_Socket                networkStack_rpc;
-    dataport    Buf                         networkStack_port;
+    IF_OS_SOCKET_USE(networkStack)
 
     // For EntropySource component
     uses        if_OS_Entropy               entropy_rpc;

@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 3.17)
 
 ChanMux_UART_DeclareCAmkESComponents(
     ChanMux_UART
-    components/ChanMux/ChanMux_config.c
+    components/ChanMux/src/ChanMux_config.c
     system_config
 )
 

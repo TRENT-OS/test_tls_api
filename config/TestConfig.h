@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2019, Hensoldt Cyber GmbH
+/*
+ * Copyright (C) 2019-21, HENSOLDT Cyber GmbH
  *
  * OS TLS test configuration
  *

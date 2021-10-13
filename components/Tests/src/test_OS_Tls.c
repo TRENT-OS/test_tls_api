@@ -6,7 +6,7 @@
  *
  * @brief Unit tests for the OS TLS API
  *
- * Copyright (C) 2019, Hensoldt Cyber GmbH
+ * Copyright (C) 2019-2021, HENSOLDT Cyber GmbH
  */
 
 #include "TestConfig.h"
@@ -14,7 +14,6 @@
 #include "OS_Crypto.h"
 #include "OS_Tls.h"
 #include "OS_Socket.h"
-#include "OS_NetworkStackClient.h"
 
 #include "lib_macros/Test.h"
 
@@ -29,9 +28,8 @@
 // In case we need a not-NULL address to test something
 #define NOT_NULL ((void*) 1)
 
-// Forward declaration
-static int sendFunc(void* ctx, const unsigned char* buf, size_t len);
-static int recvFunc(void* ctx, unsigned char* buf, size_t len);
+static const if_OS_Socket_t networkStackCtx =
+    IF_OS_SOCKET_ASSIGN(networkStack);
 
 static OS_Crypto_Config_t cryptoCfg =
 {
@@ -41,14 +39,15 @@ static OS_Crypto_Config_t cryptoCfg =
         entropy_port),
 };
 static OS_Socket_Handle_t socket;
+
+static OS_Socket_Handle_t instance_socket;
+
 static OS_Tls_Config_t localCfg =
 {
     .mode = OS_Tls_MODE_LIBRARY,
     .library = {
         .socket = {
-            .context = &socket,
-            .recv = recvFunc,
-            .send = sendFunc,
+            .context = &instance_socket,
         },
         .flags = OS_Tls_FLAG_DEBUG,
         .crypto = {
@@ -61,59 +60,148 @@ static OS_Tls_Config_t localCfg =
 
 // Private functions -----------------------------------------------------------
 
-static int
-sendFunc(
-    void*                ctx,
-    const unsigned char* buf,
-    size_t               len)
-{
-    OS_Error_t err;
-    OS_Socket_Handle_t* socket = (OS_Socket_Handle_t*) ctx;
-    size_t n;
-
-    n = len > MAX_NW_SIZE ? MAX_NW_SIZE : len;
-    if ((err = OS_Socket_write(*socket, buf, n, &n)) != OS_SUCCESS)
-    {
-        Debug_LOG_ERROR("Error during socket write...error:%d", err);
-        return err;
-    }
-
-    return n;
-}
-
-static int
-recvFunc(
-    void*          ctx,
-    unsigned char* buf,
-    size_t         len)
-{
-    OS_Error_t err;
-    OS_Socket_Handle_t* socket = (OS_Socket_Handle_t*) ctx;
-    size_t n;
-
-    n = len > MAX_NW_SIZE ? MAX_NW_SIZE : len;
-    if ((err = OS_Socket_read(*socket, buf, n, &n)) != OS_SUCCESS)
-    {
-        Debug_LOG_ERROR("Error during socket read...error:%d", err);
-        return err;
-    }
-
-    return n;
-}
-
 static OS_Error_t
 connectSocket(
     OS_Socket_Handle_t* socket)
 {
-    OS_Socket_t socketCfg =
+    OS_Error_t err;
+
+    char evtBuffer[128];
+    size_t evtBufferSize = sizeof(evtBuffer);
+    int numberOfSocketsWithEvents;
+
+    do
     {
-        .domain = OS_AF_INET,
-        .type   = OS_SOCK_STREAM,
-        .name   = TLS_HOST_IP,
-        .port   = TLS_HOST_PORT
+        seL4_Yield();
+        err = OS_Socket_create(
+                            &networkStackCtx,
+                            socket,
+                            OS_AF_INET,
+                            OS_SOCK_STREAM);
+    } while (err == OS_ERROR_NOT_INITIALIZED);
+
+    if (err != OS_SUCCESS)
+    {
+        Debug_LOG_ERROR("OS_Socket_create() failed, code %d", err);
+        return err;
+    }
+
+    const OS_Socket_Addr_t dstAddr =
+    {
+        .addr = TLS_HOST_IP,
+        .port = TLS_HOST_PORT
     };
 
-    return OS_Socket_create(NULL, &socketCfg, socket);
+    err = OS_Socket_connect(*socket, &dstAddr);
+    if (err != OS_SUCCESS)
+    {
+        Debug_LOG_ERROR("OS_Socket_connect() failed, code %d", err);
+        OS_Socket_close(*socket);
+        return err;
+    } 
+
+    // wait for socket connected
+    //-> read getPendingEvents
+    for (;;)
+    {
+        err = OS_Socket_wait(&networkStackCtx);
+        if (err != OS_SUCCESS)
+        {
+            Debug_LOG_ERROR("OS_Socket_wait() failed, code %d", err);
+            return err;
+        }
+
+        err = OS_Socket_getPendingEvents(
+                &networkStackCtx,
+                evtBuffer,
+                evtBufferSize,
+                &numberOfSocketsWithEvents);
+        
+        if (err != OS_SUCCESS)
+        {
+            Debug_LOG_ERROR("OS_Socket_getPendingEvents() "
+                "failed, code %d", err);
+            break;
+        }
+        
+        // Due to asynchronous behaviour it could be that we call
+        // OS_Socket_getPendingEvents, although the event has already
+        // been handled. This is no error.
+        if (numberOfSocketsWithEvents == 0) 
+        {
+            Debug_LOG_TRACE("Unexpected number of events from "
+                "OS_Socket_getPendingEvents() failed, #events: %d",
+                numberOfSocketsWithEvents);
+            continue;
+        }
+
+        // we only opened one socket, so if we get more events, this is not ok
+        if (numberOfSocketsWithEvents != 1) 
+        {
+            Debug_LOG_ERROR("Unexpected number of events from "
+                "OS_Socket_getPendingEvents() failed, #events: %d",
+                numberOfSocketsWithEvents);
+            err = OS_ERROR_INVALID_STATE;
+            break;
+        }
+
+        OS_Socket_Evt_t event;
+        memcpy(&event, evtBuffer, sizeof(event));
+
+        if (event.socketHandle != socket->handleID)
+        {
+            Debug_LOG_ERROR("Unexpected handle received: %d, expected: %d",
+                event.socketHandle, socket->handleID);
+            err = OS_ERROR_INVALID_HANDLE;
+            break;
+        }
+
+        // socket has been closed by Network stack
+        if (event.eventMask & OS_SOCK_EV_FIN)
+        {
+            Debug_LOG_ERROR("OS_Socket_getPendingEvents: "
+                "OS_SOCK_EV_FIN handle: %d", event.socketHandle);
+            // socket has been closed by network stack - close socket
+            err = OS_ERROR_NETWORK_CONN_REFUSED;
+            break;
+        }
+
+        // Connection event successful
+        if (event.eventMask & OS_SOCK_EV_CONN_EST)
+        {
+            Debug_LOG_ERROR("OS_Socket_getPendingEvents: "
+                "Connection established: %d", event.socketHandle);
+            err = OS_SUCCESS;
+            break;
+        }
+
+        // remote socket requested to be closed only valid for clients, 
+        if (event.eventMask & OS_SOCK_EV_CLOSE)
+        {
+            Debug_LOG_ERROR("OS_Socket_getPendingEvents: "
+                "OS_SOCK_EV_CLOSE handle: %d", event.socketHandle);
+            err = OS_ERROR_CONNECTION_CLOSED;
+            break;
+        }
+
+        // Error received - print error
+        if (event.eventMask & OS_SOCK_EV_ERROR)
+        {
+            Debug_LOG_ERROR("OS_Socket_getPendingEvents: "
+                "OS_SOCK_EV_ERROR handle: %d, code: %d",
+                event.socketHandle,
+                event.currentError);
+            err = event.currentError;
+            break;
+        }
+    }
+
+    if (err != OS_SUCCESS)
+    {
+        OS_Socket_close(*socket);
+    }
+
+    return err;
 }
 
 static OS_Error_t
@@ -141,6 +229,7 @@ resetSocket(
     return OS_SUCCESS;
 }
 
+
 // Test functions executed once ------------------------------------------------
 
 static void
@@ -152,10 +241,6 @@ test_OS_Tls_init_pos()
     {
         .mode = OS_Tls_MODE_LIBRARY,
         .library = {
-            .socket = {
-                .recv = recvFunc,
-                .send = sendFunc,
-            },
             .crypto = {
                 .caCerts = TLS_HOST_CERT,
                 .cipherSuites =
@@ -169,10 +254,6 @@ test_OS_Tls_init_pos()
     {
         .mode = OS_Tls_MODE_LIBRARY,
         .library = {
-            .socket = {
-                .recv = recvFunc,
-                .send = sendFunc,
-            },
             .crypto = {
                 .caCerts = TLS_HOST_CERT,
                 .cipherSuites = OS_Tls_CIPHERSUITE_FLAGS(
@@ -227,10 +308,6 @@ test_OS_Tls_init_neg()
     {
         .mode = OS_Tls_MODE_LIBRARY,
         .library = {
-            .socket = {
-                .recv = recvFunc,
-                .send = sendFunc,
-            },
             .crypto = {
                 .policy = NULL,
                 .caCerts = TLS_HOST_CERT,
@@ -249,16 +326,6 @@ test_OS_Tls_init_neg()
     // Provide bad mode
     memcpy(&badCfg, &goodCfg, sizeof(OS_Tls_Config_t));
     badCfg.mode = 666;
-    TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
-
-    // No RECV callback
-    memcpy(&badCfg, &goodCfg, sizeof(OS_Tls_Config_t));
-    badCfg.library.socket.recv = NULL;
-    TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
-
-    // No SEND callback
-    memcpy(&badCfg, &goodCfg, sizeof(OS_Tls_Config_t));
-    badCfg.library.socket.send = NULL;
     TEST_INVAL_PARAM(OS_Tls_init(&hTls, &badCfg));
 
     // No crypto context
@@ -324,10 +391,6 @@ test_OS_Tls_free_pos()
     {
         .mode = OS_Tls_MODE_LIBRARY,
         .library = {
-            .socket = {
-                .recv = recvFunc,
-                .send = sendFunc,
-            },
             .crypto = {
                 .caCerts = TLS_HOST_CERT,
                 .cipherSuites = OS_Tls_CIPHERSUITE_FLAGS(
@@ -465,11 +528,13 @@ test_OS_Tls_read_pos(
     OS_Tls_Handle_t hTls,
     OS_Tls_Mode_t   mode)
 {
-// This is an arbitrary number, just to do the read in a few chunks and not in one swoop
+// This is an arbitrary number, just to do the read in a few chunks and
+// not in one swoop
 #define CHUNK_SIZE 4
     unsigned char buffer[1024];
     const char answer[] = ECHO_STRING;
     size_t read, total;
+    OS_Error_t err;
 
     TEST_START("i", mode);
 
@@ -487,12 +552,24 @@ test_OS_Tls_read_pos(
         if (total < sizeof(answer))
         {
             TEST_SUCCESS(OS_Tls_read(hTls, buffer + total, &read));
+            Debug_LOG_INFO("test_OS_Tls_read_pos: read %d bytes", read);
         }
         else
         {
             // If we try reading beyond what is available, we should get the
             // message that the connection is closed.
-            TEST_CONN_CLOSED(OS_Tls_read(hTls, buffer + total, &read));
+            // Normally we should receive OS_ERROR_NETWORK_CONN_SHUTDOWN,
+            // indicating that the peer requested to shut down the connection.
+            // Due to timing issues, the network stack could decide to close the
+            // connection and the socket already
+            // - this would lead to OS_ERROR_CONNECTION_CLOSED.
+            err = OS_Tls_read(hTls, buffer + total, &read);
+            TEST_TRUE(err == (OS_ERROR_NETWORK_CONN_SHUTDOWN));
+            /*
+            Note: in case the line above leads to CI errrors, we could also do:
+            TEST_TRUE((err == (OS_ERROR_CONNECTION_CLOSED)) ||
+              (err == (OS_ERROR_NETWORK_CONN_SHUTDOWN)));
+            */
             break;
         }
         total += read;
@@ -575,9 +652,9 @@ test_OS_Tls_mode(
      *
      * The echo server then will close the socket!
      *
-     * TODO: Ideally, all these tests would be self-contained and not require any
-     *       particular order, but as long as the NW is so slow, it makes sense
-     *       to re-use established sockets and sessions.
+     * TODO: Ideally, all these tests would be self-contained and not require
+     *       any particular order, but as long as the NW is so slow, it makes
+     *       sense to re-use established sockets and sessions.
      */
 
     test_OS_Tls_handshake_pos(hTls, mode);
@@ -599,24 +676,10 @@ test_OS_Tls_mode(
     test_OS_Tls_reset_pos(hTls, mode, socket);
 }
 
-static void
-init_network_client_api()
-{
-    static OS_NetworkStackClient_SocketDataports_t config;
-    static OS_Dataport_t dataport = OS_DATAPORT_ASSIGN(networkStack_port);
-
-    config.number_of_sockets = 1;
-
-    config.dataport = &dataport;
-    OS_NetworkStackClient_init(&config);
-}
-
 // Public functions ------------------------------------------------------------
 
 int run()
 {
-    init_network_client_api();
-
     OS_Tls_Handle_t hTls;
 
     Debug_LOG_INFO("Testing TLS API:");
@@ -631,13 +694,13 @@ int run()
     Debug_LOG_INFO("");
 
     // Test library mode
-    TEST_SUCCESS(connectSocket(&socket));
+    TEST_SUCCESS(connectSocket(&instance_socket));
     TEST_SUCCESS(OS_Crypto_init(&localCfg.library.crypto.handle, &cryptoCfg));
     TEST_SUCCESS(OS_Tls_init(&hTls, &localCfg));
-    test_OS_Tls_mode(hTls, &socket);
+    test_OS_Tls_mode(hTls, &instance_socket);
     TEST_SUCCESS(OS_Tls_free(hTls));
     TEST_SUCCESS(OS_Crypto_free(localCfg.library.crypto.handle));
-    TEST_SUCCESS(closeSocket(&socket));
+    TEST_SUCCESS(closeSocket(&instance_socket));
 
     Debug_LOG_INFO("All tests successfully completed.");
 

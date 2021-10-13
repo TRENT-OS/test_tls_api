@@ -1,7 +1,7 @@
 /*
- *  ChanMux
+ * ChanMux
  *
- *  Copyright (C) 2019, Hensoldt Cyber GmbH
+ * Copyright (C) 2019-2021, HENSOLDT Cyber GmbH
  */
 
 #include "SystemConfig.h"
@@ -63,12 +63,12 @@ static struct {
     // FIFO is big enough to store 1 minute of network "background" traffic.
     // Value found by manual testing, may differ in less noisy networks
     uint8_t data[1024 * PAGE_SIZE];
-} nic_fifo[2];
+} nic_fifo[1];
 
 static struct {
     ChanMux_Channel_t ctrl;
     ChanMux_Channel_t data;
-} nic_channel[2];
+} nic_channel[1];
 
 
 //------------------------------------------------------------------------------

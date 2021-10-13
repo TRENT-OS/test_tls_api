@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2019, Hensoldt Cyber GmbH
+/*
+ * Copyright (C) 2019-21, HENSOLDT Cyber GmbH
  *
  * OS libraries configurations
  *
@@ -49,12 +49,14 @@
 
 
 //-----------------------------------------------------------------------------
-// Network Stack #1
+// Network Stack
 //-----------------------------------------------------------------------------
 
 #define ETH_ADDR                  "10.0.0.10"
 #define ETH_GATEWAY_ADDR          "10.0.0.1"
 #define ETH_SUBNET_MASK           "255.255.255.0"
+
+#define OS_NETWORK_MAXIMUM_SOCKET_NO 4
 
 //-----------------------------------------------------------------------------
 // Network Driver

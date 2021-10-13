@@ -32,34 +32,14 @@ DeclareCAmkESComponent(
         os_tls
 )
 
-DeclareCAmkESComponent(
-    NwStack
-    SOURCES
-        components/NwStack/src/network_stack.c
-    C_FLAGS
-        -Wall
-        -Werror
-        -DCFG_ETH_ADDR=ETH_ADDR
-        -DCFG_ETH_GATEWAY_ADDR=ETH_GATEWAY_ADDR
-        -DCFG_ETH_SUBNET_MASK=ETH_SUBNET_MASK
-    LIBS
-        system_config
-        os_core_api
-        lib_debug
-        os_network_lib
-        TimeServer_client
-)
 
-DeclareCAmkESComponent(
-    Ticker
-    SOURCES
-        components/Ticker/Ticker.c
+NetworkStack_PicoTcp_DeclareCAmkESComponent(
+    NetworkStack_PicoTcp
     C_FLAGS
-        -Wall
-        -Werror
-    LIBS
-        os_core_api
-        lib_debug
+        -DNetworkStack_PicoTcp_USE_HARDCODED_IPADDR
+        -DDEV_ADDR=ETH_ADDR
+        -DGATEWAY_ADDR=ETH_GATEWAY_ADDR
+        -DSUBNET_MASK=ETH_SUBNET_MASK
 )
 
 TimeServer_DeclareCAmkESComponent(
