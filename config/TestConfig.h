@@ -1,14 +1,14 @@
 /*
- * Copyright (C) 2019-21, HENSOLDT Cyber GmbH
- *
  * OS TLS test configuration
  *
+ * Copyright (C) 2019-2021, HENSOLDT Cyber GmbH
  */
 #pragma once
 
 // IP address of jenkins host so we can reach our own TLS Server we set up there
 #define TLS_HOST_IP     "10.0.0.1"
 #define TLS_HOST_PORT   8888
+
 // Certificate of our own TLS server
 #define TLS_HOST_CERT \
     "-----BEGIN CERTIFICATE-----\r\n" \
@@ -33,6 +33,7 @@
     "b72aCDbgGcHYm4Po+AgYWs4pYP62x7T44xdUYR1QuTb/3J5RMgIcvzngZdD64IFI\r\n" \
     "geBoqyeoBvba6XuFFX7QIX6c39n/Is4aU98GsQHeGY9BCXx9PhNojDKfysyvPGI=\r\n" \
     "-----END CERTIFICATE-----\r\n"
+
 // Certificate has broken PEM header
 #define TLS_HOST_CERT_BROKEN \
     "-----XXXX CERTIFICATE-----\r\n" \

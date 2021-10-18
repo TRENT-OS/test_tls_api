@@ -1,8 +1,7 @@
 /*
  * OS TLS Test Interface
  *
- * Copyright (C) 2019-21, HENSOLDT Cyber GmbH
- *
+ * Copyright (C) 2019-2021, HENSOLDT Cyber GmbH
  */
 
 #include <if_OS_Socket.camkes>

@@ -1,11 +1,9 @@
 /*
- * Copyright (C) 2019-21, HENSOLDT Cyber GmbH
- *
  * OS libraries configurations
  *
+ * Copyright (C) 2019-2021, HENSOLDT Cyber GmbH
  */
 #pragma once
-
 
 //-----------------------------------------------------------------------------
 // Debug
@@ -25,13 +23,11 @@
 #define Debug_Config_INCLUDE_LEVEL_IN_MSG
 #define Debug_Config_LOG_WITH_FILE_LINE
 
-
 //-----------------------------------------------------------------------------
 // Memory
 //-----------------------------------------------------------------------------
 
 #define Memory_Config_USE_STDLIB_ALLOC
-
 
 //-----------------------------------------------------------------------------
 // ChanMUX
@@ -40,13 +36,11 @@
 #define CHANMUX_CHANNEL_NIC_CTRL      4
 #define CHANMUX_CHANNEL_NIC_DATA      5
 
-
 //-----------------------------------------------------------------------------
 // ChanMUX clients
 //-----------------------------------------------------------------------------
 
 #define CHANMUX_ID_NIC        101
-
 
 //-----------------------------------------------------------------------------
 // Network Stack

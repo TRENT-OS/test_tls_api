@@ -1,5 +1,5 @@
 #
-# Network API Test System, i.MX6sx Nitrogen board configuration
+# i.MX6 Nitrogen6_SoloX board configuration
 #
 # Copyright (C) 2020-2021, HENSOLDT Cyber GmbH
 #
