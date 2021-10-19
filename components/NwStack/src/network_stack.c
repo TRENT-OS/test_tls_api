@@ -51,7 +51,8 @@ void post_init(void)
 {
     Debug_LOG_INFO("[NwStack '%s'] starting", get_instance_name());
 
-    static OS_NetworkStack_SocketResources_t socks[1] = {
+    static OS_NetworkStack_SocketResources_t socks[1] =
+    {
         {
             .notify_write       = e_write_1_emit,
             .wait_write         = c_write_1_wait,
