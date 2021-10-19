@@ -13,7 +13,7 @@
 
 #include "OS_Crypto.h"
 #include "OS_Tls.h"
-#include "OS_Network.h"
+#include "OS_Socket.h"
 #include "OS_NetworkStackClient.h"
 
 #include "lib_macros/Test.h"
@@ -40,7 +40,7 @@ static OS_Crypto_Config_t cryptoCfg =
         entropy_rpc,
         entropy_port),
 };
-static OS_NetworkSocket_Handle_t socket;
+static OS_Socket_Handle_t socket;
 static OS_Tls_Config_t localCfg =
 {
     .mode = OS_Tls_MODE_LIBRARY,
@@ -68,11 +68,11 @@ sendFunc(
     size_t               len)
 {
     OS_Error_t err;
-    OS_NetworkSocket_Handle_t* socket = (OS_NetworkSocket_Handle_t*) ctx;
+    OS_Socket_Handle_t* socket = (OS_Socket_Handle_t*) ctx;
     size_t n;
 
     n = len > MAX_NW_SIZE ? MAX_NW_SIZE : len;
-    if ((err = OS_NetworkSocket_write(*socket, buf, n, &n)) != OS_SUCCESS)
+    if ((err = OS_Socket_write(*socket, buf, n, &n)) != OS_SUCCESS)
     {
         Debug_LOG_ERROR("Error during socket write...error:%d", err);
         return err;
@@ -88,11 +88,11 @@ recvFunc(
     size_t         len)
 {
     OS_Error_t err;
-    OS_NetworkSocket_Handle_t* socket = (OS_NetworkSocket_Handle_t*) ctx;
+    OS_Socket_Handle_t* socket = (OS_Socket_Handle_t*) ctx;
     size_t n;
 
     n = len > MAX_NW_SIZE ? MAX_NW_SIZE : len;
-    if ((err = OS_NetworkSocket_read(*socket, buf, n, &n)) != OS_SUCCESS)
+    if ((err = OS_Socket_read(*socket, buf, n, &n)) != OS_SUCCESS)
     {
         Debug_LOG_ERROR("Error during socket read...error:%d", err);
         return err;
@@ -103,9 +103,9 @@ recvFunc(
 
 static OS_Error_t
 connectSocket(
-    OS_NetworkSocket_Handle_t* socket)
+    OS_Socket_Handle_t* socket)
 {
-    OS_Network_Socket_t socketCfg =
+    OS_Socket_t socketCfg =
     {
         .domain = OS_AF_INET,
         .type   = OS_SOCK_STREAM,
@@ -113,19 +113,19 @@ connectSocket(
         .port   = TLS_HOST_PORT
     };
 
-    return OS_NetworkSocket_create(NULL, &socketCfg, socket);
+    return OS_Socket_create(NULL, &socketCfg, socket);
 }
 
 static OS_Error_t
 closeSocket(
-    OS_NetworkSocket_Handle_t* socket)
+    OS_Socket_Handle_t* socket)
 {
-    return OS_NetworkSocket_close(*socket);
+    return OS_Socket_close(*socket);
 }
 
 static OS_Error_t
 resetSocket(
-    OS_NetworkSocket_Handle_t* socket)
+    OS_Socket_Handle_t* socket)
 {
     OS_Error_t err;
 
@@ -506,9 +506,9 @@ test_OS_Tls_read_pos(
 
 static void
 test_OS_Tls_reset_pos(
-    OS_Tls_Handle_t            hTls,
-    OS_Tls_Mode_t              mode,
-    OS_NetworkSocket_Handle_t* socket)
+    OS_Tls_Handle_t     hTls,
+    OS_Tls_Mode_t       mode,
+    OS_Socket_Handle_t* socket)
 {
     TEST_START("i", mode);
 
@@ -528,9 +528,9 @@ test_OS_Tls_reset_pos(
 
 static void
 test_OS_Tls_reset_neg(
-    OS_Tls_Handle_t            hTls,
-    OS_Tls_Mode_t              mode,
-    OS_NetworkSocket_Handle_t* socket)
+    OS_Tls_Handle_t     hTls,
+    OS_Tls_Mode_t       mode,
+    OS_Socket_Handle_t* socket)
 {
     TEST_START("i", mode);
 
@@ -541,8 +541,8 @@ test_OS_Tls_reset_neg(
 
 static void
 test_OS_Tls_mode(
-    OS_Tls_Handle_t            hTls,
-    OS_NetworkSocket_Handle_t* socket)
+    OS_Tls_Handle_t     hTls,
+    OS_Socket_Handle_t* socket)
 {
     OS_Tls_Mode_t mode = OS_Tls_getMode(hTls);
     char desc[128];

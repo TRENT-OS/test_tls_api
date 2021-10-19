@@ -66,7 +66,7 @@ void post_init(void)
         }
     };
 
-    static const OS_NetworkStack_CamkesConfig_t camkes_config =
+    static const NetworkStack_CamkesConfig_t camkes_config =
     {
         .wait_loop_event         = event_tick_or_data_wait,
 
@@ -104,10 +104,10 @@ void post_init(void)
         },
     };
 
-    OS_Error_t ret = OS_NetworkStack_init(&camkes_config, &config);
+    OS_Error_t ret = NetworkStack_init(&camkes_config, &config);
     if (ret != OS_SUCCESS)
     {
-        Debug_LOG_FATAL("[NwStack '%s'] OS_NetworkStack_init() failed, error %d",
+        Debug_LOG_FATAL("[NwStack '%s'] NetworkStack_init() failed, error %d",
                         get_instance_name(), ret);
         return;
     }
@@ -126,15 +126,15 @@ int run(void)
         return -1;
     }
 
-    OS_Error_t ret = OS_NetworkStack_run();
+    OS_Error_t ret = NetworkStack_run();
     if (ret != OS_SUCCESS)
     {
-        Debug_LOG_FATAL("[NwStack '%s'] OS_NetworkStack_run() failed, error %d",
+        Debug_LOG_FATAL("[NwStack '%s'] NetworkStack_run() failed, error %d",
                         get_instance_name(), ret);
         return -1;
     }
 
-    // actually, OS_NetworkStack_run() is not supposed to return with
+    // actually, NetworkStack_run() is not supposed to return with
     // OS_SUCCESS. We have to assume this is a graceful shutdown for some
     // reason
     Debug_LOG_WARNING("[NwStack '%s'] graceful termination",

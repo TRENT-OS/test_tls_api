@@ -28,7 +28,7 @@ DeclareCAmkESComponent(
         os_core_api
         lib_macros
         os_crypto
-        os_network_api
+        os_socket_client
         os_tls
 )
 
