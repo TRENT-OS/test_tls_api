@@ -22,7 +22,7 @@ resolveChannel(
     //       the proxy needs. All components should just use local channel
     //       numbers.
     //       Unfortunately, the NIC protocol needs to be changed first, because
-    //       is still uses global channel numbers in the NIC_OPEN command. This
+    //       it still uses global channel numbers in the NIC_OPEN command. This
     //       is a legacy from the time there the control channel was shared for
     //       multiple NICs, we do not plan to use this any longer.
     //       For now this function does not implement any mapping, but it does
